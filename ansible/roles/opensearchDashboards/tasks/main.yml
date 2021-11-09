@@ -1,0 +1,49 @@
+---
+- name: install tools
+  apt:
+    name: ['unzip']
+    state: present
+    update_cache: no
+
+- name: Install pkg
+  include_role:
+    name: utils
+    tasks_from: install-pkg
+  vars:
+    version: "{{ opensearch_version }}"
+    parentRole: dashboards
+  loop:
+    - pkgUrl: "https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/{{ version }}/opensearch-dashboards-{{ package_version }}-linux-x64.tar.gz"
+  loop_control:
+    loop_var: opts
+
+- name: copy configuration files
+  copy:
+    src: "{{ role_path }}/files/{{ file_path }}"
+    dest: /{{ file_path }}
+    owner: root
+    group: root
+    mode: preserve
+  loop:
+  - opt/app/conf/opensearchDashboards/
+  loop_control:
+    loop_var: file_path
+
+- name: install service
+  copy:
+    src: "{{ role_path }}/files/{{ file_path }}"
+    dest: /{{ file_path }}
+    owner: root
+    group: root
+    mode: preserve
+  loop:
+  - lib/systemd/system/
+  loop_control:
+    loop_var: file_path
+
+- name: mask opensearch dashboards service
+  systemd:
+    name: opensearchDashboards
+    enabled: no
+    masked: yes
+    state: stopped

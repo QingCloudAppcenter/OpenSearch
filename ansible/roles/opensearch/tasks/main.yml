@@ -1,0 +1,69 @@
+---
+- name: install tools
+  apt:
+    name: ['unzip']
+    state: present
+    update_cache: no
+
+- name: install binary
+  include_role:
+    name: utils
+    tasks_from: install-pkg
+  vars:
+    version: "{{ opensearch_version }}"
+    parentRole: opensearch
+  loop:
+    - pkgUrl: "https://artifacts.opensearch.org/releases/bundle/opensearch/{{ version }}/opensearch-{{ package_version }}-linux-x64.tar.gz"
+  loop_control:
+    loop_var: opts
+
+- name: copy configuration files
+  copy:
+    src: "{{ role_path }}/files/{{ file_path }}"
+    dest: /{{ file_path }}
+    owner: root
+    group: root
+    mode: preserve
+  loop:
+  - opt/app/conf/opensearch/
+  loop_control:
+    loop_var: file_path
+
+- name: install service
+  copy:
+    src: "{{ role_path }}/files/{{ file_path }}"
+    dest: /{{ file_path }}
+    owner: root
+    group: root
+    mode: preserve
+  loop:
+    - lib/systemd/system/
+  loop_control:
+    loop_var: file_path
+
+- name: mask opensearch service
+  systemd:
+    name: opensearch
+    enabled: no
+    masked: yes
+    state: stopped
+
+- name: install plugins
+  include_tasks: install-plugin.yml
+  loop:
+    - name: analysis-icu
+    - name: analysis-kuromoji
+    - name: analysis-nori
+    - name: analysis-phonetic
+    - name: analysis-smartcn
+    - name: analysis-stempel
+    - name: analysis-ukrainian
+    - name: mapper-annotated-text
+    - name: mapper-murmur3
+    - name: mapper-size
+    #  Below needed Manual installation
+    - name: repository-hdfs
+    - name: repository-s3
+    - name: ingest-attachment
+  loop_control:
+    loop_var: opts

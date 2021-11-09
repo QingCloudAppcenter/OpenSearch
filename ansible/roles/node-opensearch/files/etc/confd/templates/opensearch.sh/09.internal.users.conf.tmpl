@@ -1,0 +1,27 @@
+internalUsersConf=/opt/opensearch/current/plugins/opensearch-security/securityconfig/internal_users.yml
+
+{{- $myIp := getv "/host/ip" }}
+{{- $myAdminUser := getv "/env/opensearch.admin.user" "admin" }}
+{{- $myAdminPassword := getv "/env/opensearch.admin.password" "admin" }}
+
+hash=`/usr/bin/java -cp /opt/opensearch/current/plugins/opendistro_security_ssl/*:/opt/opensearch/current/plugins/opensearch-security/*:/opt/opensearch/current/plugins/opensearch-security/deps/*:/opt/opensearch/current/lib/* org.opensearch.security.tools.Hasher -p {{ $myAdminPassword }}`
+
+flush > $internalUsersConf << USERS_CONF_EOF
+---
+# This is the internal user database
+# The hash value is a bcrypt hash and can be generated with plugin/tools/hash.sh
+
+_meta:
+  type: "internalusers"
+  config_version: 2
+
+# Define your internal users here
+
+{{ $myAdminUser }}:
+  hash: "$hash"
+  reserved: true
+  backend_roles:
+  - "admin"
+  description: "Define admin user"
+
+USERS_CONF_EOF

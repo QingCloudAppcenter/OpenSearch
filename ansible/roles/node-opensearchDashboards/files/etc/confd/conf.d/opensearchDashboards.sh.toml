@@ -1,0 +1,8 @@
+[template]
+src = "opensearchDashboards.sh.tmpl"
+dest = "/opt/app/bin/tmpl/opensearchDashboards.sh"
+mode = "0700"
+keys = [
+  "/",
+]
+reload_cmd = "/opt/app/bin/tmpl/opensearchDashboards.sh; appctl reload opensearchDashboards"

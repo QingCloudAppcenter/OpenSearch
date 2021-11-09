@@ -1,0 +1,11 @@
+/data/dashboards/logs/opensearchDashboards.log {
+  daily
+  maxsize 1M
+  rotate 20
+  missingok
+  notifempty
+  postrotate
+    /bin/kill -HUP $(cat /var/run/dashboards/opensearchDashboards.pid 2>/dev/null) 2>/dev/null
+    invoke-rc.d rsyslog rotate >/dev/null 2>&1 || true
+  endscript
+}

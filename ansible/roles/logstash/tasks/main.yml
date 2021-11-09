@@ -1,0 +1,86 @@
+---
+- name: set variables
+  set_fact:
+    ls_home: /usr/share/logstash
+
+- name: install binaries
+  include_role:
+    name: utils
+    tasks_from: install-pkg
+  vars:
+    version: "{{ logstash_version }}"
+    parentRole: logstash
+  loop:
+    - pkgUrl: "https://artifacts.opensearch.org/logstash/logstash-oss-with-opensearch-output-plugin-{{ version }}-linux-x64.tar.gz"
+      svcHome: "{{ ls_home }}"
+  loop_control:
+    loop_var: opts
+
+- name: prepare plugins
+  include_tasks: prepare-plugin.yml
+  loop:
+  - name: logstash-input-irc
+    version: 3.0.7
+  - name: logstash-input-log4j
+    version: 3.1.3
+  - name: logstash-input-xmpp
+    version: 3.1.7
+  - name: logstash-output-irc
+    version: 3.0.6
+  - name: logstash-output-statsd
+    version: 3.2.0
+  - name: logstash-output-xmpp
+    version: 3.0.8
+  loop_control:
+    loop_var: opts
+
+- name: prepare opensearch plugins
+  include_tasks: prepare-opensearch-plugin.yml
+  loop:
+    - name: logstash-output-opensearch
+      version: 1.1.0
+  loop_control:
+    loop_var: opts
+
+- name: install LS plugins
+  shell: |
+    sudo -u logstash bin/logstash-plugin install --no-verify
+  args:
+    chdir: "{{ ls_home }}"
+  when: installed is failed
+
+- name: copy configuration files
+  copy:
+    src: "{{ role_path }}/files/{{ file_path }}"
+    dest: /{{ file_path }}
+    owner: root
+    group: root
+    mode: preserve
+  loop:
+  - opt/app/conf/logstash/
+  loop_control:
+    loop_var: file_path
+
+- name: install service
+  copy:
+    src: "{{ role_path }}/files/{{ file_path }}"
+    dest: /{{ file_path }}
+    owner: root
+    group: root
+    mode: preserve
+  loop:
+  - lib/systemd/system/
+  loop_control:
+    loop_var: file_path
+
+- name: mask logstash service
+  systemd:
+    name: logstash
+    enabled: no
+    masked: yes
+    state: stopped
+
+- name: add logstash bin dir to system-wide path
+  copy:
+    dest: /etc/profile.d/logstash-path.sh
+    content: 'PATH=$PATH:{{ ls_home }}/bin'
