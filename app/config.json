@@ -543,9 +543,10 @@
     }, {
       "key": "opensearch.admin.password",
       "label": "opensearch.admin.password",
-      "description": "Log in OpenSearch with the default password for admin.",
+      "description": "Must contain a combination of uppercase and lowercase letters and numbers, special characters can be used (including @#%*_+-=), and the length is between 8-32",
       "type": "password",
-      "default": "admin",
+      "default": "Change1Pwd",
+      "pattern": "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z@#\\%\\*\\_\\+\\-\\=]{8,32}$",
       "changeable": false,
       "required": "yes"
     }, {
