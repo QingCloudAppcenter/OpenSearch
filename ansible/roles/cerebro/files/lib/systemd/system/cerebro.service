@@ -1,0 +1,17 @@
+[Unit]
+Description=Cerebro
+
+[Service]
+Type=simple
+User=cerebro
+Group=svc
+RuntimeDirectory=cerebro
+EnvironmentFile=/opt/app/conf/cerebro/.env
+ExecStart=/opt/cerebro/current/bin/cerebro $OPTS
+StartLimitInterval=30
+StartLimitBurst=3
+Restart=always
+WorkingDirectory=/data/cerebro
+
+[Install]
+WantedBy=multi-user.target

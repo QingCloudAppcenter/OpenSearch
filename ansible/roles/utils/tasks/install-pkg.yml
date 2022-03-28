@@ -40,7 +40,7 @@
     group: svc
     state: directory
 
-- name: check if package file exists
+- name: check if package file exists - {{ parentRole }}-{{ svcVersion }}.{{ pkgType }}
   stat:
     path: "{{ playbook_dir }}/roles/{{ parentRole }}/files/tmp/{{ parentRole }}-{{ svcVersion }}.{{ pkgType }}"
   register: pkg_file

@@ -27,6 +27,7 @@
     - opensearch
     - jq-1.0.3
     - node-opensearch
+    #- node-exporter-0.18.1
     loop_control:
       loop_var: svc_name
 
@@ -49,6 +50,7 @@
       name: "{{ svc_name }}"
     when: "'opensearchDashboards' in group_names"
     loop:
+    - cerebro
     - opensearchDashboards
     - nodejs-1.0.0
     - haproxy-1.0.3

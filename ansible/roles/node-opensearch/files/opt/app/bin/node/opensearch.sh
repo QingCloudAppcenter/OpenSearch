@@ -368,8 +368,22 @@ measure() {
     cluster_jvm_threads_count: .nodes.jvm.threads,
     cluster_shards_primaries_count: .indices.shards.primaries,
     cluster_shards_replication_count: (.indices.shards.total - .indices.shards.primaries),
-    cluster_status: .status
+    os_cluster_status: .status
   }")
+  local node_name=$(echo $(cat /opt/app/conf/opensearch/opensearch.yml | sed '/^'node.name':/!d;s/^'node.name'://'))
+  local tmpstr=$(curl -s -m 3 $MY_IP:9200/_nodes/$node_name/stats -u ${MY_ADMIN_USER}:${MY_ADMIN_PASSWORD} | jq '.nodes')
+  local nid=$(echo "$tmpstr" | jq 'keys[0]')
+  tmpstr=$(echo "$tmpstr" | jq ".$nid.indexing_pressure")
+  tmpstr=$(echo "$tmpstr" | jq -c "{
+    node_indexing_pr_coordinating: (.memory.current.coordinating_in_bytes / 1048576),
+    node_indexing_pr_primary: (.memory.current.primary_in_bytes / 1048576),
+    node_indexing_pr_replica: (.memory.current.replica_in_bytes / 1048576),
+    node_indexing_pr_all: (.memory.current.all_in_bytes / 1048576),
+    node_indexing_pr_limit: (.memory.limit_in_bytes / 1048576),
+    node_indexing_pr_percent_all: (10000 * (.memory.current.all_in_bytes / .memory.limit_in_bytes)),
+    node_indexing_pr_percent_c_p: (10000 * (.memory.current.combined_coordinating_and_primary_in_bytes / .memory.limit_in_bytes))
+  }")
+  stats=${stats:0:-1}','${tmpstr:1}
   health=$(curl -s -m 2 $MY_IP:9200/_cluster/health -u ${MY_ADMIN_USER}:${MY_ADMIN_PASSWORD} | jq -c "{
     active_shards_percent_as_number: (100 * .active_shards_percent_as_number),
     initializing_shards,

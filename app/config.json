@@ -47,7 +47,6 @@
         "description": "CPUs of each node",
         "type": "integer",
         "range": [
-          1,
           2,
           4,
           8,
@@ -56,7 +55,7 @@
           32
         ],
         "default": 2,
-        "resource_group": [1, 2, 2],
+        "resource_group": [2, 2, 2],
         "required": "yes"
       }, {
         "description": "Memory of each node",
@@ -77,7 +76,7 @@
           65536
         ],
         "default": 4096,
-        "resource_group": [2048, 4096, 4096],
+        "resource_group": [2048, 4096, 8192],
         "required": "yes"
       }, {
         "key": "count",
@@ -97,9 +96,9 @@
         "range": [
           101,
           202,
-          301
+          203
         ],
-        "default": 202,
+        "default": 203,
         "required": "yes"
       }, {
         "key": "volume_class",
@@ -190,7 +189,7 @@
         "range": [
           101,
           202,
-          301
+          203
         ],
         "default": 101,
         "required": "yes"
@@ -258,7 +257,7 @@
           65536
         ],
         "default": 4096,
-        "resource_group": [2048, 4096, 4096],
+        "resource_group": [2048, 4096, 8192],
         "required": "yes"
       }, {
         "key": "count",
@@ -277,9 +276,9 @@
         "range": [
           101,
           202,
-          301
+          203
         ],
-        "default": 202,
+        "default": 203,
         "required": "yes"
       }, {
         "key": "volume_class",
@@ -365,7 +364,7 @@
         "range": [
           101,
           202,
-          301
+          203
         ],
         "default": 101,
         "required": "yes"
@@ -454,9 +453,9 @@
         "range": [
           101,
           202,
-          301
+          203
         ],
-        "default": 101,
+        "default": 203,
         "required": "yes"
       }, {
         "key": "volume_size",
@@ -522,7 +521,7 @@
         "range": [
           101,
           202,
-          301
+          203
         ],
         "default": 101,
         "required": "yes"
@@ -554,6 +553,14 @@
       "description": "The role configuration properties of the application",
       "type": "array",
       "properties": [{
+        "key": "prometheus.node.exporter",
+        "label": "prometheus.node.exporter",
+        "description": "Prometheus exporter for hardware and OS metrics exposed by *NIX kernels with pluggable metric collectors.",
+        "type": "string",
+        "default": "true",
+        "range": ["true", "false"],
+        "required": "no"
+      }, {
         "key": "thread_pool.write.queue_size",
         "label": "thread_pool.write.queue_size",
         "description": "The queue_size allows to control the size of the queue of pending requests that have no threads to execute them.",
@@ -678,6 +685,22 @@
         "description": "Remote hosts for 'reindex' operation have to be explicitly whitelisted in opensearch.yaml using the reindex.remote.whitelist property. It can be set to a comma delimited list of allowed remote host and port combinations (e.g. otherhost:9200, another:9200, 127.0.10.*:9200, localhost:*)",
         "type": "string",
         "pattern": "^$|^([a-z0-9-.*]+:[0-9*]+(, *)?)+$",
+        "default": "",
+        "changeable": true,
+        "required": "no"
+      }, {
+        "key": "remote_ext_dict",
+        "label": "remote_ext_dict",
+        "description": "Specify the location of extensional dictionary from remote.",
+        "type": "string",
+        "default": "",
+        "changeable": true,
+        "required": "no"
+      }, {
+        "key": "remote_ext_stopwords",
+        "label": "remote_ext_stopwords",
+        "description": "Specify the location of extensional stopwords dictionary from remote.",
+        "type": "string",
         "default": "",
         "changeable": true,
         "required": "no"
@@ -880,6 +903,14 @@
       "description": "The role configuration properties of the application",
       "type": "array",
       "properties": [{
+        "key": "enable_cerebro",
+        "label": "enable_cerebro",
+        "description": "Whether to enable Cerebro.",
+        "type": "boolean",
+        "default": true,
+        "changeable": true,
+        "required": "no"
+      }, {
         "key": "proxy.balance.policy",
         "label": "ES Proxy Balance Policy",
         "description": "Define the load balancing algorithm to be used in a backend",

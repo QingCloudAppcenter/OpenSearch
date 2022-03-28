@@ -48,22 +48,74 @@
     masked: yes
     state: stopped
 
-- name: install plugins
-  include_tasks: install-plugin.yml
-  loop:
-    - name: analysis-icu
-    - name: analysis-kuromoji
-    - name: analysis-nori
-    - name: analysis-phonetic
-    - name: analysis-smartcn
-    - name: analysis-stempel
-    - name: analysis-ukrainian
-    - name: mapper-annotated-text
-    - name: mapper-murmur3
-    - name: mapper-size
-    #  Below needed Manual installation
-    - name: repository-hdfs
-    - name: repository-s3
-    - name: ingest-attachment
-  loop_control:
-    loop_var: opts
+#- name: install plugins
+#  include_tasks: install-plugin.yml
+#  loop:
+#    - name: analysis-icu
+#    - name: analysis-kuromoji
+#    - name: analysis-nori
+#    - name: analysis-phonetic
+#    - name: analysis-smartcn
+#    - name: analysis-stempel
+#    - name: analysis-ukrainian
+#    - name: mapper-annotated-text
+#    - name: mapper-murmur3
+#    - name: mapper-size
+    #- name: "https://github.com/aparo/opensearch-analysis-ik/releases/download/1.2.4/opensearch-analisys-ik-1.2.4.zip"
+    #  Below needed Manual installation, because it needs to be confirmed（yes）
+    #- name: repository-hdfs
+    #- name: repository-s3
+    #- name: ingest-attachment
+#  loop_control:
+#    loop_var: opts
+
+#- name: prepare dict directory
+#  file:
+#    path: /opt/opensearch/current/plugins/opensearch-analisys-ik/config/custom
+#    owner: root
+#    group: svc
+#    state: directory
+#
+#- name: check if jieba dic exists
+#  stat:
+#    path: "{{ role_path }}/files/tmp/jieba.dic"
+#  register: jieba_dic
+#  delegate_to: localhost
+#
+#- name: download jieba dict
+#  get_url:
+#    url: "https://github.com/QingCloudAppcenter/elk-archived/raw/master/docker-image/standard/elasticsearch/dicts/jieba.dic"
+#    dest: "{{ role_path }}/files/tmp/jieba.dic"
+#  delegate_to: localhost
+#  when: jieba_dic.stat.exists == False
+#
+#- name: copy jieba dict
+#  copy:
+#    src: "{{ role_path }}/files/tmp/jieba.dic"
+#    dest: "/opt/opensearch/current/plugins/analysis-ik/config/custom/jieba.dic"
+#    owner: root
+#    group: svc
+#    mode: u=rw,go=r
+#
+#- name: check if package file exists
+#  stat:
+#    path: "{{ role_path }}/files/tmp/extra_stopword.dic"
+#  register: stopword_dic
+#  delegate_to: localhost
+#
+#- name: download dict for IKAnalyzer
+#  get_url:
+#    url: "https://github.com/QingCloudAppcenter/elk-archived/raw/master/docker-image/standard/elasticsearch/dicts/stop_words.dic"
+#    dest: "{{ role_path }}/files/tmp/extra_stopword.dic"
+#  delegate_to: localhost
+#  when: stopword_dic.stat.exists == False
+#
+#- name: copy extra stopword dict
+#  copy:
+#    src: "{{ role_path }}/files/tmp/extra_stopword.dic"
+#    dest: "/opt/opensearch/current/plugins/opensearch-analisys-ik/config/custom/extra_stopword.dic"
+#    owner: root
+#    group: svc
+
+
+

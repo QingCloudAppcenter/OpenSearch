@@ -10,10 +10,10 @@
     name: utils
     tasks_from: install-pkg
   vars:
-    version: "{{ opensearch_version }}"
+    version: "{{ opensearch_dashboards_version }}"
     parentRole: dashboards
   loop:
-    - pkgUrl: "https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/{{ version }}/opensearch-dashboards-{{ package_version }}-linux-x64.tar.gz"
+    - pkgUrl: "https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/{{ version }}/opensearch-dashboards-{{ opensearch_dashboards_package_version }}-linux-x64.tar.gz"
   loop_control:
     loop_var: opts
 

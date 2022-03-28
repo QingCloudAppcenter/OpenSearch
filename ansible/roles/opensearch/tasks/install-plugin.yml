@@ -1,6 +1,6 @@
 ---
 - name: Install OS plugins - {{ opts.name }}
   shell: |
-    echo y | /opt/opensearch/current/bin/opensearch-plugin install -y {{ opts.name }}
+    echo y | /opt/opensearch/current/bin/opensearch-plugin install {{ opts.name }}
   register: installed
   ignore_errors: True

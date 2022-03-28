@@ -5,6 +5,20 @@ prepareDirs() {
     local svcUser=$svcName
     if [[ "$svcName" =~ ^haproxy|keepalived$ ]]; then svcUser=syslog; fi
     chown -R $svcUser.svc /data/$svcName
+
+    if [ "$svcName" = "caddy" ] || [ "$svcName" = "cerebro" ]; then continue; fi
+    if [ ! -f /data/$svcName/index.html ]; then touch /data/$svcName/index.html; fi
+    cat > /data/$svcName/index.html <<EOF
+<!DOCTYPE html>
+<html>
+<head>
+<title>redirect</title>
+<meta http-equiv="Refresh" content="0; url=/$svcName/logs">
+</head>
+<body>
+</body>
+</html>
+EOF
   done
   mkdir -p /var/run/dashboards
   chown -R dashboards.svc /var/run/dashboards
@@ -38,4 +52,9 @@ checkSvc() {
       return 205
     }
   fi
+}
+
+upgrade() {
+  [ "$MY_IP" = "${KIBANA_NODES%% *}" ] || retry 60 1 0 checkKibanaIndexCreated || log "WARN: index still not created."
+  _start
 }
