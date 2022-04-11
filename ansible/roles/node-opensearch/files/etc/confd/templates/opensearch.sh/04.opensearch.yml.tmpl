@@ -24,10 +24,7 @@ bootstrap.memory_lock: true
 
 cluster.name: {{ getv "/cluster/cluster_id" }}
 
-{{- if not (getvs "/env/es_additional_line*" | filter "cluster.routing.allocation.awareness.attributes:.*") }}
-cluster.routing.allocation.awareness.attributes: zone
-{{- end }}
-
+cluster.initial_master_nodes: [ ${discoveryHosts// /,} ]
 cluster.auto_shrink_voting_configuration: {{ getv "/env/cluster.auto_shrink_voting_configuration" "true" }}
 cluster.no_master_block: {{ getv "/env/discovery.zen.no_master_block" "write" }}
 
@@ -57,6 +54,10 @@ network.host: {{ $myIp }}
 {{- if not $isDedicatedMaster }}
 node.attr.data: "{{ getv "/env/node.attr.data" "hot" }}"
 {{- end }}
+{{- end }}
+
+{{- if not (getvs "/env/es_additional_line*" | filter "node.attr.zone:.*") }}
+node.attr.zone: {{ getv "/host/zone" (getv "/cluster/zone") }}
 {{- end }}
 
 node.data: {{ not $isDedicatedMaster }}
