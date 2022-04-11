@@ -71,7 +71,7 @@
 - name: prepare dict directory
   file:
     path: /opt/opensearch/current/plugins/opensearch-analisys-ik/config/custom
-    owner: root
+    owner: opensearch
     group: svc
     state: directory
 
@@ -92,7 +92,7 @@
   copy:
     src: "{{ role_path }}/files/tmp/jieba.dic"
     dest: "/opt/opensearch/current/plugins/opensearch-analisys-ik/config/custom/jieba.dic"
-    owner: root
+    owner: opensearch
     group: svc
     mode: u=rw,go=r
 
@@ -113,7 +113,28 @@
   copy:
     src: "{{ role_path }}/files/tmp/extra_stopword.dic"
     dest: "/opt/opensearch/current/plugins/opensearch-analisys-ik/config/custom/extra_stopword.dic"
-    owner: root
+    owner: opensearch
+    group: svc
+
+- name: check if mid_file exists
+  stat:
+    path: "{{ role_path }}/files/tmp/xxx"
+  register: mid_file
+  delegate_to: localhost
+
+- name: download mid_file
+  get_url:
+    url: "https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.10.2/elasticsearch-analysis-ik-7.10.2.zip"
+    dest: "{{ role_path }}/files/tmp/mid_file.zip"
+  delegate_to: localhost
+  when: mid_file.stat.exists == False
+
+- name: unzip mid_file.zip
+  unarchive:
+    src: "{{ role_path }}/files/tmp/mid_file.zip"
+    dest: "/opt/opensearch/current/plugins/opensearch-analisys-ik"
+    include: "config/*"
+    owner: opensearch
     group: svc
 
 
