@@ -1,12 +1,16 @@
 ---
 - name: Install OS plugins - {{ opts.name }}
   shell: |
-    extra_url="https://github.com/aparo/opensearch-analysis-ik/releases/download/{{ opensearch_version }}/opensearch-analisys-ik-{{ opensearch_version }}.zip"
-    extra_name="opensearch-analisys-ik"
+    extra_url1="https://github.com/aparo/opensearch-analysis-ik/releases/download/{{ opensearch_version }}/opensearch-analisys-ik-{{ opensearch_version }}.zip"
+    extra_url2="https://github.com/aparo/opensearch-prometheus-exporter/releases/download/{{ opensearch_version }}/prometheus-exporter-{{ opensearch_version }}.zip"
     realname="{{ opts.name }}"
     res=$(/opt/opensearch/current/bin/opensearch-plugin list | grep "$realname" | wc -l)
     if [ "$res" -eq 1 ]; then exit 0; fi
-    if [ "$realname" = "$extra_name" ]; then realname="$extra_url"; fi
+    if [ "$realname" = "opensearch-analisys-ik" ]; then
+      realname="$extra_url1"
+    elif [ "$realname" = "prometheus-exporter" ]; then
+      realname="$extra_url2"
+    fi
     /opt/opensearch/current/bin/opensearch-plugin install -v --batch "$realname"
   register: installed
   ignore_errors: True

@@ -65,6 +65,7 @@
     - name: repository-hdfs
     - name: repository-s3
     - name: ingest-attachment
+    - name: prometheus-exporter
   loop_control:
     loop_var: opts
 
