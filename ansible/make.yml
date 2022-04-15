@@ -23,10 +23,10 @@
       name: "{{ svc_name }}"
     when: "'opensearch' in group_names"
     loop:
-    #- java-1.0.1
-    #- opensearch
-    #- jq-1.0.3
-    #- node-exporter-0.18.1
+    - java-1.0.1
+    - opensearch
+    - jq-1.0.3
+    - node-exporter-0.18.1
     - node-opensearch
     loop_control:
       loop_var: svc_name
