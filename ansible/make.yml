@@ -9,7 +9,7 @@
   roles:
   - app-agent-1.0.1
   - appctl-1.0.9
-  #- arping-1.0.0
+  - arping-1.0.5
   - common
   - role: caddy-1.0.6
     vars:

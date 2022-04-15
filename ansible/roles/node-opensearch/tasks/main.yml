@@ -46,19 +46,3 @@
     owner: opensearch
     group: svc
     state: link
-
-- name: set root password
-  user:
-    name: root
-    password: "{{ os_pwd }}"
-  when: os_pwd is defined and os_pwd != ""
-
-- name: set ubuntu password
-  user:
-    name: ubuntu
-    password: "{{ os_pwd }}"
-  when: os_pwd is defined and os_pwd != ""
-
-- name: clear syslog
-  shell: |
-    : > /var/log/syslog
