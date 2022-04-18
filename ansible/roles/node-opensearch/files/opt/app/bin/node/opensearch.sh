@@ -196,6 +196,12 @@ scale() {
   fi
 }
 
+checkMasterRemoved2() {
+  local res=$(curl -s -u 'admin:Change1Pwd' $MY_IP:9200/_cat/nodes | grep \* | cut -d' ' -f1)
+  test -n "$res"
+  test "$res" != "$@"
+}
+
 destroy() {
   # In case the user is trying to remove all ES nodes, when preScaleIn will never be called.
   if [ -n "$LEAVING_DATA_NODES" ]; then
@@ -206,15 +212,22 @@ destroy() {
   # https://www.elastic.co/guide/en/elasticsearch/reference/7.5/modules-discovery-adding-removing-nodes.html#modules-discovery-removing-nodes
   local masterNodesToLeave; masterNodesToLeave="$(getMasterNodesToExclude)"
   if [[ " $masterNodesToLeave " == *" $MY_IP "* ]]; then
-    local runningNodes
-    runningNodes="$(curl -s -m5 "$MY_IP:9200/_cat/nodes?h=i,id&full_id=true -u ${MY_ADMIN_USER}:${MY_ADMIN_PASSWORD}" | awk '{print $1"/"$2}')"
-    local node; for node in $masterNodesToLeave; do
-      if [ "$node" = "$MY_IP" ]; then break; fi
-      retry 120 1 0 checkPortClosed $node
-      local nodeId; nodeId=$(echo "$runningNodes" | awk -F/ '$1=="'$node'" {print $2}')
-      test -n "$nodeId"
-      retry 60 1 0 checkMasterRemoved $nodeId
+    local tmplist=($masterNodesToLeave)
+    local cnt=${#tmplist[@]}
+    local prenode=""
+    for((i=0;i<$cnt;i++)); do
+      if [ ${tmplist[i]} = "$MY_IP" ]; then
+        if [ $i -gt 0 ]; then
+          prenode=${tmplist[$((i-1))]}
+        fi
+        break
+      fi
     done
+
+    if [ -n "$prenode" ]; then
+      retry 600 2 0 checkClusterHealthy
+      retry 60 1 0 checkMasterRemoved2 $prenode
+    fi
     execute stop
   fi
 
