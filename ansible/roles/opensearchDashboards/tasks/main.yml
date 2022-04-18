@@ -13,7 +13,7 @@
     version: "{{ opensearch_dashboards_version }}"
     parentRole: dashboards
   loop:
-    - pkgUrl: "https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/{{ version }}/opensearch-dashboards-{{ opensearch_dashboards_package_version }}-linux-x64.tar.gz"
+    - pkgUrl: "https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/{{ opensearch_dashboards_version }}/opensearch-dashboards-{{ opensearch_dashboards_package_version }}-linux-x64.tar.gz"
   loop_control:
     loop_var: opts
 
@@ -43,7 +43,7 @@
 
 - name: mask opensearch dashboards service
   systemd:
-    name: opensearchDashboards
+    name: dashboards
     enabled: no
     masked: yes
     state: stopped

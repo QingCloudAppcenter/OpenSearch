@@ -50,6 +50,7 @@
       name: "{{ svc_name }}"
     when: "'opensearchDashboards' in group_names"
     loop:
+    - java-1.0.1
     - cerebro
     - opensearchDashboards
     - nodejs-1.0.0
