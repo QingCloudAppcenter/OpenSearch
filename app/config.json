@@ -173,7 +173,6 @@
         "description": "Number of ES master nodes to create",
         "type": "integer",
         "range": [
-          0,
           1,
           3,
           5

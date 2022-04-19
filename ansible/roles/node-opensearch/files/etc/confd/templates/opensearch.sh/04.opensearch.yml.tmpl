@@ -24,13 +24,9 @@ bootstrap.memory_lock: true
 
 cluster.name: {{ getv "/cluster/cluster_id" }}
 
-{{- if not (getvs "/env/es_additional_line*" | filter "cluster.routing.allocation.awareness.attributes:.*") }}
-cluster.routing.allocation.awareness.attributes: zone
-{{- end }}
-
 cluster.initial_master_nodes: [ ${discoveryHosts// /,} ]
 cluster.auto_shrink_voting_configuration: {{ getv "/env/cluster.auto_shrink_voting_configuration" "true" }}
-cluster.no_master_block: {{ getv "/env/cluster.no_master_block" "write" }}
+cluster.no_master_block: {{ getv "/env/discovery.zen.no_master_block" "write" }}
 
 discovery.seed_hosts: [ ${discoveryHosts// /,} ]
 
