@@ -22,6 +22,20 @@ EC_SCL_ROLE_NOT_MATCHED=150
 EC_SCL_NOT_DATA_ROLE=151
 EC_SCLIN_NO_MASTER_LEFT=152
 EC_SCLIN_TOO_MANY_MASTERS=153
+EC_SEC_BACKUP_FAILED=154
+EC_SEC_WRITEBACK_FAILED=155
+
+APPCTL_DATA_PATH="/data/appctl/data"
+APPCTL_CUR_ADMIN_PWD="admin.cur"
+APPCTL_SECURITY_BACKUP_FOLDER="security_backup"
+
+SECURITY_TOOL_FOLDER="/opt/opensearch/current/plugins/opensearch-security/tools"
+ADMIN_TOOL=$SECURITY_TOOL_FOLDER/securityadmin.sh
+HASH_TOOL=$SECURITY_TOOL_FOLDER/hash.sh
+OS_CONF_PATH="/opt/app/conf/opensearch"
+OS_CA_FILE=$OS_CONF_PATH/root-ca.pem
+OS_CERT_FILE=$OS_CONF_PATH/kirk.pem
+OS_KEY_FILE=$OS_CONF_PATH/kirk-key.pem
 
 parseJsonField() {
   local field=$1 json=${@:2}
@@ -44,6 +58,14 @@ prepareEsDirs() {
 initNode() {
   _initNode
   prepareEsDirs
+  if [ -f /data/appctl/logs/appctl.log ]; then
+    chown syslog /data/appctl/logs/appctl.log
+  fi
+  mkdir -p $APPCTL_DATA_PATH/$APPCTL_SECURITY_BACKUP_FOLDER
+  cat /opt/app/conf/appctl/admin.pwd.new > $APPCTL_DATA_PATH/$APPCTL_CUR_ADMIN_PWD
+  chmod +x $ADMIN_TOOL
+  chmod +x $HASH_TOOL
+  
   local htmlPath=/data/opensearch/index.html
   [ -e $htmlPath ] || ln -s /opt/app/conf/caddy/index.html $htmlPath
 }
@@ -471,4 +493,51 @@ findDumpFiles() {
   elif [ -f "$HEAP_DUMP_PATH" ]; then
     echo $HEAP_DUMP_PATH
   fi
+}
+
+checkPwdAndReload() {
+  if [ ! -f $APPCTL_DATA_PATH/$APPCTL_CUR_ADMIN_PWD ]; then
+    log "node first run, do nothing!"
+    return 0
+  fi
+
+  if diff /opt/app/conf/appctl/admin.pwd.new $APPCTL_DATA_PATH/$APPCTL_CUR_ADMIN_PWD; then
+    log "normal reload"
+    _reload opensearch
+    return 0
+  fi
+
+  # only first master node do this
+  local tmplist=($STABLE_MASTER_NODES) 
+  if [ "${tmplist[0]}" != "$MY_IP" ]; then
+    log "not the first stable master node, skipping"
+    cat /opt/app/conf/appctl/admin.pwd.new > $APPCTL_DATA_PATH/$APPCTL_CUR_ADMIN_PWD
+    return 0
+  fi
+
+  log "begin change password"
+  log "backup old security info ..."
+  if ! $ADMIN_TOOL -backup $APPCTL_DATA_PATH/$APPCTL_SECURITY_BACKUP_FOLDER -icl -nhnv -cacert $OS_CA_FILE -cert $OS_CERT_FILE -key $OS_KEY_FILE -h $MY_IP; then
+    log "backup old security info failed!"
+    return $EC_SEC_BACKUP_FAILED
+  fi
+  log "backup old security info, done!"
+  log "prepare user.yaml"
+  local line=$(sed -n -e '/^admin/=' $APPCTL_DATA_PATH/$APPCTL_SECURITY_BACKUP_FOLDER/internal_users.yml)
+  local tmpstr=$(sed -n 1,${line}p $APPCTL_DATA_PATH/$APPCTL_SECURITY_BACKUP_FOLDER/internal_users.yml)
+  local tmphash="  hash: \"$(JAVA_HOME=/usr $HASH_TOOL -p $(cat /opt/app/conf/appctl/admin.pwd.new))\""
+  tmpstr=$(echo -e "$tmpstr\n$tmphash")
+  line=$((line+2))
+  tmpstr=$(echo -e "$tmpstr\n$(sed -n ${line},\$p $APPCTL_DATA_PATH/$APPCTL_SECURITY_BACKUP_FOLDER/internal_users.yml)")
+  echo "$tmpstr" > $APPCTL_DATA_PATH/user.yaml
+  sleep 3s
+  log "write back new password ..."
+  echo ">>>>>>>>>> begin debug ..." >$APPCTL_DATA_PATH/debug.log
+  if ! $ADMIN_TOOL -f $APPCTL_DATA_PATH/user.yaml -t internalusers -icl -nhnv -cacert $OS_CA_FILE -cert $OS_CERT_FILE -key $OS_KEY_FILE -h $MY_IP >>$APPCTL_DATA_PATH/debug.log 2>&1; then
+    log "write back new password failed!"
+    return EC_SEC_WRITEBACK_FAILED
+  fi
+  log "write back new password, done!"
+  echo ">>>>>>>>>> debug done." >>$APPCTL_DATA_PATH/debug.log
+  cat /opt/app/conf/appctl/admin.pwd.new > $APPCTL_DATA_PATH/$APPCTL_CUR_ADMIN_PWD
 }

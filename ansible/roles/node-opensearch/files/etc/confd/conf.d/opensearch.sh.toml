@@ -5,4 +5,4 @@ mode = "0700"
 keys = [
   "/",
 ]
-reload_cmd = "/opt/app/bin/tmpl/opensearch.sh; appctl reload opensearch"
+reload_cmd = "/opt/app/bin/tmpl/opensearch.sh; appctl checkPwdAndReload"

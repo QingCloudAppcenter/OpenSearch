@@ -1,0 +1,4 @@
+mkdir -p /opt/app/conf/appctl
+flush > /opt/app/conf/appctl/admin.pwd.new << ADMIN_PWD_NEW
+{{ $myAdminPassword }}
+ADMIN_PWD_NEW
