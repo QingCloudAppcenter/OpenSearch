@@ -1,0 +1,694 @@
+#!/usr/bin/env bash
+
+set -eo pipefail
+
+myPath="$0"
+
+cleanUp() {
+  local rc=$?
+  [ "$rc" -eq 0 ] || echo "# Failed ($rc)! Please check confd logs." >> $myPath
+  return $rc
+}
+
+trap cleanUp EXIT
+
+rotate() {
+  local path=$1 maxFilesCount=5
+  for i in $(seq 1 $maxFilesCount | tac); do
+    if [ -f "${path}.$i" ]; then mv ${path}.$i ${path}.$(($i+1)); fi
+  done
+  if [ -f "$path" ]; then cp $path ${path}.1; fi
+}
+
+flush() {
+  local targetFile=$1
+  if [ -n "$targetFile" ]; then
+    rotate $targetFile
+    cat > $targetFile -
+  else
+    cat -
+  fi
+}
+{{- $rolesMap := map "es_node" "opensearch-1" "es_node_2" "opensearch-2" "es_node_3" "opensearch-3" "es_master_node" "opensearch-master" }}
+{{- $myRole := index $rolesMap (getv "/host/role") }}
+{{- $mySid := getv "/host/sid" }}
+{{- $myIp := getv "/host/ip" }}
+{{- $myAdminUser := getv "/env/opensearch.admin.user" "admin" }}
+{{- $myAdminPassword := getv "/env/opensearch.admin.password" "admin" }}
+
+allNodes="$(sort -V << ALL_NODES_EOF
+{{- $groupsMap := map "2" "n2" "3" "n3" "master" "m" }}
+{{- range $nodeRole := lsdir "/hosts" | filter "es_*" }}
+{{- $joiningNodes := lsdir (printf "/adding-hosts/%s" $nodeRole) }}
+{{- $leavingNodes := lsdir (printf "/deleting-hosts/%s" $nodeRole) }}
+{{- range $instanceId := lsdir (printf "/hosts/%s" $nodeRole) }}
+{{- if $joiningNodes | filter $instanceId }}
+joining/
+{{- else if $leavingNodes | filter $instanceId }}
+leaving/
+{{- else }}
+stable/
+{{- end }}
+{{- $nodeRole }}/
+{{- $instanceId }}/
+{{- getv "/cluster/cluster_id" }}-
+{{- range split $nodeRole "_" | filter "2|3|master" }}{{ index $groupsMap . }}-{{ end }}
+{{- getv (printf "/hosts/%s/%s/sid" $nodeRole $instanceId) }}/
+{{- getv (printf "/hosts/%s/%s/ip" $nodeRole $instanceId) }}
+{{- end }}
+{{- end }}
+ALL_NODES_EOF
+)"
+
+flush > /opt/app/bin/envs/node.env << ES_ENV_EOF
+NODE_CTL=opensearch
+DATA_MOUNTS="/data"
+MY_IP={{ $myIp }}
+MY_ROLE={{ $myRole }}
+MY_ADMIN_USER={{ $myAdminUser }}
+MY_ADMIN_PASSWORD={{ $myAdminPassword }}
+MY_ADMIN_SID={{ $mySid }}
+{{- range gets "/env/appctl.*" }}
+{{ replace (base .Key) "." "_" -1 | toUpper }}={{ .Value }}
+{{- end }}
+IS_MASTER={{ eq $myRole "opensearch-master" }}
+HEAP_DUMP_PATH="{{ getv "/env/heap_dump_path" "/data/opensearch/dump" }}"
+SERVICES="\$SERVICES opensearch/true/http:9200"
+ROLE_NODES="$(echo "{{ join (getvs (printf "/hosts/%s/*/ip" (getv "/host/role"))) " " }}" | xargs -n1 | sort -V | xargs)"
+JOINING_DATA_NODES="$(echo "$allNodes" | awk -F/ '$1~/^j/ && $2~/^es_node/ {print $5}' | sort -V | xargs)"
+STABLE_DATA_NODES="$(echo "$allNodes" | awk -F/ '$1~/^s/ && $2~/^es_node/ {print $5}' | sort -V | xargs)"
+LEAVING_DATA_NODES="$(echo "$allNodes" | awk -F/ '$1~/^l/ && $2~/^es_node/ {print $5}' | sort -V | xargs)"
+JOINING_MASTER_NODES="$(echo "$allNodes" | awk -F/ '$1~/^j/ && $2~/^es_master/ {print $5}' | sort -V | xargs)"
+STABLE_MASTER_NODES="$(echo "$allNodes" | awk -F/ '$1~/^s/ && $2~/^es_master/ {print $5}' | sort -V | xargs)"
+LEAVING_MASTER_NODES="$(echo "$allNodes" | awk -F/ '$1~/^l/ && $2~/^es_master/ {print $5}' | sort -V | xargs)"
+ES_ENV_EOF
+
+{{- $maxHeapSize := mul 31 1024 }}
+{{- $halfMemory := div (getv "/host/memory") 2 }}
+{{- $heapSize := min $halfMemory $maxHeapSize }}
+flush > /opt/app/conf/opensearch/jvm.options << ES_JVM_EOF
+-Xms{{ $heapSize }}m
+-Xmx{{ $heapSize }}m
+
+-XX:+UseConcMarkSweepGC
+-XX:CMSInitiatingOccupancyFraction=75
+-XX:+UseCMSInitiatingOccupancyOnly
+
+-Dopensearch.networkaddress.cache.ttl=60
+-Dopensearch.networkaddress.cache.negative.ttl=10
+-Dopensearch.allow_insecure_settings=true
+
+-Djava.security.policy=file:///opt/app/conf/opensearch/dicts.policy
+
+-XX:+AlwaysPreTouch
+
+-Xss1m
+
+-Djava.awt.headless=true
+
+-Dfile.encoding=UTF-8
+
+-Djna.nosys=true
+
+-XX:-OmitStackTraceInFastThrow
+
+-Dio.netty.noUnsafe=true
+-Dio.netty.noKeySetOptimization=true
+-Dio.netty.recycler.maxCapacityPerThread=0
+
+-Dlog4j.shutdownHookEnabled=false
+-Dlog4j2.disable.jmx=true
+-Dlog4j.skipJansi=true
+
+{{- if eq (getv "/env/enable_heap_dump" "") "true" }}
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:HeapDumpPath={{ getv "/env/heap_dump_path" "/data/opensearch/dump" }}
+{{- end }}
+
+-XX:+ExitOnOutOfMemoryError
+
+-XX:ErrorFile=/data/opensearch/logs/hs_err.log
+
+8:-XX:+PrintGCDetails
+8:-XX:+PrintGCTimeStamps
+8:-XX:+PrintGCDateStamps
+8:-XX:+PrintClassHistogram
+8:-XX:+PrintTenuringDistribution
+8:-XX:+PrintGCApplicationStoppedTime
+8:-Xloggc:/data/opensearch/logs/gc.log
+8:-XX:+UseGCLogFileRotation
+8:-XX:NumberOfGCLogFiles=5
+8:-XX:GCLogFileSize=2m
+
+9-:-Xlog:gc*,gc+age=trace,safepoint:file=/data/opensearch/logs/gc.log:utctime,pid,tags:filecount=32,filesize=1m
+9-:-Djava.locale.providers=SPI,COMPAT
+
+ES_JVM_EOF
+
+flush > /opt/app/conf/opensearch/log4j2.properties << 'ES_LOG4J_EOF'
+status = error
+
+# log action execution errors for easier debugging
+logger.action.name = org.opensearch.action
+logger.action.level = {{ getv "/env/logger.action.level" "info" }}
+
+appender.console.type = Console
+appender.console.name = console
+appender.console.layout.type = PatternLayout
+appender.console.layout.pattern = [%d{ISO8601}][%-5p][%-25c{1.}] [%node_name]%marker %m%n
+
+appender.rolling.type = RollingFile
+appender.rolling.name = rolling
+appender.rolling.fileName = ${sys:opensearch.logs.base_path}${sys:file.separator}${sys:opensearch.logs.cluster_name}.log
+appender.rolling.filePattern = ${sys:opensearch.logs.base_path}${sys:file.separator}${sys:opensearch.logs.cluster_name}-%d{yyyy-MM-dd}-%i.log
+appender.rolling.layout.type = PatternLayout
+appender.rolling.layout.pattern = [%d{ISO8601}][%-5p][%-25c{1.}] [%node_name]%marker %.-10000m%n
+appender.rolling.policies.type = Policies
+appender.rolling.policies.time.type = TimeBasedTriggeringPolicy
+appender.rolling.policies.time.interval = 1
+appender.rolling.policies.time.modulate = true
+appender.rolling.policies.size.type = SizeBasedTriggeringPolicy
+appender.rolling.policies.size.size = 2MB
+appender.rolling.strategy.type = DefaultRolloverStrategy
+appender.rolling.strategy.action.type = Delete
+appender.rolling.strategy.action.basepath = ${sys:opensearch.logs.base_path}
+appender.rolling.strategy.action.condition.type = IfFileName
+appender.rolling.strategy.action.condition.glob = ${sys:opensearch.logs.cluster_name}-*
+appender.rolling.strategy.action.condition.nested_condition.type = IfAny
+appender.rolling.strategy.action.condition.nested_condition.lastMod.type = IfLastModified
+appender.rolling.strategy.action.condition.nested_condition.lastMod.age = {{ getv "/env/clean_logs_older_than_n_days" "7" }}D
+appender.rolling.strategy.action.condition.nested_condition.fileSize.type = IfAccumulatedFileSize
+appender.rolling.strategy.action.condition.nested_condition.fileSize.exceeds = 200MB
+
+rootLogger.level = {{ getv "/env/rootLogger.level" "info" }}
+rootLogger.appenderRef.rolling.ref = rolling
+
+appender.deprecation_rolling.type = RollingFile
+appender.deprecation_rolling.name = deprecation_rolling
+appender.deprecation_rolling.fileName = ${sys:opensearch.logs.base_path}${sys:file.separator}${sys:opensearch.logs.cluster_name}_deprecation.log
+appender.deprecation_rolling.layout.type = PatternLayout
+appender.deprecation_rolling.layout.pattern = [%d{ISO8601}][%-5p][%-25c{1.}] [%node_name]%marker %.-10000m%n
+appender.deprecation_rolling.filePattern = ${sys:opensearch.logs.base_path}${sys:file.separator}${sys:opensearch.logs.cluster_name}_deprecation-%i.log
+appender.deprecation_rolling.policies.type = Policies
+appender.deprecation_rolling.policies.size.type = SizeBasedTriggeringPolicy
+appender.deprecation_rolling.policies.size.size = 2MB
+appender.deprecation_rolling.strategy.type = DefaultRolloverStrategy
+appender.deprecation_rolling.strategy.max = 50
+
+logger.deprecation.name = org.opensearch.deprecation
+logger.deprecation.level = {{ getv "/env/logger.deprecation.level" "warn" }}
+logger.deprecation.appenderRef.deprecation_rolling.ref = deprecation_rolling
+logger.deprecation.additivity = false
+
+appender.index_search_slowlog_rolling.type = RollingFile
+appender.index_search_slowlog_rolling.name = index_search_slowlog_rolling
+appender.index_search_slowlog_rolling.fileName = ${sys:opensearch.logs.base_path}${sys:file.separator}${sys:opensearch.logs.cluster_name}_index_search_slowlog.log
+appender.index_search_slowlog_rolling.layout.type = PatternLayout
+appender.index_search_slowlog_rolling.layout.pattern = [%d{ISO8601}][%-5p][%-25c] [%node_name]%marker %.-10000m%n
+appender.index_search_slowlog_rolling.filePattern = ${sys:opensearch.logs.base_path}${sys:file.separator}${sys:opensearch.logs.cluster_name}_index_search_slowlog-%d{yyyy-MM-dd}.log
+appender.index_search_slowlog_rolling.policies.type = Policies
+appender.index_search_slowlog_rolling.policies.time.type = TimeBasedTriggeringPolicy
+appender.index_search_slowlog_rolling.policies.time.interval = 1
+appender.index_search_slowlog_rolling.policies.time.modulate = true
+appender.index_search_slowlog_rolling.strategy.type = DefaultRolloverStrategy
+appender.index_search_slowlog_rolling.strategy.max = 50
+
+logger.index_search_slowlog_rolling.name = index.search.slowlog
+logger.index_search_slowlog_rolling.level = {{ getv "/env/logger.index_search_slowlog_rolling.level" "trace" }}
+logger.index_search_slowlog_rolling.appenderRef.index_search_slowlog_rolling.ref = index_search_slowlog_rolling
+logger.index_search_slowlog_rolling.additivity = false
+
+appender.index_indexing_slowlog_rolling.type = RollingFile
+appender.index_indexing_slowlog_rolling.name = index_indexing_slowlog_rolling
+appender.index_indexing_slowlog_rolling.fileName = ${sys:opensearch.logs.base_path}${sys:file.separator}${sys:opensearch.logs.cluster_name}_index_indexing_slowlog.log
+appender.index_indexing_slowlog_rolling.layout.type = PatternLayout
+appender.index_indexing_slowlog_rolling.layout.pattern = [%d{ISO8601}][%-5p][%-25c] [%node_name]%marker %.-10000m%n
+appender.index_indexing_slowlog_rolling.filePattern = ${sys:opensearch.logs.base_path}${sys:file.separator}${sys:opensearch.logs.cluster_name}_index_indexing_slowlog-%d{yyyy-MM-dd}.log
+appender.index_indexing_slowlog_rolling.policies.type = Policies
+appender.index_indexing_slowlog_rolling.policies.time.type = TimeBasedTriggeringPolicy
+appender.index_indexing_slowlog_rolling.policies.time.interval = 1
+appender.index_indexing_slowlog_rolling.policies.time.modulate = true
+appender.index_indexing_slowlog_rolling.strategy.type = DefaultRolloverStrategy
+appender.index_indexing_slowlog_rolling.strategy.max = 50
+
+logger.index_indexing_slowlog.name = index.indexing.slowlog.index
+logger.index_indexing_slowlog.level = {{ getv "/env/logger.index_indexing_slowlog.level" "trace" }}
+logger.index_indexing_slowlog.appenderRef.index_indexing_slowlog_rolling.ref = index_indexing_slowlog_rolling
+logger.index_indexing_slowlog.additivity = false
+ES_LOG4J_EOF
+
+joiningGenericNodes="$(echo "$allNodes" | awk -F/ '$1~/^j/ && $2~/^es_node/ {print $4}' | xargs)"
+stableGenericNodes="$(echo "$allNodes" | awk -F/ '$1~/^s/ && $2~/^es_node/ {print $4}' | xargs)"
+joiningMasterNodes="$(echo "$allNodes" | awk -F/ '$1~/^j/ && $2~/^es_master/ {print $4}' | xargs)"
+stableMasterNodes="$(echo "$allNodes" | awk -F/ '$1~/^s/ && $2~/^es_master/ {print $4}' | xargs)"
+
+expectedGenericNodes="$(echo $joiningGenericNodes $stableGenericNodes)"
+expectedGenNodesCount=$(echo $expectedGenericNodes | wc -w)
+expectedGenericQuorum=$(( $expectedGenNodesCount / 2 + 1 ))
+recoverAfterGenCount=$(( $expectedGenericQuorum > $expectedGenNodesCount - 2 ? $expectedGenericQuorum : $expectedGenNodesCount - 2 ))
+
+expectedMasterNodes="$(echo $joiningMasterNodes $stableMasterNodes)"
+expectedMastersCount=$(echo ${expectedMasterNodes:=$expectedGenericNodes} | wc -w)
+expectedMasterQuorum=$(( $expectedMastersCount / 2 + 1 ))
+recoverAfterMastersCount=$(( $expectedMasterQuorum > $expectedMastersCount - 2 ? $expectedMasterQuorum : $expectedMastersCount - 2 ))
+
+{{- $isDedicatedMaster := eq $myRole "opensearch-master" }}
+discoveryHosts="${stableMasterNodes:-$stableGenericNodes}"
+
+dataDirs="$(egrep -o " /data[23]? " /proc/mounts | sed 's#^#-#g; s# $#/opensearch/data#g')"
+
+flush > /opt/app/conf/opensearch/opensearch.yml << ES_YML_EOF
+action.destructive_requires_name: {{ getv "/env/action.destructive_requires_name" "true" }}
+bootstrap.memory_lock: true
+
+cluster.name: {{ getv "/cluster/cluster_id" }}
+
+cluster.initial_master_nodes: [ ${discoveryHosts// /,} ]
+cluster.auto_shrink_voting_configuration: {{ getv "/env/cluster.auto_shrink_voting_configuration" "true" }}
+cluster.no_master_block: {{ getv "/env/discovery.zen.no_master_block" "write" }}
+
+discovery.seed_hosts: [ ${discoveryHosts// /,} ]
+
+gateway.expected_data_nodes: $expectedGenNodesCount
+gateway.expected_master_nodes: $expectedMastersCount
+gateway.recover_after_data_nodes: $recoverAfterGenCount
+gateway.recover_after_master_nodes: $recoverAfterMastersCount
+gateway.recover_after_time: {{ getv "/env/gateway.recover_after_time" "5m" }}
+
+http.cors.allow-origin: "{{ getv "/env/http.cors.allow-origin" "" }}"
+http.cors.enabled: {{ getv "/env/http.cors.enabled" "false" }}
+http.port: 9200
+
+indices.fielddata.cache.size: {{ getv "/env/indices.fielddata.cache.size" "90%" }}
+indices.memory.index_buffer_size: {{ getv "/env/indices.memory.index_buffer_size" "10%" }}
+indices.queries.cache.size: {{ getv "/env/indices.queries.cache.size" "10%" }}
+indices.requests.cache.size: {{ getv "/env/indices.requests.cache.size" "1%" }}
+
+thread_pool.write.queue_size: {{ getv "/env/thread_pool.write.queue_size" }}
+thread_pool.search.queue_size: {{ getv "/env/thread_pool.search.queue_size" }}
+
+network.host: {{ $myIp }}
+
+{{- if not (getvs "/env/es_additional_line*" | filter "node.attr.data:.*") }}
+{{- if not $isDedicatedMaster }}
+node.attr.data: "{{ getv "/env/node.attr.data" "hot" }}"
+{{- end }}
+{{- end }}
+
+{{- if not (getvs "/env/es_additional_line*" | filter "node.attr.zone:.*") }}
+node.attr.zone: {{ getv "/host/zone" (getv "/cluster/zone") }}
+{{- end }}
+
+node.data: {{ not $isDedicatedMaster }}
+node.ingest: {{ not $isDedicatedMaster }}
+node.master: {{ or $isDedicatedMaster (not (ls "/hosts/es_master_node")) }}
+node.name: {{ getv "/cluster/cluster_id" }}-{{ range split $myRole "-" | filter "2|3|master" }}{{ index $groupsMap . }}-{{ end }}{{ getv "/host/sid" }}
+
+path.data:
+$dataDirs
+
+path.logs: /data/opensearch/logs
+
+{{- with getv "/env/path.repo" "[]" }}
+path.repo: {{ . }}
+{{- end }}
+
+{{- if not (getvs "/env/es_additional_line*" | filter "reindex.remote.whitelist:.*") }}
+reindex.remote.whitelist: "{{ getv "/env/reindex.remote.whitelist" "" }}"
+{{- end }}
+{{- with getv "/env/repositories.url.allowed_urls" "[]" }}
+repositories.url.allowed_urls: {{ . }}
+{{- end }}
+
+{{- with getv "/env/script.allowed_types" }}
+script.allowed_types: {{ . }}
+{{- end }}
+
+{{- with getv "/env/script.allowed_contexts" }}
+script.allowed_contexts: {{ . }}
+{{- end }}
+
+{{- range getvs "/env/es_additional_line*" }}
+{{ . }}
+{{- end }}
+
+plugins.security.ssl.transport.pemcert_filepath: /opt/app/conf/opensearch/esnode.pem
+plugins.security.ssl.transport.pemkey_filepath: /opt/app/conf/opensearch/esnode-key.pem
+plugins.security.ssl.transport.pemtrustedcas_filepath: /opt/app/conf/opensearch/root-ca.pem
+plugins.security.ssl.transport.enforce_hostname_verification: false
+plugins.security.ssl.http.enabled: false
+plugins.security.ssl.http.pemcert_filepath: /opt/app/conf/opensearch/esnode.pem
+plugins.security.ssl.http.pemkey_filepath: /opt/app/conf/opensearch/esnode-key.pem
+plugins.security.ssl.http.pemtrustedcas_filepath: /opt/app/conf/opensearch/root-ca.pem
+plugins.security.allow_unsafe_democertificates: true
+plugins.security.allow_default_init_securityindex: true
+plugins.security.authcz.admin_dn:
+  - CN=kirk,OU=client,O=client,L=test, C=de
+
+plugins.security.nodes_dn_dynamic_config_enabled: true
+plugins.security.audit.type: internal_opensearch
+plugins.security.enable_snapshot_restore_privilege: true
+plugins.security.check_snapshot_restore_write_privileges: true
+plugins.security.restapi.roles_enabled: ["all_access", "security_rest_api_access"]
+plugins.security.system_indices.enabled: true
+plugins.security.system_indices.indices: [".opendistro-alerting-config", ".opendistro-alerting-alert*", ".opendistro-anomaly-results*", ".opendistro-anomaly-detector*", ".opendistro-anomaly-checkpoints", ".opendistro-anomaly-detection-state", ".opendistro-reports-*", ".opendistro-notifications-*", ".opendistro-notebooks", ".opendistro-asynchronous-search-response*", ".replication-metadata-store"]
+ES_YML_EOF
+
+sysctlConf=/etc/sysctl.conf
+
+sed -i '/# >> Managed by confd./,/# << Managed by confd./d' $sysctlConf
+
+flush >> $sysctlConf << SYSCTL_CONF_EOF
+# >> Managed by confd.
+{{- range gets "/env/appctl.tcp_keepalive*" }}
+net.ipv4.{{ replace (base .Key) "appctl." "" -1 }}={{ .Value }}
+{{- end }}
+vm.max_map_count=262144
+vm.swappiness=1
+# << Managed by confd.
+SYSCTL_CONF_EOF
+
+sysctl -p
+
+hostsFile=/etc/hosts
+sed "/^# >> ES nodes./,/^# << ES nodes./d" $hostsFile > $hostsFile.swap
+flush >> $hostsFile.swap << HOSTS_FILE
+# >> ES nodes. WARNING: this is managed by script and please don't touch manually.
+$(echo "$allNodes" | awk -F/ '{print $5, $4}')
+# << ES nodes. WARNING: this is managed by script and please don't touch manually.
+HOSTS_FILE
+mv $hostsFile.swap $hostsFile
+
+performanceAnalyzer=/opt/opensearch/current/plugins/opensearch-performance-analyzer/pa_config/performance-analyzer.properties
+
+sed -i 's!#webservice-bind-host =!webservice-bind-host = 0.0.0.0!' $performanceAnalyzer
+
+
+
+
+
+
+
+
+
+
+
+cnf=/opt/opensearch/current/plugins/opensearch-security/securityconfig/config.yml
+
+{{- $myIp := getv "/host/ip" }}
+{{- $myAdminUser := getv "/env/opensearch.admin.user" "admin" }}
+{{- $myAdminPassword := getv "/env/opensearch.admin.password" "admin" }}
+
+flush > $cnf << CONF_EOF
+---
+
+# This is the main OpenSearch Security configuration file where authentication
+# and authorization is defined.
+#
+# You need to configure at least one authentication domain in the authc of this file.
+# An authentication domain is responsible for extracting the user credentials from
+# the request and for validating them against an authentication backend like Active Directory for example.
+#
+# If more than one authentication domain is configured the first one which succeeds wins.
+# If all authentication domains fail then the request is unauthenticated.
+# In this case an exception is thrown and/or the HTTP status is set to 401.
+#
+# After authentication authorization (authz) will be applied. There can be zero or more authorizers which collect
+# the roles from a given backend for the authenticated user.
+#
+# Both, authc and auth can be enabled/disabled separately for REST and TRANSPORT layer. Default is true for both.
+#        http_enabled: true
+#        transport_enabled: true
+#
+# For HTTP it is possible to allow anonymous authentication. If that is the case then the HTTP authenticators try to
+# find user credentials in the HTTP request. If credentials are found then the user gets regularly authenticated.
+# If none can be found the user will be authenticated as an "anonymous" user. This user has always the username "anonymous"
+# and one role named "anonymous_backendrole".
+# If you enable anonymous authentication all HTTP authenticators will not challenge.
+#
+#
+# Note: If you define more than one HTTP authenticators make sure to put non-challenging authenticators like "proxy" or "clientcert"
+# first and the challenging one last.
+# Because it's not possible to challenge a client with two different authentication methods (for example
+# Kerberos and Basic) only one can have the challenge flag set to true. You can cope with this situation
+# by using pre-authentication, e.g. sending a HTTP Basic authentication header in the request.
+#
+# Default value of the challenge flag is true.
+#
+#
+# HTTP
+#   basic (challenging)
+#   proxy (not challenging, needs xff)
+#   kerberos (challenging)
+#   clientcert (not challenging, needs https)
+#   jwt (not challenging)
+#   host (not challenging) #DEPRECATED, will be removed in a future version.
+#                          host based authentication is configurable in roles_mapping
+
+# Authc
+#   internal
+#   noop
+#   ldap
+
+# Authz
+#   ldap
+#   noop
+
+
+
+_meta:
+  type: "config"
+  config_version: 2
+
+config:
+  dynamic:
+    # Set filtered_alias_mode to 'disallow' to forbid more than 2 filtered aliases per index
+    # Set filtered_alias_mode to 'warn' to allow more than 2 filtered aliases per index but warns about it (default)
+    # Set filtered_alias_mode to 'nowarn' to allow more than 2 filtered aliases per index silently
+    #filtered_alias_mode: warn
+    #do_not_fail_on_forbidden: false
+    #kibana:
+    # Kibana multitenancy
+    # multitenancy_enabled: true
+    # server_username: {{ $myAdminUser }}
+    # index: '.kibana'
+    http:
+      anonymous_auth_enabled: false
+      xff:
+        enabled: false
+        internalProxies: '192\.168\.0\.10|192\.168\.0\.11' # regex pattern
+        #internalProxies: '.*' # trust all internal proxies, regex pattern
+        #remoteIpHeader:  'x-forwarded-for'
+        ###### see https://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html for regex help
+        ###### more information about XFF https://en.wikipedia.org/wiki/X-Forwarded-For
+        ###### and here https://tools.ietf.org/html/rfc7239
+        ###### and https://tomcat.apache.org/tomcat-8.0-doc/config/valve.html#Remote_IP_Valve
+    authc:
+      kerberos_auth_domain:
+        http_enabled: false
+        transport_enabled: false
+        order: 6
+        http_authenticator:
+          type: kerberos
+          challenge: true
+          config:
+            # If true a lot of kerberos/security related debugging output will be logged to standard out
+            krb_debug: false
+            # If true then the realm will be stripped from the user name
+            strip_realm_from_principal: true
+        authentication_backend:
+          type: noop
+      basic_internal_auth_domain:
+        description: "Authenticate via HTTP Basic against internal users database"
+        http_enabled: true
+        transport_enabled: true
+        order: 4
+        http_authenticator:
+          type: basic
+          challenge: true
+        authentication_backend:
+          type: intern
+      proxy_auth_domain:
+        description: "Authenticate via proxy"
+        http_enabled: false
+        transport_enabled: false
+        order: 3
+        http_authenticator:
+          type: proxy
+          challenge: false
+          config:
+            user_header: "x-proxy-user"
+            roles_header: "x-proxy-roles"
+        authentication_backend:
+          type: noop
+      jwt_auth_domain:
+        description: "Authenticate via Json Web Token"
+        http_enabled: false
+        transport_enabled: false
+        order: 0
+        http_authenticator:
+          type: jwt
+          challenge: false
+          config:
+            signing_key: "base64 encoded HMAC key or public RSA/ECDSA pem key"
+            jwt_header: "Authorization"
+            jwt_url_parameter: null
+            roles_key: null
+            subject_key: null
+        authentication_backend:
+          type: noop
+      clientcert_auth_domain:
+        description: "Authenticate via SSL client certificates"
+        http_enabled: false
+        transport_enabled: false
+        order: 2
+        http_authenticator:
+          type: clientcert
+          config:
+            username_attribute: cn #optional, if omitted DN becomes username
+          challenge: false
+        authentication_backend:
+          type: noop
+      ldap:
+        description: "Authenticate via LDAP or Active Directory"
+        http_enabled: false
+        transport_enabled: false
+        order: 5
+        http_authenticator:
+          type: basic
+          challenge: false
+        authentication_backend:
+          # LDAP authentication backend (authenticate users against a LDAP or Active Directory)
+          type: ldap
+          config:
+            # enable ldaps
+            enable_ssl: false
+            # enable start tls, enable_ssl should be false
+            enable_start_tls: false
+            # send client certificate
+            enable_ssl_client_auth: false
+            # verify ldap hostname
+            verify_hostnames: true
+            hosts:
+            - localhost:8389
+            bind_dn: null
+            password: null
+            userbase: 'ou=people,dc=example,dc=com'
+            # Filter to search for users (currently in the whole subtree beneath userbase)
+            # {0} is substituted with the username
+            usersearch: '(sAMAccountName={0})'
+            # Use this attribute from the user as username (if not set then DN is used)
+            username_attribute: null
+    authz:
+      roles_from_myldap:
+        description: "Authorize via LDAP or Active Directory"
+        http_enabled: false
+        transport_enabled: false
+        authorization_backend:
+          # LDAP authorization backend (gather roles from a LDAP or Active Directory, you have to configure the above LDAP authentication backend settings too)
+          type: ldap
+          config:
+            # enable ldaps
+            enable_ssl: false
+            # enable start tls, enable_ssl should be false
+            enable_start_tls: false
+            # send client certificate
+            enable_ssl_client_auth: false
+            # verify ldap hostname
+            verify_hostnames: true
+            hosts:
+            - localhost:8389
+            bind_dn: null
+            password: null
+            rolebase: 'ou=groups,dc=example,dc=com'
+            # Filter to search for roles (currently in the whole subtree beneath rolebase)
+            # {0} is substituted with the DN of the user
+            # {1} is substituted with the username
+            # {2} is substituted with an attribute value from user's directory entry, of the authenticated user. Use userroleattribute to specify the name of the attribute
+            rolesearch: '(member={0})'
+            # Specify the name of the attribute which value should be substituted with {2} above
+            userroleattribute: null
+            # Roles as an attribute of the user entry
+            userrolename: disabled
+            #userrolename: memberOf
+            # The attribute in a role entry containing the name of that role, Default is "name".
+            # Can also be "dn" to use the full DN as rolename.
+            rolename: cn
+            # Resolve nested roles transitive (roles which are members of other roles and so on ...)
+            resolve_nested_roles: true
+            userbase: 'ou=people,dc=example,dc=com'
+            # Filter to search for users (currently in the whole subtree beneath userbase)
+            # {0} is substituted with the username
+            usersearch: '(uid={0})'
+            # Skip users matching a user name, a wildcard or a regex pattern
+            #skip_users:
+            #  - 'cn=Michael Jackson,ou*people,o=TEST'
+            #  - '/\S*/'
+      roles_from_another_ldap:
+        description: "Authorize via another Active Directory"
+        http_enabled: false
+        transport_enabled: false
+        authorization_backend:
+          type: ldap
+          #config goes here ...
+  #    auth_failure_listeners:
+  #      ip_rate_limiting:
+  #        type: ip
+  #        allowed_tries: 10
+  #        time_window_seconds: 3600
+  #        block_expiry_seconds: 600
+  #        max_blocked_clients: 100000
+  #        max_tracked_clients: 100000
+  #      internal_authentication_backend_limiting:
+  #        type: username
+  #        authentication_backend: intern
+  #        allowed_tries: 10
+  #        time_window_seconds: 3600
+  #        block_expiry_seconds: 600
+  #        max_blocked_clients: 100000
+  #        max_tracked_clients: 100000
+CONF_EOF
+internalUsersConf=/opt/opensearch/current/plugins/opensearch-security/securityconfig/internal_users.yml
+
+{{- $myIp := getv "/host/ip" }}
+{{- $myAdminUser := getv "/env/opensearch.admin.user" "admin" }}
+{{- $myAdminPassword := getv "/env/opensearch.admin.password" "admin" }}
+
+hash=`/usr/bin/java -cp /opt/opensearch/current/plugins/opendistro_security_ssl/*:/opt/opensearch/current/plugins/opensearch-security/*:/opt/opensearch/current/plugins/opensearch-security/deps/*:/opt/opensearch/current/lib/* org.opensearch.security.tools.Hasher -p {{ $myAdminPassword }}`
+
+flush > $internalUsersConf << USERS_CONF_EOF
+---
+# This is the internal user database
+# The hash value is a bcrypt hash and can be generated with plugin/tools/hash.sh
+
+_meta:
+  type: "internalusers"
+  config_version: 2
+
+# Define your internal users here
+
+{{ $myAdminUser }}:
+  hash: "$hash"
+  reserved: true
+  backend_roles:
+  - "admin"
+  description: "Define admin user"
+
+USERS_CONF_EOF
+flush > /opt/opensearch/current/plugins/opensearch-analisys-ik/config/IKAnalyzer.cfg.xml << IK_ANALYZER_CFG_EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+  <entry key="ext_dict">custom/jieba.dic;extra_main.dic</entry>
+  <entry key="ext_stopwords">custom/extra_stopword.dic</entry>
+  <entry key="remote_ext_dict">{{ getv "/env/remote_ext_dict" "" }}</entry>
+  <entry key="remote_ext_stopwords">{{ getv "/env/remote_ext_stopwords" "" }}</entry>
+</properties>
+IK_ANALYZER_CFG_EOF
+
+
+
+mkdir -p /opt/app/conf/appctl
+flush > /opt/app/conf/appctl/admin.pwd.new << ADMIN_PWD_NEW
+{{ $myAdminPassword }}
+ADMIN_PWD_NEW
