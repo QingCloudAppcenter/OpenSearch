@@ -523,7 +523,7 @@ checkPwdAndReload() {
   fi
   log "backup old security info, done!"
   log "prepare user.yaml"
-  local line=$(sed -n -e '/^admin/=' $APPCTL_DATA_PATH/$APPCTL_SECURITY_BACKUP_FOLDER/internal_users.yml)
+  local line=$(sed -n -e "/^${MY_ADMIN_USER}/=" $APPCTL_DATA_PATH/$APPCTL_SECURITY_BACKUP_FOLDER/internal_users.yml)
   local tmpstr=$(sed -n 1,${line}p $APPCTL_DATA_PATH/$APPCTL_SECURITY_BACKUP_FOLDER/internal_users.yml)
   local tmphash="  hash: \"$(JAVA_HOME=/usr $HASH_TOOL -p $(cat /opt/app/conf/appctl/admin.pwd.new))\""
   tmpstr=$(echo -e "$tmpstr\n$tmphash")
