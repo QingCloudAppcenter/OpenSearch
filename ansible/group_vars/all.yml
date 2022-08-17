@@ -4,5 +4,5 @@ package_version: 1.2.4
 opensearch_dashboards_version: 1.2.0
 opensearch_dashboards_package_version: 1.2.0
 elk_version: 7.10.2
-logstash_version: 7.13.2
+logstash_version: 7.16.3
 local_cache_path: /root/.ansible/cache

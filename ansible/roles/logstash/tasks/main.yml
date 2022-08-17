@@ -17,7 +17,7 @@
     loop_var: opts
 
 - name: prepare plugins
-  include_tasks: prepare-plugin.yml
+  include_tasks: install-plugin.yml
   loop:
   - name: logstash-input-irc
     version: 3.0.7
@@ -34,20 +34,20 @@
   loop_control:
     loop_var: opts
 
-- name: prepare opensearch plugins
-  include_tasks: prepare-opensearch-plugin.yml
-  loop:
-    - name: logstash-output-opensearch
-      version: 1.1.0
-  loop_control:
-    loop_var: opts
+# - name: prepare opensearch plugins
+#   include_tasks: prepare-opensearch-plugin.yml
+#   loop:
+#     - name: logstash-output-opensearch
+#       version: 1.1.0
+#   loop_control:
+#     loop_var: opts
 
-- name: install LS plugins
-  shell: |
-    sudo -u logstash bin/logstash-plugin install --no-verify
-  args:
-    chdir: "{{ ls_home }}"
-  when: installed is failed
+# - name: install LS plugins
+#   shell: |
+#     sudo -u logstash bin/logstash-plugin install --no-verify
+#   args:
+#     chdir: "{{ ls_home }}"
+#   when: installed is failed
 
 - name: copy configuration files
   copy:
