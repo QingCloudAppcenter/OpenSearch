@@ -5,41 +5,53 @@
     state: present
     update_cache: no
 
-- name: install binary
+- name: install node exporter binaries
   include_role:
-    name: utils
-    tasks_from: install-pkg
+    name: install-1.0.6
   vars:
-    version: "{{ opensearch_version }}"
-    parentRole: opensearch
-  loop:
-    - pkgUrl: "https://artifacts.opensearch.org/releases/bundle/opensearch/{{ opensearch_version }}/opensearch-{{ opensearch_version }}-linux-x64.tar.gz"
-  loop_control:
-    loop_var: opts
+    opts:
+      pkg_name: node_exporter
+      pkg_version: "{{ node_exporter_version }}"
+      pkg_url: https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.linux-{{ arch1 }}.tar.gz
+      pkg_type: tar.gz
+      creates: bin
+      extracts: yes
+      extra_opts:
+        - "--strip-components=1"
 
-- name: copy configuration files
-  copy:
-    src: "{{ role_path }}/files/{{ file_path }}"
-    dest: /{{ file_path }}
-    owner: root
-    group: root
-    mode: preserve
-  loop:
-  - opt/app/conf/opensearch/
-  loop_control:
-    loop_var: file_path
+- name: install node exporter binaries
+  include_role:
+    name: install-1.0.6
+  vars:
+    opts:
+      pkg_name: opensearch
+      pkg_version: "{{ opensearch_version }}"
+      pkg_url: https://artifacts.opensearch.org/releases/bundle/opensearch/{{ opensearch_version }}/opensearch-{{ opensearch_version }}-linux-x64.tar.gz
+      pkg_type: tar.gz
+      creates: bin
+      extracts: yes
+      extra_opts:
+        - "--strip-components=1"
+
+# - name: copy configuration files
+#   copy:
+#     src: "{{ role_path }}/files/{{ file_path }}"
+#     dest: /{{ file_path }}
+#     owner: root
+#     group: root
+#     mode: preserve
+#   loop:
+#   - opt/app/conf/opensearch/
+#   loop_control:
+#     loop_var: file_path
 
 - name: install service
   copy:
-    src: "{{ role_path }}/files/{{ file_path }}"
-    dest: /{{ file_path }}
+    src: lib/systemd/system
+    dest: /lib/systemd/system
     owner: root
     group: root
     mode: preserve
-  loop:
-    - lib/systemd/system/
-  loop_control:
-    loop_var: file_path
 
 - name: mask opensearch service
   systemd:
@@ -48,95 +60,101 @@
     masked: yes
     state: stopped
 
-- name: install plugins
-  include_tasks: install-plugin2.yml
-  loop:
-    - name: analysis-icu
-    - name: analysis-kuromoji
-    - name: analysis-nori
-    - name: analysis-phonetic
-    - name: analysis-smartcn
-    - name: analysis-stempel
-    - name: analysis-ukrainian
-    - name: mapper-annotated-text
-    - name: mapper-murmur3
-    - name: mapper-size
-    - name: opensearch-analisys-ik
-    - name: repository-hdfs
-    - name: repository-s3
-    - name: ingest-attachment
-    - name: prometheus-exporter
-  loop_control:
-    loop_var: opts
-
-- name: prepare dict directory
-  file:
-    path: /opt/opensearch/current/plugins/opensearch-analisys-ik/config/custom
-    owner: opensearch
-    group: svc
-    state: directory
-
-- name: check if jieba dic exists
-  stat:
-    path: "{{ role_path }}/files/tmp/jieba.dic"
-  register: jieba_dic
-  delegate_to: localhost
-
-- name: download jieba dict
-  get_url:
-    url: "https://github.com/QingCloudAppcenter/elk-archived/raw/master/docker-image/standard/elasticsearch/dicts/jieba.dic"
-    dest: "{{ role_path }}/files/tmp/jieba.dic"
-  delegate_to: localhost
-  when: jieba_dic.stat.exists == False
-
-- name: copy jieba dict
+- name: copy opensearch initial config
   copy:
-    src: "{{ role_path }}/files/tmp/jieba.dic"
-    dest: "/opt/opensearch/current/plugins/opensearch-analisys-ik/config/custom/jieba.dic"
-    owner: opensearch
-    group: svc
-    mode: u=rw,go=r
+    src: /opt/opensearch/current/config/
+    dest: /opt/app/current/conf/opensearch
+    remote_src: yes
 
-- name: check if package file exists
-  stat:
-    path: "{{ role_path }}/files/tmp/extra_stopword.dic"
-  register: stopword_dic
-  delegate_to: localhost
+# - name: install plugins
+#   include_tasks: install-plugin2.yml
+#   loop:
+#     - name: analysis-icu
+#     - name: analysis-kuromoji
+#     - name: analysis-nori
+#     - name: analysis-phonetic
+#     - name: analysis-smartcn
+#     - name: analysis-stempel
+#     - name: analysis-ukrainian
+#     - name: mapper-annotated-text
+#     - name: mapper-murmur3
+#     - name: mapper-size
+#     - name: opensearch-analisys-ik
+#     - name: repository-hdfs
+#     - name: repository-s3
+#     - name: ingest-attachment
+#     - name: prometheus-exporter
+#   loop_control:
+#     loop_var: opts
 
-- name: download dict for IKAnalyzer
-  get_url:
-    url: "https://github.com/QingCloudAppcenter/elk-archived/raw/master/docker-image/standard/elasticsearch/dicts/stop_words.dic"
-    dest: "{{ role_path }}/files/tmp/extra_stopword.dic"
-  delegate_to: localhost
-  when: stopword_dic.stat.exists == False
+# - name: prepare dict directory
+#   file:
+#     path: /opt/opensearch/current/plugins/opensearch-analisys-ik/config/custom
+#     owner: opensearch
+#     group: svc
+#     state: directory
 
-- name: copy extra stopword dict
-  copy:
-    src: "{{ role_path }}/files/tmp/extra_stopword.dic"
-    dest: "/opt/opensearch/current/plugins/opensearch-analisys-ik/config/custom/extra_stopword.dic"
-    owner: opensearch
-    group: svc
+# - name: check if jieba dic exists
+#   stat:
+#     path: "{{ role_path }}/files/tmp/jieba.dic"
+#   register: jieba_dic
+#   delegate_to: localhost
 
-- name: check if mid_file exists
-  stat:
-    path: "{{ role_path }}/files/tmp/xxx"
-  register: mid_file
-  delegate_to: localhost
+# - name: download jieba dict
+#   get_url:
+#     url: "https://github.com/QingCloudAppcenter/elk-archived/raw/master/docker-image/standard/elasticsearch/dicts/jieba.dic"
+#     dest: "{{ role_path }}/files/tmp/jieba.dic"
+#   delegate_to: localhost
+#   when: jieba_dic.stat.exists == False
 
-- name: download mid_file
-  get_url:
-    url: "https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.10.2/elasticsearch-analysis-ik-7.10.2.zip"
-    dest: "{{ role_path }}/files/tmp/mid_file.zip"
-  delegate_to: localhost
-  when: mid_file.stat.exists == False
+# - name: copy jieba dict
+#   copy:
+#     src: "{{ role_path }}/files/tmp/jieba.dic"
+#     dest: "/opt/opensearch/current/plugins/opensearch-analisys-ik/config/custom/jieba.dic"
+#     owner: opensearch
+#     group: svc
+#     mode: u=rw,go=r
 
-- name: unzip mid_file.zip
-  unarchive:
-    src: "{{ role_path }}/files/tmp/mid_file.zip"
-    dest: "/opt/opensearch/current/plugins/opensearch-analisys-ik"
-    include: "config/*"
-    owner: opensearch
-    group: svc
+# - name: check if package file exists
+#   stat:
+#     path: "{{ role_path }}/files/tmp/extra_stopword.dic"
+#   register: stopword_dic
+#   delegate_to: localhost
+
+# - name: download dict for IKAnalyzer
+#   get_url:
+#     url: "https://github.com/QingCloudAppcenter/elk-archived/raw/master/docker-image/standard/elasticsearch/dicts/stop_words.dic"
+#     dest: "{{ role_path }}/files/tmp/extra_stopword.dic"
+#   delegate_to: localhost
+#   when: stopword_dic.stat.exists == False
+
+# - name: copy extra stopword dict
+#   copy:
+#     src: "{{ role_path }}/files/tmp/extra_stopword.dic"
+#     dest: "/opt/opensearch/current/plugins/opensearch-analisys-ik/config/custom/extra_stopword.dic"
+#     owner: opensearch
+#     group: svc
+
+# - name: check if mid_file exists
+#   stat:
+#     path: "{{ role_path }}/files/tmp/xxx"
+#   register: mid_file
+#   delegate_to: localhost
+
+# - name: download mid_file
+#   get_url:
+#     url: "https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.10.2/elasticsearch-analysis-ik-7.10.2.zip"
+#     dest: "{{ role_path }}/files/tmp/mid_file.zip"
+#   delegate_to: localhost
+#   when: mid_file.stat.exists == False
+
+# - name: unzip mid_file.zip
+#   unarchive:
+#     src: "{{ role_path }}/files/tmp/mid_file.zip"
+#     dest: "/opt/opensearch/current/plugins/opensearch-analisys-ik"
+#     include: "config/*"
+#     owner: opensearch
+#     group: svc
 
 
 

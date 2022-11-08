@@ -11,6 +11,6 @@
     elif [ "$realname" = "prometheus-exporter" ]; then
       realname="$extra_url2"
     fi
-    /opt/opensearch/current/bin/opensearch-plugin install -v --batch "$realname"
+    OPENSEARCH_HOME=/opt/opensearch/current OPENSEARCH_JAVA_HOME=/opt/opensearch/current/jdk OPENSEARCH_PATH_CONF=/opt/app/current/conf/opensearch /opt/opensearch/current/bin/opensearch-plugin install -v --batch "$realname"
   register: installed
   ignore_errors: True
