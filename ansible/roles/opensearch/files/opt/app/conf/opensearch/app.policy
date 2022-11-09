@@ -30,3 +30,20 @@ grant {
   permission javax.security.auth.PrivateCredentialPermission "org.apache.hadoop.security.Credentials * \"*\"", "read";
   permission javax.security.auth.kerberos.ServicePermission "*", "initiate";
 };
+
+grant {
+    permission java.lang.management.ManagementPermission "control";
+    permission java.net.SocketPermission "localhost:9600","connect,resolve";
+};
+
+grant codebase "file:${java.home}/../lib/tools.jar" {
+  permission java.security.AllPermission;
+};
+
+grant codeBase "jrt:/jdk.attach" {
+    permission java.security.AllPermission;
+};
+
+grant codeBase "jrt:/jdk.internal.jvmstat" {
+    permission java.security.AllPermission;
+};

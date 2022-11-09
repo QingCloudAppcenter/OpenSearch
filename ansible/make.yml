@@ -25,7 +25,7 @@
     loop:
     - opensearch
     - jq-1.0.9
-    #- node-opensearch
+    - node-opensearch
     loop_control:
       loop_var: svc_name
 

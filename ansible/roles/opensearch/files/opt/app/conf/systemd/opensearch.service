@@ -12,14 +12,14 @@ Environment=OPENSEARCH_HOME=/opt/opensearch/current
 Environment=OPENSEARCH_PATH_CONF=/opt/app/current/conf/opensearch
 Environment=PID_DIR=/var/run/opensearch
 Environment=OPENSEARCH_SD_NOTIFY=true
-EnvironmentFile=/opt/app/current/conf/opensearch/opensearch.env
+EnvironmentFile=-/opt/app/current/conf/opensearch/opensearch.env
 
 WorkingDirectory=/opt/opensearch/current
 
 User=opensearch
 Group=opensearch
 
-ExecStart=/usr/share/opensearch/bin/systemd-entrypoint -p ${PID_DIR}/opensearch.pid --quiet
+ExecStart=/opt/opensearch/current/bin/opensearch -p ${PID_DIR}/opensearch.pid --quiet
 
 # StandardOutput is configured to redirect to journalctl since
 # some error messages may be logged in standard output before
