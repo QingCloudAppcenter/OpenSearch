@@ -1,4 +1,4 @@
-flush > /opt/app/current/conf/opensearch/opensearch.yml <<CONF_STATIC_NEW
+flush > /data/conf.static <<CONF_STATIC_NEW
 discovery.zen.no_master_block={{ getv "/env/discovery.zen.no_master_block" }}
 thread_pool.write.queue_size={{ getv "/env/thread_pool.write.queue_size" }}
 thread_pool.search.queue_size={{ getv "/env/thread_pool.search.queue_size" }}

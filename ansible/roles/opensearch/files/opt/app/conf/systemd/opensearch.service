@@ -17,7 +17,7 @@ EnvironmentFile=-/opt/app/current/conf/opensearch/opensearch.env
 WorkingDirectory=/opt/opensearch/current
 
 User=opensearch
-Group=opensearch
+Group=svc
 
 ExecStart=/opt/opensearch/current/bin/opensearch -p ${PID_DIR}/opensearch.pid --quiet
 
