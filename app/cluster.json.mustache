@@ -15,7 +15,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-2djxicw5"
+      "image": "img-xndcyid7"
     },
     "instance_class": {{cluster.es_node.instance_class}},
     "count": {{cluster.es_node.count}},
@@ -28,6 +28,9 @@
     },
     "vertical_scaling_policy": "sequential",
     "services": {
+      "init": {
+        "cmd": "appctl init"
+      },
       "start": {
         "cmd": "appctl start"
       },
@@ -271,7 +274,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-2djxicw5"
+      "image": "img-xndcyid7"
     },
     "instance_class": {{cluster.es_master_node.instance_class}},
     "count": {{cluster.es_master_node.count}},
@@ -283,6 +286,9 @@
     },
     "vertical_scaling_policy": "sequential",
     "services": {
+      "init": {
+        "cmd": "appctl init"
+      },
       "start": {
         "cmd": "appctl start"
       },
@@ -525,7 +531,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-2djxicw5"
+      "image": "img-xndcyid7"
     },
     "instance_class": {{cluster.es_node_2.instance_class}},
     "count": {{cluster.es_node_2.count}},
@@ -538,6 +544,9 @@
     },
     "vertical_scaling_policy": "sequential",
     "services": {
+      "init": {
+        "cmd": "appctl init"
+      },
       "start": {
         "cmd": "appctl start"
       },
@@ -781,7 +790,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-2djxicw5"
+      "image": "img-xndcyid7"
     },
     "instance_class": {{cluster.es_node_3.instance_class}},
     "count": {{cluster.es_node_3.count}},
@@ -794,6 +803,9 @@
     },
     "vertical_scaling_policy": "sequential",
     "services": {
+      "init": {
+        "cmd": "appctl init"
+      },
       "start": {
         "cmd": "appctl start"
       },

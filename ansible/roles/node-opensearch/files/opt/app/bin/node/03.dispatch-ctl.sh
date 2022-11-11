@@ -1,6 +1,5 @@
 prepairPathOnPersistentDisk() {
-    mkdir -p /data/opensearch/data
-    mkdir -p /data/opensearch/logs
+    mkdir -p /data/opensearch/{data,logs}
     chown -R opensearch:svc /data/opensearch
 }
 
@@ -10,6 +9,9 @@ dispatch() {
         prepairPathOnPersistentDisk
         return
     fi
-    
+    if [ "${ADDING_HOSTS_FLAG}" = "true" ] || [ "DELETING_HOSTS_FLAG" = "true" ]; then
+        log "adding or deleting nodes"
+        return
+    fi
     log "normal dispatch check"
 }

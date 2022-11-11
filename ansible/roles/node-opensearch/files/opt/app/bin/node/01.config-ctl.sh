@@ -2,12 +2,22 @@
 OPENSEARCH_CONF_PATH=/opt/app/current/conf/opensearch/opensearch.yml
 OPENSEARCH_CONF_REF_STATIC_PATH=/data/appctl/data/opensearch.conf.ref.static
 JVM_OPTIONS_PATH=/opt/app/current/conf/opensearch/jvm.options
+SECURITY_CONF_PATH=/opt/app/current/conf/opensearch/opensearch-security
+SECURITY_TOOL_PATH=/opt/opensearch/current/plugins/opensearch-security/tools
+OPENSEARCH_JAVA_HOME=/opt/opensearch/current/jdk
 # recreate opensearch.yml according to static config
 
 refreshOpenSearchConf() {
+    local rolestr=""
+    if [ "$IS_MASTER" = "true" ]; then
+        rolestr="cluster_manager"
+    else
+        rolestr="data, ingest"
+    fi
     local cfg=$(cat<<OS_CONF
 cluster.name: ${CLUSTER_ID}
 node.name: ${NODE_NAME}
+node.roles: [ $rolestr ]
 path.data: /data/opensearch/data
 path.logs: /data/opensearch/logs
 network.host: ${MY_IP}
@@ -31,9 +41,25 @@ plugins.security.authcz.admin_dn:
   - 'CN=qcadmin,OU=NoSql,O=QC,L=WuHan,ST=HuBei,C=CN'
 plugins.security.nodes_dn:
   - 'CN=node.opensearch.cluster,OU=NoSql,O=QC,L=WuHan,ST=HuBei,C=CN'
+
+plugins.security.restapi.roles_enabled: ["all_access", "security_rest_api_access"]
 OS_CONF
     )
     echo "$cfg" > ${OPENSEARCH_CONF_PATH}
+}
+
+# modify opensearch.yml for cluster init
+injectClusterInitConf() {
+    local cfg=$(cat<<CLUSTER_INIT
+# managed by appctl, do not modify
+cluster.initial_master_nodes: [ $NODE_NAME ]
+CLUSTER_INIT
+    )
+    echo "$cfg" >> $OPENSEARCH_CONF_PATH
+}
+
+restoreOpenSearchConf() {
+    sed -i '/# managed by appctl, do not modify/,$d' $OPENSEARCH_CONF_PATH
 }
 
 refreshJvmOptions() {
@@ -125,11 +151,31 @@ JVM_CONF
     echo "$cfg" > ${JVM_OPTIONS_PATH}
 }
 
-start() {
-    echo "start"
+
+# calculate secret hash with 
+calcSecretHash() {
+    chmod +x $SECURITY_TOOL_PATH/hash.sh
+    OPENSEARCH_JAVA_HOME=$OPENSEARCH_JAVA_HOME $SECURITY_TOOL_PATH/hash.sh -p $1 | tail -n1
 }
 
-init() {
-    _init
-    echo "init"
+# inject internal user when cluster init
+injectInternalUsers() {
+    local syshash=$(calcSecretHash $SYS_USER_PWD)
+    local cfg=$(cat<<INTERNAL_USER
+# managed by appctl, do not modify
+$SYS_USER:
+  hash: "$syshash"
+  reserved: true
+  hidden: true
+  backend_roles:
+  - "admin"
+  description: "internal user: $SYS_USER"
+INTERNAL_USER
+)
+
+    echo "$cfg" >> ${SECURITY_CONF_PATH}/internal_users.yml
+}
+
+restoreInternalUsers() {
+    sed -i '/# managed by appctl, do not modify/,$d' ${SECURITY_CONF_PATH}/internal_users.yml
 }
