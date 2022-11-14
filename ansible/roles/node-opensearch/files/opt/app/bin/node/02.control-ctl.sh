@@ -13,9 +13,10 @@ start() {
         log "appctl node init"
         _initNode
     fi
-    log "start opensearch"
+    log "start opensearch.service"
     systemctl start opensearch
-    log "start done"
+    log "enable health check"
+    enableHealthCheck
 }
 
 needInitProcess() {
@@ -51,7 +52,7 @@ init() {
     log "start opensearch.service"
     systemctl start opensearch
 
-    log "wait until cluster is ok"
+    log "wait until local service is ok"
     while ! isLocalServiceAvailable; do
         sleep 5s
     done
@@ -63,4 +64,11 @@ init() {
         log "restore opensearch.yml"
         restoreOpenSearchConf
     fi
+}
+
+stop() {
+    log "disable health check"
+    disableHealthCheck
+    log "stop opensearch.service"
+    systemctl stop opensearch
 }

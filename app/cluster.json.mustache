@@ -15,7 +15,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-8t6x7y8j"
+      "image": "img-333lp6xz"
     },
     "instance_class": {{cluster.es_node.instance_class}},
     "count": {{cluster.es_node.count}},
@@ -133,7 +133,7 @@
       "action_timeout_sec": 150,
       "healthy_threshold": 2,
       "unhealthy_threshold": 4,
-      "check_cmd": "appctl check",
+      "check_cmd": "appctl healthCheck",
       "action_cmd": "appctl revive"
     },
     "monitor": {
@@ -275,7 +275,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-8t6x7y8j"
+      "image": "img-333lp6xz"
     },
     "instance_class": {{cluster.es_master_node.instance_class}},
     "count": {{cluster.es_master_node.count}},
@@ -390,7 +390,7 @@
       "timeout_sec": 10,
       "healthy_threshold": 2,
       "unhealthy_threshold": 4,
-      "check_cmd": "appctl check",
+      "check_cmd": "appctl healthCheck",
       "action_cmd": "appctl revive",
       "action_timeout_sec": 150
     },
@@ -533,7 +533,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-8t6x7y8j"
+      "image": "img-333lp6xz"
     },
     "instance_class": {{cluster.es_node_2.instance_class}},
     "count": {{cluster.es_node_2.count}},
@@ -651,7 +651,7 @@
       "action_timeout_sec": 150,
       "healthy_threshold": 2,
       "unhealthy_threshold": 4,
-      "check_cmd": "appctl check",
+      "check_cmd": "appctl healthCheck",
       "action_cmd": "appctl revive"
     },
     "monitor": {
@@ -793,7 +793,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-8t6x7y8j"
+      "image": "img-333lp6xz"
     },
     "instance_class": {{cluster.es_node_3.instance_class}},
     "count": {{cluster.es_node_3.count}},
@@ -911,7 +911,7 @@
       "action_timeout_sec": 150,
       "healthy_threshold": 2,
       "unhealthy_threshold": 4,
-      "check_cmd": "appctl check",
+      "check_cmd": "appctl healthCheck",
       "action_cmd": "appctl revive"
     },
     "monitor": {
