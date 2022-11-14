@@ -552,6 +552,14 @@
       "description": "The role configuration properties of the application",
       "type": "array",
       "properties": [{
+        "key": "static.ssl.http.enabled",
+        "label": "static.ssl.http.enabled",
+        "description": "Enable REST API http ssl or not",
+        "type": "string",
+        "default": "true",
+        "range": ["true", "false"],
+        "required": "no"
+      }, {
         "key": "prometheus.node.exporter",
         "label": "prometheus.node.exporter",
         "description": "Prometheus exporter for hardware and OS metrics exposed by *NIX kernels with pluggable metric collectors.",

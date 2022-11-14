@@ -15,7 +15,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-xndcyid7"
+      "image": "img-8t6x7y8j"
     },
     "instance_class": {{cluster.es_node.instance_class}},
     "count": {{cluster.es_node.count}},
@@ -88,6 +88,7 @@
     "env": {
         "opensearch.admin.user": {{env.opensearch.admin.user}},
         "opensearch.admin.password": {{env.opensearch.admin.password}},
+        "static.ssl.http.enabled": {{env.es_node.static.ssl.http.enabled}},
         "appctl.tcp_keepalive_intvl": {{env.es_node.appctl.tcp_keepalive_intvl}},
         "appctl.tcp_keepalive_probes": {{env.es_node.appctl.tcp_keepalive_probes}},
         "appctl.tcp_keepalive_time": {{env.es_node.appctl.tcp_keepalive_time}},
@@ -274,7 +275,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-xndcyid7"
+      "image": "img-8t6x7y8j"
     },
     "instance_class": {{cluster.es_master_node.instance_class}},
     "count": {{cluster.es_master_node.count}},
@@ -345,6 +346,7 @@
     "env": {
         "opensearch.admin.user": {{env.opensearch.admin.user}},
         "opensearch.admin.password": {{env.opensearch.admin.password}},
+        "static.ssl.http.enabled": {{env.es_node.static.ssl.http.enabled}},
         "appctl.tcp_keepalive_intvl": {{env.es_node.appctl.tcp_keepalive_intvl}},
         "appctl.tcp_keepalive_probes": {{env.es_node.appctl.tcp_keepalive_probes}},
         "appctl.tcp_keepalive_time": {{env.es_node.appctl.tcp_keepalive_time}},
@@ -531,7 +533,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-xndcyid7"
+      "image": "img-8t6x7y8j"
     },
     "instance_class": {{cluster.es_node_2.instance_class}},
     "count": {{cluster.es_node_2.count}},
@@ -604,6 +606,7 @@
     "env": {
         "opensearch.admin.user": {{env.opensearch.admin.user}},
         "opensearch.admin.password": {{env.opensearch.admin.password}},
+        "static.ssl.http.enabled": {{env.es_node.static.ssl.http.enabled}},
         "appctl.tcp_keepalive_intvl": {{env.es_node.appctl.tcp_keepalive_intvl}},
         "appctl.tcp_keepalive_probes": {{env.es_node.appctl.tcp_keepalive_probes}},
         "appctl.tcp_keepalive_time": {{env.es_node.appctl.tcp_keepalive_time}},
@@ -790,7 +793,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-xndcyid7"
+      "image": "img-8t6x7y8j"
     },
     "instance_class": {{cluster.es_node_3.instance_class}},
     "count": {{cluster.es_node_3.count}},
@@ -863,6 +866,7 @@
     "env": {
         "opensearch.admin.user": {{env.opensearch.admin.user}},
         "opensearch.admin.password": {{env.opensearch.admin.password}},
+        "static.ssl.http.enabled": {{env.es_node.static.ssl.http.enabled}},
         "appctl.tcp_keepalive_intvl": {{env.es_node.appctl.tcp_keepalive_intvl}},
         "appctl.tcp_keepalive_probes": {{env.es_node.appctl.tcp_keepalive_probes}},
         "appctl.tcp_keepalive_time": {{env.es_node.appctl.tcp_keepalive_time}},

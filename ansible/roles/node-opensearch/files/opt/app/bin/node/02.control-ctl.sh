@@ -19,7 +19,6 @@ start() {
 }
 
 needInitProcess() {
-    test ! "$ADDING_HOSTS_FLAG" = "true"
     test ! "$IS_MASTER" = "false"
     local tmplist=($STABLE_MASTER_NODES)
     test "${STABLE_MASTER_NODES[0]}" = "$MY_IP"
@@ -36,6 +35,11 @@ init() {
         _init
     fi
 
+    if [ "$ADDING_HOSTS_FLAG" = "true" ]; then
+        log "adding nodes, skipping!"
+        return
+    fi
+
     log "inject internal users"
     injectInternalUsers
 
@@ -48,9 +52,8 @@ init() {
     systemctl start opensearch
 
     log "wait until cluster is ok"
-    while :; do
-        echo "wait for debug"
-        sleep 5s;
+    while ! isLocalServiceAvailable; do
+        sleep 5s
     done
     
     log "restore internal users"

@@ -1,5 +1,7 @@
-flush > /data/conf.static <<CONF_STATIC_NEW
+mkdir -p /data/appctl/data
+flush > /data/appctl/data/os.settings.static.new <<OS_CONF_STATIC_NEW
+static.ssl.http.enabled={{ $sslHttpEnabled }}
 discovery.zen.no_master_block={{ getv "/env/discovery.zen.no_master_block" }}
 thread_pool.write.queue_size={{ getv "/env/thread_pool.write.queue_size" }}
 thread_pool.search.queue_size={{ getv "/env/thread_pool.search.queue_size" }}
-CONF_STATIC_NEW
+OS_CONF_STATIC_NEW

@@ -1,12 +1,20 @@
 # paths
 OPENSEARCH_CONF_PATH=/opt/app/current/conf/opensearch/opensearch.yml
-OPENSEARCH_CONF_REF_STATIC_PATH=/data/appctl/data/opensearch.conf.ref.static
+OPENSEARCH_STATIC_SETTINGS_PATH=/data/appctl/data/os.settings.static
 JVM_OPTIONS_PATH=/opt/app/current/conf/opensearch/jvm.options
 SECURITY_CONF_PATH=/opt/app/current/conf/opensearch/opensearch-security
 SECURITY_TOOL_PATH=/opt/opensearch/current/plugins/opensearch-security/tools
 OPENSEARCH_JAVA_HOME=/opt/opensearch/current/jdk
-# recreate opensearch.yml according to static config
 
+# read item from a list string
+getItemFromStdin() {
+    local input
+    read input
+    local res=$(echo "$input" | sed '/^'$1'=/!d;s/^'$1'=//')
+    echo "$res"
+}
+
+# recreate opensearch.yml according to static config
 refreshOpenSearchConf() {
     local rolestr=""
     if [ "$IS_MASTER" = "true" ]; then
@@ -14,7 +22,9 @@ refreshOpenSearchConf() {
     else
         rolestr="data, ingest"
     fi
-    local cfg=$(cat<<OS_CONF
+    local settings=$(cat $OPENSEARCH_STATIC_SETTINGS_PATH)
+    local sslHttpEnabled=$(echo "$settings" | getItemFromStdin "static.ssl.http.enabled")
+    local cfg=$(cat <<OS_CONF
 cluster.name: ${CLUSTER_ID}
 node.name: ${NODE_NAME}
 node.roles: [ $rolestr ]
@@ -24,7 +34,7 @@ network.host: ${MY_IP}
 http.port: 9200
 discovery.seed_hosts: [ ${STABLE_MASTER_NODES_HOSTS// /,} ]
 
-plugins.security.ssl.http.enabled: false
+plugins.security.ssl.http.enabled: $sslHttpEnabled
 plugins.security.ssl.http.pemcert_filepath: certs/qc/node1.pem
 plugins.security.ssl.http.pemkey_filepath: certs/qc/node1-key.pem
 plugins.security.ssl.http.pemtrustedcas_filepath: certs/qc/root-ca.pem
