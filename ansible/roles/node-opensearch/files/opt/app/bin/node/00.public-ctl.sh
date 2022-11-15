@@ -1,3 +1,6 @@
+# error code
+EC_SCALEIN_BOTH_NOT_ALLOWED=130
+
 # wrap the invoke of opensearch rest api
 # $1 max-time
 # $2 https://<ip>:9200/<your url>

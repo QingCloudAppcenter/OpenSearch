@@ -72,3 +72,32 @@ stop() {
     log "stop opensearch.service"
     systemctl stop opensearch
 }
+
+preScaleInCheck() {
+    if [ ! "$IS_MASTER"  = "true" ]; then
+        log "only first master node does pre-scale-in check"
+        return
+    fi
+    local tmplist=($ROLE_NODES)
+    if [ "${tmplist[0]}" = "$MY_IP" ]; then
+        log "only first master node does pre-scale-in check"
+        return
+    fi
+    if [ -n "$LEAVING_DATA_NODES" ] && [ -n "$LEAVING_MASTER_NODES" ]; then
+        log "can not remove master nodes and data nodes together"
+        return $EC_SCALEIN_BOTH_NOT_ALLOWED
+    fi
+    # to do some work
+}
+
+scaleIn() {
+    log "scale in"
+}
+
+scaleOut() {
+    log "scale out, do nothing"
+}
+
+restart() {
+    log "restart"
+}

@@ -15,7 +15,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-333lp6xz"
+      "image": "img-3juqcodg"
     },
     "instance_class": {{cluster.es_node.instance_class}},
     "count": {{cluster.es_node.count}},
@@ -41,12 +41,12 @@
         "cmd": "appctl restart"
       },
       "scale_in": {
-        "pre_check": "appctl preScaleIn",
-        "cmd": "appctl scale in",
+        "pre_check": "appctl preScaleInCheck",
+        "cmd": "appctl scaleIn",
         "timeout": 24000
       },
       "scale_out": {
-        "cmd": "appctl scale out",
+        "cmd": "appctl scaleOut",
         "timeout": 43200
       },
       "destroy": {
@@ -275,7 +275,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-333lp6xz"
+      "image": "img-3juqcodg"
     },
     "instance_class": {{cluster.es_master_node.instance_class}},
     "count": {{cluster.es_master_node.count}},
@@ -300,11 +300,12 @@
         "cmd": "appctl restart"
       },
       "scale_in": {
-        "cmd": "appctl scale in",
+        "pre_check": "appctl preScaleInCheck",
+        "cmd": "appctl scaleIn",
         "timeout": 24000
       },
       "scale_out": {
-        "cmd": "appctl scale out",
+        "cmd": "appctl scaleOut",
         "timeout": 43200
       },
       "destroy": {
@@ -533,7 +534,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-333lp6xz"
+      "image": "img-3juqcodg"
     },
     "instance_class": {{cluster.es_node_2.instance_class}},
     "count": {{cluster.es_node_2.count}},
@@ -559,12 +560,12 @@
         "cmd": "appctl restart"
       },
       "scale_in": {
-        "pre_check": "appctl preScaleIn",
-        "cmd": "appctl scale in",
+        "pre_check": "appctl preScaleInCheck",
+        "cmd": "appctl scaleIn",
         "timeout": 24000
       },
       "scale_out": {
-        "cmd": "appctl scale out",
+        "cmd": "appctl scaleOut",
         "timeout": 43200
       },
       "destroy": {
@@ -793,7 +794,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-333lp6xz"
+      "image": "img-3juqcodg"
     },
     "instance_class": {{cluster.es_node_3.instance_class}},
     "count": {{cluster.es_node_3.count}},
@@ -819,12 +820,12 @@
         "cmd": "appctl restart"
       },
       "scale_in": {
-        "pre_check": "appctl preScaleIn",
-        "cmd": "appctl scale in",
+        "pre_check": "appctl preScaleInCheck",
+        "cmd": "appctl scaleIn",
         "timeout": 24000
       },
       "scale_out": {
-        "cmd": "appctl scale out",
+        "cmd": "appctl scaleOut",
         "timeout": 43200
       },
       "destroy": {
