@@ -95,7 +95,12 @@ scaleIn() {
 }
 
 scaleOut() {
-    log "scale out, do nothing"
+    if [ -z "$JOINING_MASTER_NODES" ]; then
+        log "adding data nodes, do nothing!"
+        return
+    fi
+    log "adding master nodes, refresh opensearch.yml"
+    refreshOpenSearchConf
 }
 
 restart() {

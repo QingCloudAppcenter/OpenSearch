@@ -24,15 +24,16 @@ refreshOpenSearchConf() {
     fi
     local settings=$(cat $OPENSEARCH_STATIC_SETTINGS_PATH)
     local sslHttpEnabled=$(echo "$settings" | getItemFromStdin "static.ssl.http.enabled")
+    local masterlist=$(echo $STABLE_MASTER_NODES_HOSTS $JOINING_MASTER_NODES_HOSTS)
     local cfg=$(cat <<OS_CONF
-cluster.name: ${CLUSTER_ID}
-node.name: ${NODE_NAME}
+cluster.name: $CLUSTER_ID
+node.name: $NODE_NAME
 node.roles: [ $rolestr ]
 path.data: /data/opensearch/data
 path.logs: /data/opensearch/logs
-network.host: ${MY_IP}
+network.host: $MY_IP
 http.port: 9200
-discovery.seed_hosts: [ ${STABLE_MASTER_NODES_HOSTS// /,} ]
+discovery.seed_hosts: [ ${masterlist// /,} ]
 
 plugins.security.ssl.http.enabled: $sslHttpEnabled
 plugins.security.ssl.http.pemcert_filepath: certs/qc/node1.pem
