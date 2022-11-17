@@ -15,7 +15,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-xqssflt9"
+      "image": "img-3spgh0bu"
     },
     "instance_class": {{cluster.es_node.instance_class}},
     "count": {{cluster.es_node.count}},
@@ -51,7 +51,7 @@
       },
       "destroy": {
         "allow_force": false,
-        "post_stop_service": false,
+        "post_stop_service": true,
         "cmd": "appctl destroy"
       },
       "restart_rolling": {
@@ -275,7 +275,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-xqssflt9"
+      "image": "img-3spgh0bu"
     },
     "instance_class": {{cluster.es_master_node.instance_class}},
     "count": {{cluster.es_master_node.count}},
@@ -310,7 +310,7 @@
       },
       "destroy": {
         "allow_force": false,
-        "post_stop_service": false,
+        "post_stop_service": true,
         "cmd": "appctl destroy"
       },
       "restart_rolling": {
@@ -534,7 +534,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-xqssflt9"
+      "image": "img-3spgh0bu"
     },
     "instance_class": {{cluster.es_node_2.instance_class}},
     "count": {{cluster.es_node_2.count}},
@@ -570,7 +570,7 @@
       },
       "destroy": {
         "allow_force": false,
-        "post_stop_service": false,
+        "post_stop_service": true,
         "cmd": "appctl destroy"
       },
       "restart_rolling": {
@@ -794,7 +794,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-xqssflt9"
+      "image": "img-3spgh0bu"
     },
     "instance_class": {{cluster.es_node_3.instance_class}},
     "count": {{cluster.es_node_3.count}},
@@ -830,7 +830,7 @@
       },
       "destroy": {
         "allow_force": false,
-        "post_stop_service": false,
+        "post_stop_service": true,
         "cmd": "appctl destroy"
       },
       "restart_rolling": {
