@@ -137,6 +137,10 @@ preScaleInCheck() {
         log "only first stable master node does pre-scale-in check"
         return
     fi
+    if [ -z "$LEAVING_DATA_NODES" ] && [ -z "$LEAVING_MASTER_NODES" ]; then
+        log "remove logstash or dashboards, do nothing"
+        return
+    fi
     if [ -n "$LEAVING_DATA_NODES" ] && [ -n "$LEAVING_MASTER_NODES" ]; then
         log "can not remove master nodes and data nodes together"
         return $EC_SCALEIN_BOTH_NOT_ALLOWED
@@ -150,13 +154,18 @@ preScaleInCheck() {
 }
 
 scaleIn() {
-    if [ -z "$LEAVING_MASTER_NODES" ]; then
+    if [ -n "$LEAVING_MASTER_NODES" ]; then
+        log "scale in master nodes, refresh opensearch.yml"
+        refreshOpenSearchConf
+        return
+    fi
+
+    if [ -n "$LEAVING_DATA_NODES" ]; then
         log "scale in data nodes, do nothing"
         return
     fi
-    
-    log "scale in master nodes, refresh opensearch.yml"
-    refreshOpenSearchConf
+
+    log "scale in logstash or dashboard, do nothing"
 }
 
 processAfterScaleInMasterNodes() {
@@ -183,12 +192,18 @@ destroy() {
 }
 
 scaleOut() {
-    if [ -z "$JOINING_MASTER_NODES" ]; then
+    if [ -n "$JOINING_MASTER_NODES" ]; then
+        log "adding master nodes, refresh opensearch.yml"
+        refreshOpenSearchConf
+        return
+    fi
+
+    if [ -n "$JOINING_DATA_NODES" ]; then
         log "adding data nodes, do nothing!"
         return
     fi
-    log "adding master nodes, refresh opensearch.yml"
-    refreshOpenSearchConf
+
+    log "scale out logstash or dashboard, do nothing"
 }
 
 restart() {
