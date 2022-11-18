@@ -281,5 +281,7 @@ scaleOut() {
 }
 
 restart() {
-    log "restart"
+    log "normal restart"
+    stop
+    start
 }
