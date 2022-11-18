@@ -123,8 +123,61 @@ processBeforeScaleInMasterNodes() {
     fi
 }
 
+hasUnusualIndices() {
+    local info=$(getIndicesStatusDocsCount $@)
+    local closedcnt=$(echo "$info" | grep close | wc -l)
+    if [ "$closedcnt" -gt 0 ]; then
+        log "has closed indices"
+        return
+    fi
+    local nodocscnt=$(echo "$info" | awk '/^open/{if($2==0) print "got it!";exit}' | wc -l)
+    if [ "$nodocscnt" -gt 0 ]; then
+        log "has indices with 0 docs"
+        return
+    fi
+    return 1
+}
+
+isClusterStableWithShards() {
+    local info=$(getClusterHealthInfo $@)
+    local status=$(echo "$info" | jq -r '.status')
+    local relocating=$(echo "$info" | jq '.relocating_shards')
+    [ "$status" = "green" ] && [ "$relocating" -eq 0 ]
+}
+
+isDataExcluded() {
+    local info=$(getNodesDocsCountInfo $@)
+    local doccount=$(echo "$info" | jq '.nodes | to_entries | map(.value.indices.docs.count) | add')
+    test "$doccount" -eq 0
+}
+
 processBeforeScaleInDataNodes() {
-    :
+    if hasUnusualIndices; then
+        log "cluster has closed indices or indices with 0 docs"
+        return $EC_SCALEIN_UNUSUAL_INDICES
+    fi
+    if ! isClusterStableWithShards; then
+        log "cluster is not stable with shards, can not scale in data nodes"
+        return $EC_SCALEIN_UNSTABLE_SHARDS
+    fi
+    local res
+    if ! res=$(excludeDataNodes "${LEAVING_DATA_NODES// /,}"); then
+        log "failed excluding data nodes"
+        clearDataExclude
+        return $EC_SCALEIN_FAILED_EXCLUDE_DATA
+    fi
+    local modified=$(echo "$res" | jq -r '.persistent.cluster.routing.allocation.exclude._ip')
+    if [ ! "$modified" = "${LEAVING_DATA_NODES// /,}" ]; then
+        log "failed excluding data nodes"
+        clearDataExclude
+        return $EC_SCALEIN_FAILED_EXCLUDE_DATA
+    fi
+    # wait 2 hour (720*10=7200)
+    if ! retry 720 10 0 isDataExcluded "$LEAVING_DATA_NODES"; then
+        log "timeout waiting for excluding data nodes"
+        clearDataExclude
+        return $EC_SCALEIN_WAITING_EXCLUDE_DATA
+    fi
 }
 
 preScaleInCheck() {
@@ -149,6 +202,7 @@ preScaleInCheck() {
         log "process before scale in master nodes"
         processBeforeScaleInMasterNodes
     else
+        log "process before scale in data nodes"
         processBeforeScaleInDataNodes
     fi
 }
@@ -169,26 +223,46 @@ scaleIn() {
 }
 
 processAfterScaleInMasterNodes() {
-    local tmplist=($LEAVING_MASTER_NODES_HOSTS)
-    if [ ! "$NODE_NAME" = "${tmplist[0]}" ]; then
+    local tmplist=($LEAVING_MASTER_NODES)
+    if [ ! "$MY_IP" = "${tmplist[0]}" ]; then
         log "only first leaving master node runs post-scale-in procession"
         return
     fi
     local mlist=($STABLE_MASTER_NODES)
     local dlist=($STABLE_DATA_NODES)
     local wantlen=$((${#mlist[@]}+${#dlist[@]}))
-    local reallen=$(getAllNodesId ${mlist[0]} | wc -l)
+    local reallen=$(getClusterHealthInfo ${mlist[0]} | jq '.number_of_nodes')
     retry 120 5 0 test $wantlen -eq $reallen
     clearMasterExclude ${mlist[0]}
+}
+
+processAfterScaleInDataNodes() {
+    local tmplist=($LEAVING_DATA_NODES)
+    if [ ! "$MY_IP" = "${tmplist[0]}" ]; then
+        log "only first leaving data node runs post-scale-in procession"
+        return
+    fi
+    local mlist=($STABLE_MASTER_NODES)
+    local dlist=($STABLE_DATA_NODES)
+    local wantlen=$((${#mlist[@]}+${#dlist[@]}))
+    local reallen=$(getClusterHealthInfo ${mlist[0]} | jq '.number_of_nodes')
+    retry 120 5 0 test $wantlen -eq $reallen
+    clearDataExclude ${mlist[0]}
 }
 
 destroy() {
     if [ -n "$LEAVING_MASTER_NODES" ]; then
         log "process after scale in master nodes"
         processAfterScaleInMasterNodes
-    else
-        :
+        return
     fi
+    if [ -n "$LEAVING_DATA_NODES" ]; then
+        log "process after scale in data nodes"
+        processAfterScaleInDataNodes
+        return
+    fi
+
+    log "normal destory"
 }
 
 scaleOut() {
