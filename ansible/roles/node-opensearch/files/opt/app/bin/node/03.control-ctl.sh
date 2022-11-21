@@ -28,7 +28,7 @@ start() {
 needInitProcess() {
     test ! "$IS_MASTER" = "false"
     local tmplist=($STABLE_MASTER_NODES)
-    test "${STABLE_MASTER_NODES[0]}" = "$MY_IP"
+    test "${tmplist[0]}" = "$MY_IP"
 }
 
 init() {
