@@ -1,16 +1,17 @@
 # paths
 OPENSEARCH_CONF_PATH=/opt/app/current/conf/opensearch/opensearch.yml
-OPENSEARCH_STATIC_SETTINGS_PATH=/data/appctl/data/os.settings.static
+STATIC_SETTINGS_PATH=/data/appctl/data/settings.static
 JVM_OPTIONS_PATH=/opt/app/current/conf/opensearch/jvm.options
 SECURITY_CONF_PATH=/opt/app/current/conf/opensearch/opensearch-security
 SECURITY_TOOL_PATH=/opt/opensearch/current/plugins/opensearch-security/tools
 OPENSEARCH_JAVA_HOME=/opt/opensearch/current/jdk
 
-# read item from a list string
+GLOBAL_STATIC_SETTINGS=
+GLOBAL_DYNAMIC_SETTINGS=
+
+# read item from env: GLOBAL_STATIC_SETTINGS
 getItemFromStdin() {
-    local input
-    read input
-    local res=$(echo "$input" | sed '/^'$1'=/!d;s/^'$1'=//')
+    local res=$(echo "$GLOBAL_STATIC_SETTINGS" | sed '/^'$1'=/!d;s/^'$1'=//')
     echo "$res"
 }
 
@@ -22,8 +23,8 @@ refreshOpenSearchConf() {
     else
         rolestr="data, ingest"
     fi
-    local settings=$(cat $OPENSEARCH_STATIC_SETTINGS_PATH)
-    local sslHttpEnabled=$(echo "$settings" | getItemFromStdin "static.ssl.http.enabled")
+    GLOBAL_STATIC_SETTINGS=$(cat $STATIC_SETTINGS_PATH)
+    local sslHttpEnabled=$(echo "$settings" | getItemFromStdin "static.os.ssl.http.enabled")
     local masterlist=$(echo $STABLE_MASTER_NODES_HOSTS $JOINING_MASTER_NODES_HOSTS)
     local cfg=$(cat <<OS_CONF
 cluster.name: $CLUSTER_ID

@@ -4,12 +4,12 @@ prepairPathOnPersistentDisk() {
 }
 
 syncAllSettings() {
-    cat $OPENSEARCH_STATIC_SETTINGS_PATH.new > $OPENSEARCH_STATIC_SETTINGS_PATH
+    cat $STATIC_SETTINGS_PATH.new > $STATIC_SETTINGS_PATH
 }
 
 isSettingsChanged() {
     # static settings and dynamic settings
-    if diff $OPENSEARCH_STATIC_SETTINGS_PATH $OPENSEARCH_STATIC_SETTINGS_PATH.new; then
+    if diff $STATIC_SETTINGS_PATH $STATIC_SETTINGS_PATH.new; then
         return 1
     else
         return 0

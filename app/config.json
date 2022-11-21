@@ -531,29 +531,12 @@
     "description": "application configuration properties",
     "type": "array",
     "properties": [{
-      "key": "opensearch.admin.user",
-      "label": "opensearch.admin.user",
-      "description": "Log in OpenSearch with the default username for admin.",
-      "type": "string",
-      "default": "admin",
-      "changeable": false,
-      "required": "yes"
-    }, {
-      "key": "opensearch.admin.password",
-      "label": "opensearch.admin.password",
-      "description": "Must contain a combination of uppercase and lowercase letters and numbers, special characters can be used (including @#%*_+-=), and the length is between 8-32",
-      "type": "password",
-      "default": "Change1Pwd",
-      "pattern": "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z@#\\%\\*\\_\\+\\-\\=]{8,32}$",
-      "changeable": true,
-      "required": "yes"
-    }, {
       "key": "es_node",
       "description": "The role configuration properties of the application",
       "type": "array",
       "properties": [{
-        "key": "static.ssl.http.enabled",
-        "label": "static.ssl.http.enabled",
+        "key": "static.os.ssl.http.enabled",
+        "label": "ssl.http.enabled",
         "description": "Enable REST API http ssl or not",
         "type": "string",
         "default": "true",
@@ -568,25 +551,25 @@
         "range": ["true", "false"],
         "required": "no"
       }, {
-        "key": "thread_pool.write.queue_size",
+        "key": "static.os.thread_pool.write.queue_size",
         "label": "thread_pool.write.queue_size",
         "description": "The queue_size allows to control the size of the queue of pending requests that have no threads to execute them.",
         "type": "integer",
-        "min": 200,
-        "max": 10240,
-        "default": 1024,
+        "min": 2000,
+        "max": 50000,
+        "default": 10000,
         "required": "no"
       }, {
-        "key": "thread_pool.search.queue_size",
+        "key": "static.os.thread_pool.search.queue_size",
         "label": "thread_pool.search.queue_size",
         "description": "The queue_size allows to control the initial size of the queue of pending requests that have no threads to execute them.",
         "type": "integer",
-        "min": 1000,
-        "max": 10240,
-        "default": 1024,
+        "min": 200,
+        "max": 10000,
+        "default": 1000,
         "required": "no"
       }, {
-        "key": "action.destructive_requires_name",
+        "key": "dynamic.os.action.destructive_requires_name",
         "label": "action.destructive_requires_name",
         "description": "In order to enable allowing to delete indices via wildcards or _all, set this config to false.",
         "type": "boolean",
@@ -594,19 +577,20 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "discovery.zen.no_master_block",
+        "key": "dynamic.os.discovery.zen.no_master_block",
         "label": "discovery.zen.no_master_block",
         "description": "The discovery.zen.no_master_block settings controls what operations should be rejected when there is no active master.",
         "type": "string",
         "range": [
           "all",
-          "write"
+          "write",
+          "metadata_write"
         ],
         "default": "write",
         "changeable": true,
         "required": "no"
       }, {
-        "key": "gateway.recover_after_time",
+        "key": "static.os.gateway.recover_after_time",
         "label": "gateway.recover_after_time",
         "description": "If the expected number of nodes is not achieved, the recovery process waits for the configured amount of time before trying to recover regardless. Defaults to 5m if one of the expected_nodes settings is configured.",
         "type": "string",
@@ -615,7 +599,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "http.cors.enabled",
+        "key": "static.os.http.cors.enabled",
         "label": "http.cors.enabled",
         "description": "Enable or disable cross-origin resource sharing, i.e. whether a browser on another origin can execute requests against Opensearch.",
         "type": "boolean",
@@ -623,7 +607,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "http.cors.allow-origin",
+        "key": "static.os.http.cors.allow-origin",
         "label": "http.cors.allow-origin",
         "description": "Which origins to allow.",
         "type": "string",
@@ -728,7 +712,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "es_additional_line1",
+        "key": "static.os.es_additional_line1",
         "label": "os_additional_line1",
         "description": "The additional configuration in opensearch.yml.",
         "type": "string",
@@ -736,7 +720,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "es_additional_line2",
+        "key": "static.os.es_additional_line2",
         "label": "os_additional_line2",
         "description": "The additional configuration in opensearch.yml.",
         "type": "string",
@@ -744,7 +728,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "es_additional_line3",
+        "key": "static.os.es_additional_line3",
         "label": "os_additional_line3",
         "description": "The additional configuration in opensearch.yml.",
         "type": "string",
@@ -852,7 +836,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "appctl.tcp_keepalive_intvl",
+        "key": "dynamic.sysctl.appctl.tcp_keepalive_intvl",
         "label": "tcp_keepalive_intvl",
         "description": "the interval between subsequent keepalive probes, regardless of what the connection has exchanged in the meantime",
         "type": "integer",
@@ -861,7 +845,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "appctl.tcp_keepalive_probes",
+        "key": "dynamic.sysctl.appctl.tcp_keepalive_probes",
         "label": "tcp_keepalive_probes",
         "description": "the number of unacknowledged probes to send before considering the connection dead and notifying the application layer",
         "type": "integer",
@@ -870,7 +854,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "appctl.tcp_keepalive_time",
+        "key": "dynamic.sysctl.appctl.tcp_keepalive_time",
         "label": "tcp_keepalive_time",
         "description": "the interval between the last data packet sent (simple ACKs are not considered data) and the first keepalive probe; after the connection is marked to need keepalive, this counter is not used any further",
         "type": "integer",
