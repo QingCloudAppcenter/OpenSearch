@@ -1,8 +1,8 @@
 ---
 - name: Install OS plugins - {{ opts.name }}
   shell: |
-    extra_url1="https://github.com/aparo/opensearch-analysis-ik/releases/download/{{ opensearch_version }}/opensearch-analisys-ik-{{ opensearch_version }}.zip"
-    extra_url2="https://github.com/aparo/opensearch-prometheus-exporter/releases/download/{{ opensearch_version }}/prometheus-exporter-{{ opensearch_version }}.zip"
+    extra_url1="https://github.com/aparo/opensearch-analysis-ik/releases/download/{{ opensearch_version }}/opensearch-analysis-ik-{{ opensearch_version }}.zip"
+    extra_url2="https://github.com/aiven/prometheus-exporter-plugin-for-opensearch/releases/download/{{ opensearch_exporter_version }}/prometheus-exporter-{{ opensearch_exporter_version }}.zip"
     realname="{{ opts.name }}"
     res=$(/opt/opensearch/current/bin/opensearch-plugin list | grep "$realname" | wc -l)
     if [ "$res" -eq 1 ]; then exit 0; fi

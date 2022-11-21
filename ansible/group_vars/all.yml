@@ -1,5 +1,6 @@
 app_version: v1.3.0
 opensearch_version: 2.3.0
+opensearch_exporter_version: 2.3.0.0
 package_version: 2.3.0
 opensearch_dashboards_version: 1.2.0
 opensearch_dashboards_package_version: 1.2.0

@@ -92,6 +92,26 @@
 #   loop_control:
 #     loop_var: opts
 
+- name: fix analysis-ik config path issue(1)
+  stat:
+    path: /opt/app/current/conf/opensearch/opensearch-analysis-ik
+  register: ik_cfg_status
+
+- name: fix analysis-ik config path issue(2)
+  copy:
+    src: /opt/app/current/conf/opensearch/opensearch-analysis-ik/
+    dest: /opt/app/current/conf/opensearch/analysis-ik
+    owner: root
+    group: svc
+    mode: g+w
+    remote_src: yes
+  when: ik_cfg_status.stat.exists == True
+
+- name: fix analysis-ik config path issue(3)
+  file:
+    path: /opt/app/current/conf/opensearch/opensearch-analysis-ik
+    state: absent
+
 # - name: prepare dict directory
 #   file:
 #     path: /opt/opensearch/current/plugins/opensearch-analisys-ik/config/custom
