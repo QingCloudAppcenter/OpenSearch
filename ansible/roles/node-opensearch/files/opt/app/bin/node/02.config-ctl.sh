@@ -6,12 +6,10 @@ SECURITY_CONF_PATH=/opt/app/current/conf/opensearch/opensearch-security
 SECURITY_TOOL_PATH=/opt/opensearch/current/plugins/opensearch-security/tools
 OPENSEARCH_JAVA_HOME=/opt/opensearch/current/jdk
 
-GLOBAL_STATIC_SETTINGS=
-GLOBAL_DYNAMIC_SETTINGS=
-
-# read item from env: GLOBAL_STATIC_SETTINGS
-getItemFromStdin() {
-    local res=$(echo "$GLOBAL_STATIC_SETTINGS" | sed '/^'$1'=/!d;s/^'$1'=//')
+# $1 confing string
+# $2 key
+getItemFromConf() {
+    local res=$(echo "$1" | sed '/^'$2'=/!d;s/^'$2'=//')
     echo "$res"
 }
 
@@ -23,9 +21,18 @@ refreshOpenSearchConf() {
     else
         rolestr="data, ingest"
     fi
-    GLOBAL_STATIC_SETTINGS=$(cat $STATIC_SETTINGS_PATH)
-    local sslHttpEnabled=$(echo "$settings" | getItemFromStdin "static.os.ssl.http.enabled")
     local masterlist=$(echo $STABLE_MASTER_NODES_HOSTS $JOINING_MASTER_NODES_HOSTS)
+    local settings=$(cat $STATIC_SETTINGS_PATH)
+    local sslHttpEnabled=$(getItemFromConf "$settings" "static.os.ssl.http.enabled")
+    local threadPoolSearchQueueSize=$(getItemFromConf "$settings" "static.os.thread_pool.search.queue_size")
+    local threadPoolWriteQueueSize=$(getItemFromConf "$settings" "static.os.thread_pool.write.queue_size")
+    local httpCorsEnabled=$(getItemFromConf "$settings" "static.os.http.cors.enabled")
+    local httpCorsAllowOrigin=$(getItemFromConf "$settings" "static.os.http.cors.allow-origin")
+    local gatewayRecoverAfterTime=$(getItemFromConf "$settings" "static.os.gateway.recover_after_time")
+    local osAdditionalLine1=$(getItemFromConf "$settings" "static.os.os_additional_line1")
+    local osAdditionalLine2=$(getItemFromConf "$settings" "static.os.os_additional_line2")
+    local osAdditionalLine3=$(getItemFromConf "$settings" "static.os.os_additional_line3")
+
     local cfg=$(cat <<OS_CONF
 cluster.name: $CLUSTER_ID
 node.name: $NODE_NAME
@@ -33,8 +40,27 @@ node.roles: [ $rolestr ]
 path.data: /data/opensearch/data
 path.logs: /data/opensearch/logs
 network.host: $MY_IP
+
 http.port: 9200
+http.cors.enabled: $httpCorsEnabled
+http.cors.allow-origin: "$httpCorsAllowOrigin"
+
 discovery.seed_hosts: [ ${masterlist// /,} ]
+
+thread_pool.write.queue_size: $threadPoolWriteQueueSize
+thread_pool.search.queue_size: $threadPoolSearchQueueSize
+
+gateway.recover_after_time: $gatewayRecoverAfterTime
+
+indices.memory.index_buffer_size: {{ getv "/env/indices.memory.index_buffer_size" "10%" }}
+
+indices.fielddata.cache.size: {{ getv "/env/indices.fielddata.cache.size" "90%,-1b" }}
+indices.queries.cache.size: {{ getv "/env/indices.queries.cache.size" "10%" }}
+indices.requests.cache.size: {{ getv "/env/indices.requests.cache.size" "1%" }}
+
+$osAdditionalLine1
+$osAdditionalLine2
+$osAdditionalLine3
 
 plugins.security.ssl.http.enabled: $sslHttpEnabled
 plugins.security.ssl.http.pemcert_filepath: certs/qc/node1.pem

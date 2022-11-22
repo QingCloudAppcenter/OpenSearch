@@ -712,7 +712,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "static.os.es_additional_line1",
+        "key": "static.os.os_additional_line1",
         "label": "os_additional_line1",
         "description": "The additional configuration in opensearch.yml.",
         "type": "string",
@@ -720,7 +720,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "static.os.es_additional_line2",
+        "key": "static.os.os_additional_line2",
         "label": "os_additional_line2",
         "description": "The additional configuration in opensearch.yml.",
         "type": "string",
@@ -728,7 +728,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "static.os.es_additional_line3",
+        "key": "static.os.os_additional_line3",
         "label": "os_additional_line3",
         "description": "The additional configuration in opensearch.yml.",
         "type": "string",
