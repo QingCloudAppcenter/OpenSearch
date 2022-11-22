@@ -599,6 +599,24 @@
         "changeable": true,
         "required": "no"
       }, {
+        "key": "static.os.gateway.expected_data_nodes",
+        "label": "gateway.expected_data_nodes",
+        "description": "Number of data nodes expected in the cluster. Recovery of local shards begins when the expected number of data nodes join the cluster. Defaults to 0.",
+        "type": "integer",
+        "min": -1,
+        "default": 0,
+        "changeable": true,
+        "required": "no"
+      }, {
+        "key": "static.os.gateway.recover_after_data_nodes",
+        "label": "gateway.recover_after_data_nodes",
+        "description": "Recover as long as this many data nodes have joined the cluster.",
+        "type": "integer",
+        "min": -1,
+        "default": -1,
+        "changeable": true,
+        "required": "no"
+      }, {
         "key": "static.os.http.cors.enabled",
         "label": "http.cors.enabled",
         "description": "Enable or disable cross-origin resource sharing, i.e. whether a browser on another origin can execute requests against Opensearch.",
@@ -615,15 +633,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "indices.fielddata.cache.size",
-        "label": "indices.fielddata.cache.size",
-        "description": "The max size of the field data cache.",
-        "type": "string",
-        "default": "90%",
-        "changeable": true,
-        "required": "no"
-      }, {
-        "key": "indices.memory.index_buffer_size",
+        "key": "static.os.indices.memory.index_buffer_size",
         "label": "indices.memory.index_buffer_size",
         "description": "Accepts either a percentage or a byte size value. It defaults to 10%, meaning that 10% of the total heap allocated to a node will be used as the indexing buffer size shared across all shards.",
         "type": "string",
@@ -631,7 +641,15 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "indices.queries.cache.size",
+        "key": "static.os.indices.fielddata.cache.size",
+        "label": "indices.fielddata.cache.size",
+        "description": "The max size of the field data cache.",
+        "type": "string",
+        "default": "-1b",
+        "changeable": true,
+        "required": "no"
+      }, {
+        "key": "static.os.indices.queries.cache.size",
         "label": "indices.queries.cache.size",
         "description": "Controls the memory size for the filter cache , defaults to 10%. Accepts either a percentage value, like 5%, or an exact value, like 512mb.",
         "type": "string",
@@ -639,7 +657,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "indices.requests.cache.size",
+        "key": "static.os.indices.requests.cache.size",
         "label": "indices.requests.cache.size",
         "description": "The shard-level request cache module caches the local results on each shard. The cache is managed at the node level, and has a default maximum size of 1% of the heap.",
         "type": "string",
@@ -647,15 +665,15 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "node.attr.data",
+        "key": "dynamic.os.node.attr.data",
         "label": "node.attr.data",
-        "description": "Custom attribute for ES node",
+        "description": "Custom attribute for OS node",
         "type": "string",
         "default": "hot",
         "changeable": true,
         "required": "no"
       }, {
-        "key": "script.allowed_types",
+        "key": "static.os.script.allowed_types",
         "label": "script.allowed_types",
         "description": "Specify script.allowed_types in opensearch.yml",
         "type": "string",
@@ -663,7 +681,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "script.allowed_contexts",
+        "key": "static.os.script.allowed_contexts",
         "label": "script.allowed_contexts",
         "description": "Specify script.allowed_contexts in opensearch.yml",
         "type": "string",
@@ -671,7 +689,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "reindex.remote.whitelist",
+        "key": "static.os.reindex.remote.whitelist",
         "label": "reindex.remote.whitelist",
         "description": "Remote hosts for 'reindex' operation have to be explicitly whitelisted in opensearch.yaml using the reindex.remote.whitelist property. It can be set to a comma delimited list of allowed remote host and port combinations (e.g. otherhost:9200, another:9200, 127.0.10.*:9200, localhost:*)",
         "type": "string",
@@ -696,15 +714,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "path.repo",
-        "label": "path.repo",
-        "description": "Specify the location of shared file system repository.",
-        "type": "string",
-        "default": "[]",
-        "changeable": true,
-        "required": "no"
-      }, {
-        "key": "repositories.url.allowed_urls",
+        "key": "static.os.repositories.url.allowed_urls",
         "label": "repositories.url.allowed_urls",
         "description": "Specify the location of read-only URL repository.",
         "type": "string",
@@ -836,7 +846,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "dynamic.sysctl.appctl.tcp_keepalive_intvl",
+        "key": "dynamic.sysctl.tcp_keepalive_intvl",
         "label": "tcp_keepalive_intvl",
         "description": "the interval between subsequent keepalive probes, regardless of what the connection has exchanged in the meantime",
         "type": "integer",
@@ -845,7 +855,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "dynamic.sysctl.appctl.tcp_keepalive_probes",
+        "key": "dynamic.sysctl.tcp_keepalive_probes",
         "label": "tcp_keepalive_probes",
         "description": "the number of unacknowledged probes to send before considering the connection dead and notifying the application layer",
         "type": "integer",
@@ -854,7 +864,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "dynamic.sysctl.appctl.tcp_keepalive_time",
+        "key": "dynamic.sysctl.tcp_keepalive_time",
         "label": "tcp_keepalive_time",
         "description": "the interval between the last data packet sent (simple ACKs are not considered data) and the first keepalive probe; after the connection is marked to need keepalive, this counter is not used any further",
         "type": "integer",
@@ -868,9 +878,9 @@
       "description": "The role configuration properties of the application",
       "type": "array",
       "properties": [{
-        "key": "node.attr.data",
+        "key": "dynamic.os.node.attr.data",
         "label": "node.attr.data (#2)",
-        "description": "Custom attribute for ES node",
+        "description": "Custom attribute for OS node",
         "type": "string",
         "default": "warm",
         "changeable": true,
@@ -881,9 +891,9 @@
       "description": "The role configuration properties of the application",
       "type": "array",
       "properties": [{
-        "key": "node.attr.data",
+        "key": "dynamic.os.node.attr.data",
         "label": "node.attr.data (#3)",
-        "description": "Custom attribute for ES node",
+        "description": "Custom attribute for OS node",
         "type": "string",
         "default": "cold",
         "changeable": true,

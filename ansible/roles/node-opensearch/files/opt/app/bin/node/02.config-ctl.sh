@@ -22,6 +22,7 @@ refreshOpenSearchConf() {
         rolestr="data, ingest"
     fi
     local masterlist=$(echo $STABLE_MASTER_NODES_HOSTS $JOINING_MASTER_NODES_HOSTS)
+
     local settings=$(cat $STATIC_SETTINGS_PATH)
     local sslHttpEnabled=$(getItemFromConf "$settings" "static.os.ssl.http.enabled")
     local threadPoolSearchQueueSize=$(getItemFromConf "$settings" "static.os.thread_pool.search.queue_size")
@@ -29,9 +30,29 @@ refreshOpenSearchConf() {
     local httpCorsEnabled=$(getItemFromConf "$settings" "static.os.http.cors.enabled")
     local httpCorsAllowOrigin=$(getItemFromConf "$settings" "static.os.http.cors.allow-origin")
     local gatewayRecoverAfterTime=$(getItemFromConf "$settings" "static.os.gateway.recover_after_time")
+    local gatewayExpectedDataNodes=$(getItemFromConf "$settings" "static.os.gateway.expected_data_nodes")
+    local gatewayRecoverAfterDataNodes=$(getItemFromConf "$settings" "static.os.gateway.recover_after_data_nodes")
     local osAdditionalLine1=$(getItemFromConf "$settings" "static.os.os_additional_line1")
     local osAdditionalLine2=$(getItemFromConf "$settings" "static.os.os_additional_line2")
     local osAdditionalLine3=$(getItemFromConf "$settings" "static.os.os_additional_line3")
+    local indicesMemoryIndexBufferSize=$(getItemFromConf "$settings" "static.os.indices.memory.index_buffer_size")
+    local indicesFielddataCacheSize=$(getItemFromConf "$settings" "static.os.indices.fielddata.cache.size")
+    local indicesQueriesCacheSize=$(getItemFromConf "$settings" "static.os.indices.queries.cache.size")
+    local indicesRequestsCacheSize=$(getItemFromConf "$settings" "static.os.indices.requests.cache.size")
+    local reindexRemoteWhitelist=$(getItemFromConf "$settings" "static.os.reindex.remote.whitelist")
+    local repositoriesUrlAllowedUrls=$(getItemFromConf "$settings" "static.os.repositories.url.allowed_urls")
+    local scriptAllowedTypes=$(getItemFromConf "$settings" "static.os.script.allowed_types")
+    local scriptAllowedContexts=$(getItemFromConf "$settings" "static.os.script.allowed_contexts")
+    local scriptAllowedTypesLine
+    local scriptAllowedContextsLine
+
+    if [ -n "$scriptAllowedTypes" ]; then
+        scriptAllowedTypesLine="script.allowed_types: $scriptAllowedTypes"
+    fi
+
+    if [ -n "$scriptAllowedContexts" ]; then
+        scriptAllowedContextsLine="script.allowed_contexts: $scriptAllowedContexts"
+    fi
 
     local cfg=$(cat <<OS_CONF
 cluster.name: $CLUSTER_ID
@@ -51,12 +72,21 @@ thread_pool.write.queue_size: $threadPoolWriteQueueSize
 thread_pool.search.queue_size: $threadPoolSearchQueueSize
 
 gateway.recover_after_time: $gatewayRecoverAfterTime
+gateway.expected_data_nodes: $gatewayExpectedDataNodes
+gateway.recover_after_data_nodes: $gatewayRecoverAfterDataNodes
 
-indices.memory.index_buffer_size: {{ getv "/env/indices.memory.index_buffer_size" "10%" }}
+indices.memory.index_buffer_size: $indicesMemoryIndexBufferSize
 
-indices.fielddata.cache.size: {{ getv "/env/indices.fielddata.cache.size" "90%,-1b" }}
-indices.queries.cache.size: {{ getv "/env/indices.queries.cache.size" "10%" }}
-indices.requests.cache.size: {{ getv "/env/indices.requests.cache.size" "1%" }}
+indices.fielddata.cache.size: $indicesFielddataCacheSize
+indices.queries.cache.size: $indicesQueriesCacheSize
+indices.requests.cache.size: $indicesRequestsCacheSize
+
+reindex.remote.whitelist: "$reindexRemoteWhitelist"
+
+repositories.url.allowed_urls: $repositoriesUrlAllowedUrls
+
+$scriptAllowedTypesLine
+$scriptAllowedContextsLine
 
 $osAdditionalLine1
 $osAdditionalLine2
