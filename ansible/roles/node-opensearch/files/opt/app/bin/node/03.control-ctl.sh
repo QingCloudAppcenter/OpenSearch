@@ -88,8 +88,10 @@ isMasterExcluded() {
     local wanted=$(getNodesIdFromNodesName $@)
     local commited=$(echo "$clusterco" | jq -r '.metadata.cluster_coordination.last_committed_config[]' | xargs)
     local item
+    local cnt
     for item in $wanted; do
-        if echo "$commited" | grep $item; then return 1; fi
+        cnt=$(echo "$commited" | sed -n "/$item/p" | wc -l)
+        if [ "$cnt" -gt 0 ]; then return 1; fi
     done
 }
 
@@ -125,7 +127,7 @@ processBeforeScaleInMasterNodes() {
 
 hasUnusualIndices() {
     local info=$(getIndicesStatusDocsCount $@)
-    local closedcnt=$(echo "$info" | grep close | wc -l)
+    local closedcnt=$(echo "$info" | sed -n '/close/p' | wc -l)
     if [ "$closedcnt" -gt 0 ]; then
         log "has closed indices"
         return
