@@ -821,19 +821,11 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "enable_heap_dump",
+        "key": "static.jvm.enable_heap_dump",
         "label": "enable_heap_dump",
         "description": "Whether to enable heap dump on out of memory error.",
         "type": "boolean",
         "default": false,
-        "changeable": true,
-        "required": "no"
-      }, {
-        "key": "heap_dump_path",
-        "label": "heap_dump_path",
-        "description": "The path of heap dump.",
-        "type": "string",
-        "default": "/data/opensearch/dump",
         "changeable": true,
         "required": "no"
       }, {

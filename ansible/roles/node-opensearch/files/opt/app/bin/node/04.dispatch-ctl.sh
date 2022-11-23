@@ -1,5 +1,5 @@
 prepairPathOnPersistentDisk() {
-    mkdir -p /data/opensearch/{data,logs}
+    mkdir -p /data/opensearch/{data,logs,dump}
     chown -R opensearch:svc /data/opensearch
 }
 
@@ -35,6 +35,10 @@ processWhenStaticSettingsChanged() {
     if [ "$tmpcnt" -gt 0 ]; then
         flag="o" 
     fi
+    tmpcnt=$(echo "$info" | grep static.jvm | wc -l)
+    if [ "$tmpcnt" -gt 0 ]; then
+        flag="j" 
+    fi
 
     log "sync static settings"
     syncStaticSettings
@@ -43,6 +47,11 @@ processWhenStaticSettingsChanged() {
     if echo "$flag" | grep o; then
         log "opensearch static config changed, refresh opensearch.yml"
         refreshOpenSearchConf
+    fi
+
+    if echo "$flag" | grep j; then
+        log "opensearch static config changed, refresh jvm.options"
+        refreshJvmOptions
     fi
 
     log "restart opensearch.service"

@@ -110,7 +110,13 @@ plugins.security.authcz.admin_dn:
 plugins.security.nodes_dn:
   - 'CN=node.opensearch.cluster,OU=NoSql,O=QC,L=WuHan,ST=HuBei,C=CN'
 
+plugins.security.audit.type: internal_opensearch
+plugins.security.enable_snapshot_restore_privilege: true
+plugins.security.check_snapshot_restore_write_privileges: true
 plugins.security.restapi.roles_enabled: ["all_access", "security_rest_api_access"]
+plugins.security.system_indices.enabled: true
+plugins.security.system_indices.indices: [".plugins-ml-model", ".plugins-ml-task", ".opendistro-alerting-config", ".opendistro-alerting-alert*", ".opendistro-anomaly-results*", ".opendistro-anomaly-detector*", ".opendistro-anomaly-checkpoints", ".opendistro-anomaly-detection-state", ".opendistro-reports-*", ".opensearch-notifications-*", ".opensearch-notebooks", ".opensearch-observability", ".opendistro-asynchronous-search-response*", ".replication-metadata-store"]
+node.max_local_storage_nodes: 3
 OS_CONF
     )
     echo "$cfg" > ${OPENSEARCH_CONF_PATH}
@@ -132,40 +138,31 @@ restoreOpenSearchConf() {
 
 refreshJvmOptions() {
     local osfolder="/data/opensearch"
+    local conffolder="/opt/app/current/conf/opensearch"
+    local maxHeap=$((31*1024))
+    local halfMem=$((MY_MEM/2))
+    local realHeap
+    if [ "$halfMem" -le $maxHeap ]; then
+        realHeap=$halfMem
+    else
+        realHeap=$maxHeap
+    fi
+    local settings=$(cat $STATIC_SETTINGS_PATH)
+    local jvmEnableHeapDump=$(getItemFromConf "$settings" "static.jvm.enable_heap_dump")
+    local jvmDumpConf=""
+    if [ "$jvmEnableHeapDump" = "true" ]; then
+        jvmDumpConf=$(cat <<JVM_DUMP
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:HeapDumpPath=/data/opensearch/dump
+JVM_DUMP
+        )
+    fi
+
     local cfg=$(cat<<JVM_CONF
-## JVM configuration
-
-################################################################
-## IMPORTANT: JVM heap size
-################################################################
-##
-## You should always set the min and max JVM heap
-## size to the same value. For example, to set
-## the heap to 4 GB, set:
-##
-## -Xms4g
-## -Xmx4g
-##
-## See https://opensearch.org/docs/opensearch/install/important-settings/
-## for more information
-##
-################################################################
-
 # Xms represents the initial size of total heap space
 # Xmx represents the maximum size of total heap space
-
--Xms1g
--Xmx1g
-
-################################################################
-## Expert settings
-################################################################
-##
-## All settings below this section are considered
-## expert settings. Don't tamper with them unless
-## you understand what you are doing
-##
-################################################################
+-Xms${realHeap}m
+-Xmx${realHeap}m
 
 ## GC configuration
 8-10:-XX:+UseConcMarkSweepGC
@@ -186,14 +183,7 @@ refreshJvmOptions() {
 -Djava.io.tmpdir=\${OPENSEARCH_TMPDIR}
 
 ## heap dumps
-
-# generate a heap dump when an allocation from the Java heap fails
-# heap dumps are created in the working directory of the JVM
--XX:+HeapDumpOnOutOfMemoryError
-
-# specify an alternative path for heap dumps; ensure the directory exists and
-# has sufficient space
--XX:HeapDumpPath=data
+$jvmDumpConf
 
 # specify an alternative path for JVM fatal error logs
 -XX:ErrorFile=${osfolder}/logs/hs_err_pid%p.log
@@ -214,6 +204,12 @@ refreshJvmOptions() {
 # Explicitly allow security manager (https://bugs.openjdk.java.net/browse/JDK-8270380)
 18-:-Djava.security.manager=allow
 
+## OpenSearch Performance Analyzer
+-Dclk.tck=100
+-Djdk.attach.allowAttachSelf=true
+# for performance analyzer and other plugins
+-Djava.security.policy=${conffolder}/app.policy
+--add-opens=jdk.attach/sun.tools.attach=ALL-UNNAMED
 JVM_CONF
     )
     echo "$cfg" > ${JVM_OPTIONS_PATH}

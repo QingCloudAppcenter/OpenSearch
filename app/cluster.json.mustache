@@ -15,7 +15,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-a2j1c37t"
+      "image": "img-zfvke97q"
     },
     "instance_class": {{cluster.es_node.instance_class}},
     "count": {{cluster.es_node.count}},
@@ -92,14 +92,13 @@
         "dynamic.sysctl.tcp_keepalive_time": {{env.es_node.dynamic.sysctl.tcp_keepalive_time}},
         "clean_logs_older_than_n_days": {{env.es_node.clean_logs_older_than_n_days}},
         "dynamic.os.discovery.zen.no_master_block": {{env.es_node.dynamic.os.discovery.zen.no_master_block}},
-        "enable_heap_dump": {{env.es_node.enable_heap_dump}},
+        "static.jvm.enable_heap_dump": {{env.es_node.static.jvm.enable_heap_dump}},
         "static.os.os_additional_line1": {{env.es_node.static.os.os_additional_line1}},
         "static.os.os_additional_line2": {{env.es_node.static.os.os_additional_line2}},
         "static.os.os_additional_line3": {{env.es_node.static.os.os_additional_line3}},
         "static.os.gateway.recover_after_time": {{env.es_node.static.os.gateway.recover_after_time}},
         "static.os.gateway.expected_data_nodes": {{env.es_node.static.os.gateway.expected_data_nodes}},
         "static.os.gateway.recover_after_data_nodes": {{env.es_node.static.os.gateway.recover_after_data_nodes}},
-        "heap_dump_path": {{env.es_node.heap_dump_path}},
         "static.os.http.cors.enabled": {{env.es_node.static.os.http.cors.enabled}},
         "static.os.http.cors.allow-origin": {{env.es_node.static.os.http.cors.allow-origin}},
         "prometheus.node.exporter": {{env.es_node.prometheus.node.exporter}},
@@ -272,7 +271,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-a2j1c37t"
+      "image": "img-zfvke97q"
     },
     "instance_class": {{cluster.es_master_node.instance_class}},
     "count": {{cluster.es_master_node.count}},
@@ -348,14 +347,13 @@
         "dynamic.sysctl.tcp_keepalive_time": {{env.es_node.dynamic.sysctl.tcp_keepalive_time}},
         "clean_logs_older_than_n_days": {{env.es_node.clean_logs_older_than_n_days}},
         "dynamic.os.discovery.zen.no_master_block": {{env.es_node.dynamic.os.discovery.zen.no_master_block}},
-        "enable_heap_dump": {{env.es_node.enable_heap_dump}},
+        "static.jvm.enable_heap_dump": {{env.es_node.static.jvm.enable_heap_dump}},
         "static.os.os_additional_line1": {{env.es_node.static.os.os_additional_line1}},
         "static.os.os_additional_line2": {{env.es_node.static.os.os_additional_line2}},
         "static.os.os_additional_line3": {{env.es_node.static.os.os_additional_line3}},
         "static.os.gateway.recover_after_time": {{env.es_node.static.os.gateway.recover_after_time}},
         "static.os.gateway.expected_data_nodes": {{env.es_node.static.os.gateway.expected_data_nodes}},
         "static.os.gateway.recover_after_data_nodes": {{env.es_node.static.os.gateway.recover_after_data_nodes}},
-        "heap_dump_path": {{env.es_node.heap_dump_path}},
         "static.os.http.cors.enabled": {{env.es_node.static.os.http.cors.enabled}},
         "static.os.http.cors.allow-origin": {{env.es_node.static.os.http.cors.allow-origin}},
         "prometheus.node.exporter": {{env.es_node.prometheus.node.exporter}},
@@ -527,7 +525,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-a2j1c37t"
+      "image": "img-zfvke97q"
     },
     "instance_class": {{cluster.es_node_2.instance_class}},
     "count": {{cluster.es_node_2.count}},
@@ -604,14 +602,13 @@
         "dynamic.sysctl.tcp_keepalive_time": {{env.es_node.dynamic.sysctl.tcp_keepalive_time}},
         "clean_logs_older_than_n_days": {{env.es_node.clean_logs_older_than_n_days}},
         "dynamic.os.discovery.zen.no_master_block": {{env.es_node.dynamic.os.discovery.zen.no_master_block}},
-        "enable_heap_dump": {{env.es_node.enable_heap_dump}},
+        "static.jvm.enable_heap_dump": {{env.es_node.static.jvm.enable_heap_dump}},
         "static.os.os_additional_line1": {{env.es_node.static.os.os_additional_line1}},
         "static.os.os_additional_line2": {{env.es_node.static.os.os_additional_line2}},
         "static.os.os_additional_line3": {{env.es_node.static.os.os_additional_line3}},
         "static.os.gateway.recover_after_time": {{env.es_node.static.os.gateway.recover_after_time}},
         "static.os.gateway.expected_data_nodes": {{env.es_node.static.os.gateway.expected_data_nodes}},
         "static.os.gateway.recover_after_data_nodes": {{env.es_node.static.os.gateway.recover_after_data_nodes}},
-        "heap_dump_path": {{env.es_node.heap_dump_path}},
         "static.os.http.cors.enabled": {{env.es_node.static.os.http.cors.enabled}},
         "static.os.http.cors.allow-origin": {{env.es_node.static.os.http.cors.allow-origin}},
         "prometheus.node.exporter": {{env.es_node.prometheus.node.exporter}},
@@ -784,7 +781,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-a2j1c37t"
+      "image": "img-zfvke97q"
     },
     "instance_class": {{cluster.es_node_3.instance_class}},
     "count": {{cluster.es_node_3.count}},
@@ -861,14 +858,13 @@
         "dynamic.sysctl.tcp_keepalive_time": {{env.es_node.dynamic.sysctl.tcp_keepalive_time}},
         "clean_logs_older_than_n_days": {{env.es_node.clean_logs_older_than_n_days}},
         "dynamic.os.discovery.zen.no_master_block": {{env.es_node.dynamic.os.discovery.zen.no_master_block}},
-        "enable_heap_dump": {{env.es_node.enable_heap_dump}},
+        "static.jvm.enable_heap_dump": {{env.es_node.static.jvm.enable_heap_dump}},
         "static.os.os_additional_line1": {{env.es_node.static.os.os_additional_line1}},
         "static.os.os_additional_line2": {{env.es_node.static.os.os_additional_line2}},
         "static.os.os_additional_line3": {{env.es_node.static.os.os_additional_line3}},
         "static.os.gateway.recover_after_time": {{env.es_node.static.os.gateway.recover_after_time}},
         "static.os.gateway.expected_data_nodes": {{env.es_node.static.os.gateway.expected_data_nodes}},
         "static.os.gateway.recover_after_data_nodes": {{env.es_node.static.os.gateway.recover_after_data_nodes}},
-        "heap_dump_path": {{env.es_node.heap_dump_path}},
         "static.os.http.cors.enabled": {{env.es_node.static.os.http.cors.enabled}},
         "static.os.http.cors.allow-origin": {{env.es_node.static.os.http.cors.allow-origin}},
         "prometheus.node.exporter": {{env.es_node.prometheus.node.exporter}},
