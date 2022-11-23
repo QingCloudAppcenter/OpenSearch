@@ -26,18 +26,24 @@ processWhenStaticSettingsChanged() {
         return
     fi
 
-    local tmpcnt
-    tmpcnt=$(echo "$info" | sed -n '/static.os/p' | wc -l)
     # file changed flag
     # o: opensearch.yml
     # j: jvm.option
+    # l: log4j2.properties
     local flag
+
+    local tmpcnt
+    tmpcnt=$(echo "$info" | sed -n '/static.os/p' | wc -l)
     if [ "$tmpcnt" -gt 0 ]; then
-        flag="o" 
+        flag="o"
     fi
     tmpcnt=$(echo "$info" | sed -n '/static.jvm/p' | wc -l)
     if [ "$tmpcnt" -gt 0 ]; then
-        flag="j" 
+        flag="j$flag"
+    fi
+    tmpcnt=$(echo "$info" | sed -n '/static.log4j/p' | wc -l)
+    if [ "$tmpcnt" -gt 0 ]; then
+        flag="l$flag"
     fi
 
     log "sync static settings"
@@ -45,16 +51,22 @@ processWhenStaticSettingsChanged() {
 
     # refresh config file
     local res
-    res=$(echo "$info" | sed -n '/o/p')
+    res=$(echo "$flag" | sed -n '/o/p')
     if [ -n "$res" ]; then
         log "opensearch static config changed, refresh opensearch.yml"
         refreshOpenSearchConf
     fi
 
-    res=$(echo "$info" | sed -n '/j/p')
+    res=$(echo "$flag" | sed -n '/j/p')
     if [ -n "$res" ]; then
         log "opensearch static config changed, refresh jvm.options"
         refreshJvmOptions
+    fi
+
+    res=$(echo "$flag" | sed -n '/l/p')
+    if [ -n "$res" ]; then
+        log "opensearch static config changed, refresh log4j2.properties"
+        refreshLog4j2Properties
     fi
 
     log "restart opensearch.service"

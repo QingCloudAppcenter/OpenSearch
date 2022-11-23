@@ -14,6 +14,7 @@ start() {
         log "prepair config files"
         refreshOpenSearchConf
         refreshJvmOptions
+        refreshLog4j2Properties
         log "prepair keystore"
         refreshkeyStore
         log "appctl node init"
@@ -36,6 +37,7 @@ init() {
         log "prepair config files"
         refreshOpenSearchConf
         refreshJvmOptions
+        refreshLog4j2Properties
         log "prepair keystore"
         refreshkeyStore
         log "_init"

@@ -2,6 +2,7 @@
 OPENSEARCH_CONF_PATH=/opt/app/current/conf/opensearch/opensearch.yml
 STATIC_SETTINGS_PATH=/data/appctl/data/settings.static
 JVM_OPTIONS_PATH=/opt/app/current/conf/opensearch/jvm.options
+LOG4J2_PROPERTIES_PATH=/opt/app/current/conf/opensearch/log4j2.properties
 SECURITY_CONF_PATH=/opt/app/current/conf/opensearch/opensearch-security
 SECURITY_TOOL_PATH=/opt/opensearch/current/plugins/opensearch-security/tools
 OPENSEARCH_JAVA_HOME=/opt/opensearch/current/jdk
@@ -242,4 +243,148 @@ INTERNAL_USER
 
 restoreInternalUsers() {
     sed -i '/# managed by appctl, do not modify/,$d' ${SECURITY_CONF_PATH}/internal_users.yml
+}
+
+refreshLog4j2Properties() {
+    local settings=$(cat $STATIC_SETTINGS_PATH)
+    local rootLoggerLevel=$(getItemFromConf "$settings" "static.log4j.rootLogger.level")
+    local loggerActionLevel=$(getItemFromConf "$settings" "static.log4j.logger.action.level")
+    local loggerDeprecationLevel=$(getItemFromConf "$settings" "static.log4j.logger.deprecation.level")
+    local loggerIndexSearchSlowlogRollingLevel=$(getItemFromConf "$settings" "static.log4j.logger.index_search_slowlog_rolling.level")
+    local loggerIndexIndexingSlowlogLevel=$(getItemFromConf "$settings" "static.log4j.logger.index_indexing_slowlog.level")
+    local loggerTaskDetailslogRollingLevel=$(getItemFromConf "$settings" "static.log4j.logger.task_detailslog_rolling.level")
+    local cleanLogsOlderThanNDays=$(getItemFromConf "$settings" "static.log4j.clean_logs_older_than_n_days")
+
+    local cfg=$(cat<<LOG4J
+status = error
+
+# log action execution errors for easier debugging
+logger.action.name = org.opensearch.action
+logger.action.level = $loggerActionLevel
+
+appender.console.type = Console
+appender.console.name = console
+appender.console.layout.type = PatternLayout
+appender.console.layout.pattern = [%d{ISO8601}][%-5p][%-25c{1.}] [%node_name]%marker %m%n
+
+################################################
+######## Server -  old style pattern ###########
+appender.rolling_old.type = RollingFile
+appender.rolling_old.name = rolling_old
+appender.rolling_old.fileName = \${sys:opensearch.logs.base_path}\${sys:file.separator}\${sys:opensearch.logs.cluster_name}.log
+appender.rolling_old.filePermissions = rw-r-----
+appender.rolling_old.layout.type = PatternLayout
+appender.rolling_old.layout.pattern = [%d{ISO8601}][%-5p][%-25c{1.}] [%node_name]%marker %m%n
+
+appender.rolling_old.filePattern = \${sys:opensearch.logs.base_path}\${sys:file.separator}\${sys:opensearch.logs.cluster_name}-%d{yyyy-MM-dd}-%i.log.gz
+appender.rolling_old.policies.type = Policies
+appender.rolling_old.policies.time.type = TimeBasedTriggeringPolicy
+appender.rolling_old.policies.time.interval = 1
+appender.rolling_old.policies.time.modulate = true
+appender.rolling_old.policies.size.type = SizeBasedTriggeringPolicy
+appender.rolling_old.policies.size.size = 128MB
+appender.rolling_old.strategy.type = DefaultRolloverStrategy
+appender.rolling_old.strategy.fileIndex = nomax
+appender.rolling_old.strategy.action.type = Delete
+appender.rolling_old.strategy.action.basepath = \${sys:opensearch.logs.base_path}
+appender.rolling_old.strategy.action.condition.type = IfAny
+appender.rolling_old.strategy.action.condition.glob = \${sys:opensearch.logs.cluster_name}-*
+appender.rolling_old.strategy.action.condition.nested_condition.type = IfAccumulatedFileSize
+appender.rolling_old.strategy.action.condition.nested_condition.exceeds = 200M
+appender.rolling_old.strategy.action.condition.nested_condition.lastMod.type = IfLastModified
+appender.rolling_old.strategy.action.condition.nested_condition.lastMod.age = ${cleanLogsOlderThanNDays}D
+################################################
+
+rootLogger.level = $rootLoggerLevel
+rootLogger.appenderRef.console.ref = console
+rootLogger.appenderRef.rolling_old.ref = rolling_old
+
+#################################################
+######## Deprecation -  old style pattern #######
+appender.deprecation_rolling_old.type = RollingFile
+appender.deprecation_rolling_old.name = deprecation_rolling_old
+appender.deprecation_rolling_old.fileName = \${sys:opensearch.logs.base_path}\${sys:file.separator}\${sys:opensearch.logs.cluster_name}_deprecation.log
+appender.deprecation_rolling_old.filePermissions = rw-r-----
+appender.deprecation_rolling_old.layout.type = PatternLayout
+appender.deprecation_rolling_old.layout.pattern = [%d{ISO8601}][%-5p][%-25c{1.}] [%node_name]%marker %m%n
+
+appender.deprecation_rolling_old.filePattern = \${sys:opensearch.logs.base_path}\${sys:file.separator}\${sys:opensearch.logs.cluster_name}_deprecation-%i.log.gz
+appender.deprecation_rolling_old.policies.type = Policies
+appender.deprecation_rolling_old.policies.size.type = SizeBasedTriggeringPolicy
+appender.deprecation_rolling_old.policies.size.size = 1GB
+appender.deprecation_rolling_old.strategy.type = DefaultRolloverStrategy
+appender.deprecation_rolling_old.strategy.max = 4
+#################################################
+logger.deprecation.name = org.opensearch.deprecation
+logger.deprecation.level = $loggerDeprecationLevel
+logger.deprecation.appenderRef.deprecation_rolling_old.ref = deprecation_rolling_old
+logger.deprecation.appenderRef.header_warning.ref = header_warning
+logger.deprecation.additivity = false
+
+#################################################
+######## Search slowlog -  old style pattern ####
+appender.index_search_slowlog_rolling_old.type = RollingFile
+appender.index_search_slowlog_rolling_old.name = index_search_slowlog_rolling_old
+appender.index_search_slowlog_rolling_old.fileName = \${sys:opensearch.logs.base_path}\${sys:file.separator}\${sys:opensearch.logs.cluster_name}_index_search_slowlog.log
+appender.index_search_slowlog_rolling_old.filePermissions = rw-r-----
+appender.index_search_slowlog_rolling_old.layout.type = PatternLayout
+appender.index_search_slowlog_rolling_old.layout.pattern = [%d{ISO8601}][%-5p][%-25c{1.}] [%node_name]%marker %m%n
+
+appender.index_search_slowlog_rolling_old.filePattern = \${sys:opensearch.logs.base_path}\${sys:file.separator}\${sys:opensearch.logs.cluster_name}_index_search_slowlog-%i.log.gz
+appender.index_search_slowlog_rolling_old.policies.type = Policies
+appender.index_search_slowlog_rolling_old.policies.size.type = SizeBasedTriggeringPolicy
+appender.index_search_slowlog_rolling_old.policies.size.size = 1GB
+appender.index_search_slowlog_rolling_old.strategy.type = DefaultRolloverStrategy
+appender.index_search_slowlog_rolling_old.strategy.max = 4
+#################################################
+logger.index_search_slowlog_rolling.name = index.search.slowlog
+logger.index_search_slowlog_rolling.level = $loggerIndexSearchSlowlogRollingLevel
+logger.index_search_slowlog_rolling.appenderRef.index_search_slowlog_rolling_old.ref = index_search_slowlog_rolling_old
+logger.index_search_slowlog_rolling.additivity = false
+
+#################################################
+######## Indexing slowlog -  old style pattern ##
+appender.index_indexing_slowlog_rolling_old.type = RollingFile
+appender.index_indexing_slowlog_rolling_old.name = index_indexing_slowlog_rolling_old
+appender.index_indexing_slowlog_rolling_old.fileName = \${sys:opensearch.logs.base_path}\${sys:file.separator}\${sys:opensearch.logs.cluster_name}_index_indexing_slowlog.log
+appender.index_indexing_slowlog_rolling_old.filePermissions = rw-r-----
+appender.index_indexing_slowlog_rolling_old.layout.type = PatternLayout
+appender.index_indexing_slowlog_rolling_old.layout.pattern = [%d{ISO8601}][%-5p][%-25c{1.}] [%node_name]%marker %m%n
+
+appender.index_indexing_slowlog_rolling_old.filePattern = \${sys:opensearch.logs.base_path}\${sys:file.separator}\${sys:opensearch.logs.cluster_name}_index_indexing_slowlog-%i.log.gz
+appender.index_indexing_slowlog_rolling_old.policies.type = Policies
+appender.index_indexing_slowlog_rolling_old.policies.size.type = SizeBasedTriggeringPolicy
+appender.index_indexing_slowlog_rolling_old.policies.size.size = 1GB
+appender.index_indexing_slowlog_rolling_old.strategy.type = DefaultRolloverStrategy
+appender.index_indexing_slowlog_rolling_old.strategy.max = 4
+#################################################
+logger.index_indexing_slowlog.name = index.indexing.slowlog.index
+logger.index_indexing_slowlog.level = $loggerIndexIndexingSlowlogLevel
+logger.index_indexing_slowlog.appenderRef.index_indexing_slowlog_rolling_old.ref = index_indexing_slowlog_rolling_old
+logger.index_indexing_slowlog.additivity = false
+
+#################################################
+######## Task details log -  old style pattern ####
+appender.task_detailslog_rolling_old.type = RollingFile
+appender.task_detailslog_rolling_old.name = task_detailslog_rolling_old
+appender.task_detailslog_rolling_old.fileName = \${sys:opensearch.logs.base_path}\${sys:file.separator}\${sys:opensearch.logs.cluster_name}_task_detailslog.log
+appender.task_detailslog_rolling_old.filePermissions = rw-r-----
+appender.task_detailslog_rolling_old.layout.type = PatternLayout
+appender.task_detailslog_rolling_old.layout.pattern = [%d{ISO8601}][%-5p][%-25c{1.}] [%node_name]%marker %m%n
+
+appender.task_detailslog_rolling_old.filePattern = \${sys:opensearch.logs.base_path}\${sys:file.separator}\${sys:opensearch.logs.cluster_name}_task_detailslog-%i.log.gz
+appender.task_detailslog_rolling_old.policies.type = Policies
+appender.task_detailslog_rolling_old.policies.size.type = SizeBasedTriggeringPolicy
+appender.task_detailslog_rolling_old.policies.size.size = 1GB
+appender.task_detailslog_rolling_old.strategy.type = DefaultRolloverStrategy
+appender.task_detailslog_rolling_old.strategy.max = 4
+#################################################
+logger.task_detailslog_rolling.name = task.detailslog
+logger.task_detailslog_rolling.level = $loggerTaskDetailslogRollingLevel
+logger.task_detailslog_rolling.appenderRef.task_detailslog_rolling_old.ref = task_detailslog_rolling_old
+logger.task_detailslog_rolling.additivity = false
+LOG4J
+    )
+
+    echo "$cfg" > ${LOG4J2_PROPERTIES_PATH}
 }

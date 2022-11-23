@@ -746,7 +746,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "logger.action.level",
+        "key": "static.log4j.logger.action.level",
         "label": "logger.action.level",
         "description": "The logger.action.level configuration in log4j2.properties.",
         "type": "string",
@@ -761,7 +761,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "rootLogger.level",
+        "key": "static.log4j.rootLogger.level",
         "label": "rootLogger.level",
         "description": "The rootLogger.level configuration in log4j2.properties.",
         "type": "string",
@@ -776,7 +776,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "logger.deprecation.level",
+        "key": "static.log4j.logger.deprecation.level",
         "label": "logger.deprecation.level",
         "description": "The logger.deprecation.level configuration in log4j2.properties.",
         "type": "string",
@@ -791,7 +791,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "logger.index_search_slowlog_rolling.level",
+        "key": "static.log4j.logger.index_search_slowlog_rolling.level",
         "label": "logger.index_search_slowlog_rolling.level",
         "description": "The logger.index_search_slowlog_rolling.level configuration in log4j2.properties.",
         "type": "string",
@@ -806,9 +806,24 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "logger.index_indexing_slowlog.level",
+        "key": "static.log4j.logger.index_indexing_slowlog.level",
         "label": "logger.index_indexing_slowlog.level",
         "description": "The logger.index_indexing_slowlog.level configuration in log4j2.properties.",
+        "type": "string",
+        "range": [
+          "debug",
+          "trace",
+          "info",
+          "warn",
+          "error"
+        ],
+        "default": "trace",
+        "changeable": true,
+        "required": "no"
+      }, {
+        "key": "static.log4j.logger.task_detailslog_rolling.level",
+        "label": "logger.task_detailslog_rolling.level",
+        "description": "The logger.task_detailslog_rolling.level configuration in log4j2.properties.",
         "type": "string",
         "range": [
           "debug",
@@ -829,7 +844,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "clean_logs_older_than_n_days",
+        "key": "static.log4j.clean_logs_older_than_n_days",
         "label": "clean_logs_older_than_n_days",
         "description": "Clean logs older than n days, n can be changed here.",
         "type": "integer",
