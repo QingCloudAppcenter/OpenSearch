@@ -853,7 +853,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "dynamic.sysctl.tcp_keepalive_intvl",
+        "key": "confd.sysctl.tcp_keepalive_intvl",
         "label": "tcp_keepalive_intvl",
         "description": "the interval between subsequent keepalive probes, regardless of what the connection has exchanged in the meantime",
         "type": "integer",
@@ -862,7 +862,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "dynamic.sysctl.tcp_keepalive_probes",
+        "key": "confd.sysctl.tcp_keepalive_probes",
         "label": "tcp_keepalive_probes",
         "description": "the number of unacknowledged probes to send before considering the connection dead and notifying the application layer",
         "type": "integer",
@@ -871,7 +871,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "dynamic.sysctl.tcp_keepalive_time",
+        "key": "confd.sysctl.tcp_keepalive_time",
         "label": "tcp_keepalive_time",
         "description": "the interval between the last data packet sent (simple ACKs are not considered data) and the first keepalive probe; after the connection is marked to need keepalive, this counter is not used any further",
         "type": "integer",
