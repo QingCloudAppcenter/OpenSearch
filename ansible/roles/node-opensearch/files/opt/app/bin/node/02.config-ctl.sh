@@ -290,7 +290,7 @@ appender.rolling_old.strategy.action.basepath = \${sys:opensearch.logs.base_path
 appender.rolling_old.strategy.action.condition.type = IfAny
 appender.rolling_old.strategy.action.condition.glob = \${sys:opensearch.logs.cluster_name}-*
 appender.rolling_old.strategy.action.condition.nested_condition.type = IfAccumulatedFileSize
-appender.rolling_old.strategy.action.condition.nested_condition.exceeds = 200M
+appender.rolling_old.strategy.action.condition.nested_condition.exceeds = 200MB
 appender.rolling_old.strategy.action.condition.nested_condition.lastMod.type = IfLastModified
 appender.rolling_old.strategy.action.condition.nested_condition.lastMod.age = ${cleanLogsOlderThanNDays}D
 ################################################
@@ -311,7 +311,7 @@ appender.deprecation_rolling_old.layout.pattern = [%d{ISO8601}][%-5p][%-25c{1.}]
 appender.deprecation_rolling_old.filePattern = \${sys:opensearch.logs.base_path}\${sys:file.separator}\${sys:opensearch.logs.cluster_name}_deprecation-%i.log.gz
 appender.deprecation_rolling_old.policies.type = Policies
 appender.deprecation_rolling_old.policies.size.type = SizeBasedTriggeringPolicy
-appender.deprecation_rolling_old.policies.size.size = 1GB
+appender.deprecation_rolling_old.policies.size.size = 200MB
 appender.deprecation_rolling_old.strategy.type = DefaultRolloverStrategy
 appender.deprecation_rolling_old.strategy.max = 4
 #################################################
@@ -333,7 +333,7 @@ appender.index_search_slowlog_rolling_old.layout.pattern = [%d{ISO8601}][%-5p][%
 appender.index_search_slowlog_rolling_old.filePattern = \${sys:opensearch.logs.base_path}\${sys:file.separator}\${sys:opensearch.logs.cluster_name}_index_search_slowlog-%i.log.gz
 appender.index_search_slowlog_rolling_old.policies.type = Policies
 appender.index_search_slowlog_rolling_old.policies.size.type = SizeBasedTriggeringPolicy
-appender.index_search_slowlog_rolling_old.policies.size.size = 1GB
+appender.index_search_slowlog_rolling_old.policies.size.size = 200MB
 appender.index_search_slowlog_rolling_old.strategy.type = DefaultRolloverStrategy
 appender.index_search_slowlog_rolling_old.strategy.max = 4
 #################################################
@@ -354,7 +354,7 @@ appender.index_indexing_slowlog_rolling_old.layout.pattern = [%d{ISO8601}][%-5p]
 appender.index_indexing_slowlog_rolling_old.filePattern = \${sys:opensearch.logs.base_path}\${sys:file.separator}\${sys:opensearch.logs.cluster_name}_index_indexing_slowlog-%i.log.gz
 appender.index_indexing_slowlog_rolling_old.policies.type = Policies
 appender.index_indexing_slowlog_rolling_old.policies.size.type = SizeBasedTriggeringPolicy
-appender.index_indexing_slowlog_rolling_old.policies.size.size = 1GB
+appender.index_indexing_slowlog_rolling_old.policies.size.size = 200MB
 appender.index_indexing_slowlog_rolling_old.strategy.type = DefaultRolloverStrategy
 appender.index_indexing_slowlog_rolling_old.strategy.max = 4
 #################################################
@@ -375,7 +375,7 @@ appender.task_detailslog_rolling_old.layout.pattern = [%d{ISO8601}][%-5p][%-25c{
 appender.task_detailslog_rolling_old.filePattern = \${sys:opensearch.logs.base_path}\${sys:file.separator}\${sys:opensearch.logs.cluster_name}_task_detailslog-%i.log.gz
 appender.task_detailslog_rolling_old.policies.type = Policies
 appender.task_detailslog_rolling_old.policies.size.type = SizeBasedTriggeringPolicy
-appender.task_detailslog_rolling_old.policies.size.size = 1GB
+appender.task_detailslog_rolling_old.policies.size.size = 200MB
 appender.task_detailslog_rolling_old.strategy.type = DefaultRolloverStrategy
 appender.task_detailslog_rolling_old.strategy.max = 4
 #################################################
