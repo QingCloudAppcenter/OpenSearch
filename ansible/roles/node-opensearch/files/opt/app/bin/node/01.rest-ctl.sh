@@ -1,3 +1,7 @@
+# max time for REST API
+MAX_TIME_GET_COMMON=10
+MAX_TIME_SET_COMMON=30
+
 # wrap the invoke of opensearch rest api
 # $1 method: GET/PUT/POST/DELETE
 # $2 max-time
@@ -26,7 +30,7 @@ getClusterDesc() {
     else
         params="/"
     fi
-    invokeRestAPI GET 10 $params
+    invokeRestAPI GET $MAX_TIME_GET_COMMON $params
 }
 
 # $1 node list, like node1,node2,node3
@@ -39,7 +43,7 @@ excludeMasterNodes() {
     else
         params="$url"
     fi
-    invokeRestAPI POST 30 $params
+    invokeRestAPI POST $MAX_TIME_SET_COMMON $params
 }
 
 clearMasterExclude() {
@@ -50,7 +54,7 @@ clearMasterExclude() {
     else
         params="$url"
     fi
-    invokeRestAPI DELETE 30 $params
+    invokeRestAPI DELETE $MAX_TIME_SET_COMMON $params
 }
 
 getClusterCoordination() {
@@ -61,7 +65,7 @@ getClusterCoordination() {
     else
         params="$url"
     fi
-    invokeRestAPI GET 10 $params
+    invokeRestAPI GET $MAX_TIME_GET_COMMON $params
 }
 
 # $1 node-ip list, like ip1,ip2,ip3
@@ -81,7 +85,7 @@ excludeDataNodes() {
 }
 JSON_DATA
     )
-    invokeRestAPI PUT 30 $params "$data"
+    invokeRestAPI PUT $MAX_TIME_SET_COMMON $params "$data"
 }
 
 clearDataExclude() {
@@ -99,7 +103,7 @@ clearDataExclude() {
 }
 JSON_DATA
     )
-    invokeRestAPI PUT 30 $params "$data"
+    invokeRestAPI PUT $MAX_TIME_SET_COMMON $params "$data"
 }
 
 # $1 option, node-ip list, like ip1,ip2,ip3
@@ -117,7 +121,7 @@ getNodesDocsCountInfo() {
     else
         params="$url"
     fi
-    invokeRestAPI GET 10 $params
+    invokeRestAPI GET $MAX_TIME_GET_COMMON $params
 }
 
 getClusterHealthInfo() {
@@ -128,7 +132,7 @@ getClusterHealthInfo() {
     else
         params="$url"
     fi
-    invokeRestAPI GET 10 $params
+    invokeRestAPI GET $MAX_TIME_GET_COMMON $params
 }
 
 getAllNodesId() {
@@ -139,7 +143,7 @@ getAllNodesId() {
     else
         params="$url"
     fi
-    invokeRestAPI GET 10 $params
+    invokeRestAPI GET $MAX_TIME_GET_COMMON $params
 }
 
 getAllIndices() {
@@ -150,7 +154,7 @@ getAllIndices() {
     else
         params="$url"
     fi
-    invokeRestAPI GET 10 $params
+    invokeRestAPI GET $MAX_TIME_GET_COMMON $params
 }
 
 getIndicesStatusDocsCount() {
@@ -161,7 +165,7 @@ getIndicesStatusDocsCount() {
     else
         params="$url"
     fi
-    invokeRestAPI GET 10 $params
+    invokeRestAPI GET $MAX_TIME_GET_COMMON $params
 }
 
 getAllShards() {
@@ -172,7 +176,7 @@ getAllShards() {
     else
         params="$url"
     fi
-    invokeRestAPI GET 10 $params
+    invokeRestAPI GET $MAX_TIME_GET_COMMON $params
 }
 
 # $1 /<index-name>
@@ -198,7 +202,7 @@ MY_DATA
     else
         params="$1 $MY_IP"
     fi
-    invokeRestAPI PUT 30 $params "$data"
+    invokeRestAPI PUT $MAX_TIME_SET_COMMON $params "$data"
 }
 
 deleteIndex() {
@@ -208,5 +212,47 @@ deleteIndex() {
     else
         params="$1 $MY_IP"
     fi
-    invokeRestAPI DELETE 30 $params
+    invokeRestAPI DELETE $MAX_TIME_SET_COMMON $params
+}
+
+# $1 key
+# $2 value, the value is used as it is
+# eg. abc -> abc, \"abc\" -> "abc"
+# $3 option: <ip> or $MY_IP
+updateClusterSettings() {
+    local url="/_cluster/settings"
+    if [ $# -eq 3 ]; then
+        params="$url $3"
+    else
+        params="$url $MY_IP"
+    fi 
+    local data=$(cat<<JSON_DATA
+{
+    "persistent": {
+        "$1": $2
+    }
+}
+JSON_DATA
+    )
+    invokeRestAPI PUT $MAX_TIME_SET_COMMON $params "$data"
+}
+
+# $1 key
+# $2 option: <ip> or $MY_IP
+resetClusterSettings() {
+    local url="/_cluster/settings"
+    if [ $# -eq 2 ]; then
+        params="$url $2"
+    else
+        params="$url $MY_IP"
+    fi 
+    local data=$(cat<<JSON_DATA
+{
+    "persistent": {
+        "$1": null
+    }
+}
+JSON_DATA
+    )
+    invokeRestAPI PUT $MAX_TIME_SET_COMMON $params "$data"
 }

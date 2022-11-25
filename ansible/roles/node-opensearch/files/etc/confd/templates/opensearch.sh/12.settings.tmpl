@@ -1,0 +1,13 @@
+mkdir -p /data/appctl/data
+
+flush > /data/appctl/data/settings.static.new <<SETTINGS_STATIC_NEW
+{{- range $key := ls "/env" | filter "^static.*" }}
+{{ $key }}={{ getv (printf "/env/%s" $key)}}
+{{- end }}
+SETTINGS_STATIC_NEW
+
+flush > /data/appctl/data/settings.dynamic.new <<SETTINGS_DYNAMIC_NEW
+{{- range $key := ls "/env" | filter "^dynamic.*" }}
+{{ $key }}={{ getv (printf "/env/%s" $key)}}
+{{- end }}
+SETTINGS_DYNAMIC_NEW

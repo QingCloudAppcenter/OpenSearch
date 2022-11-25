@@ -73,6 +73,8 @@ init() {
     if needInitProcess; then
         log "restore opensearch.yml"
         restoreOpenSearchConf
+        log "apply all dynamic settings"
+        applyAllDynamicSettings
     fi
 }
 

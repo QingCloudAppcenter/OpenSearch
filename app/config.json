@@ -665,7 +665,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "dynamic.os.node.attr.data",
+        "key": "static.os.node.attr.data",
         "label": "node.attr.data",
         "description": "Custom attribute for OS node",
         "type": "string",
@@ -885,7 +885,7 @@
       "description": "The role configuration properties of the application",
       "type": "array",
       "properties": [{
-        "key": "dynamic.os.node.attr.data",
+        "key": "static.os.node.attr.data",
         "label": "node.attr.data (#2)",
         "description": "Custom attribute for OS node",
         "type": "string",
@@ -898,7 +898,7 @@
       "description": "The role configuration properties of the application",
       "type": "array",
       "properties": [{
-        "key": "dynamic.os.node.attr.data",
+        "key": "static.os.node.attr.data",
         "label": "node.attr.data (#3)",
         "description": "Custom attribute for OS node",
         "type": "string",

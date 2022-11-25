@@ -7,13 +7,17 @@ syncStaticSettings() {
     cat $STATIC_SETTINGS_PATH.new > $STATIC_SETTINGS_PATH
 }
 
+syncDynamicSettings() {
+    cat $DYNAMIC_SETTINGS_PATH.new > $DYNAMIC_SETTINGS_PATH
+}
+
 syncAllSettings() {
-    cat $STATIC_SETTINGS_PATH.new > $STATIC_SETTINGS_PATH
+    syncStaticSettings
+    syncDynamicSettings
 }
 
 isSettingsChanged() {
-    # static settings and dynamic settings
-    if diff $STATIC_SETTINGS_PATH $STATIC_SETTINGS_PATH.new; then
+    if diff $STATIC_SETTINGS_PATH $STATIC_SETTINGS_PATH.new && diff $DYNAMIC_SETTINGS_PATH $DYNAMIC_SETTINGS_PATH.new; then
         return 1
     else
         return 0
@@ -83,9 +87,17 @@ processWhenStaticSettingsChanged() {
     systemctl restart opensearch
 }
 
+processWhenDynamicSettingsChanged() {
+    local info
+    if info=$(diff $DYNAMIC_SETTINGS_PATH $DYNAMIC_SETTINGS_PATH.new); then
+        return
+    fi
+    log "do something"
+}
+
 dispatch() {
     if ! isClusterInitialized; then
-        log "new node created! prepaire paths on persistent disk"
+        log "new node created! prepair paths on persistent disk"
         prepairPathOnPersistentDisk
         log "sync all settings"
         syncAllSettings
@@ -102,5 +114,7 @@ dispatch() {
         return
     fi
     
+    processWhenDynamicSettingsChanged
+
     processWhenStaticSettingsChanged
 }

@@ -15,7 +15,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-ut8y93af"
+      "image": "img-o2jef3m5"
     },
     "instance_class": {{cluster.es_node.instance_class}},
     "count": {{cluster.es_node.count}},
@@ -121,7 +121,7 @@
         "static.os.script.allowed_types": {{env.es_node.static.os.script.allowed_types}},
         "static.os.script.allowed_contexts": {{env.es_node.static.os.script.allowed_contexts}},
         "dynamic.os.action.destructive_requires_name": {{env.es_node.dynamic.os.action.destructive_requires_name}},
-        "dynamic.os.node.attr.data": {{env.es_node.dynamic.os.node.attr.data}}
+        "static.os.node.attr.data": {{env.es_node.static.os.node.attr.data}}
     },
     "health_check": {
       "enable": true,
@@ -272,7 +272,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-ut8y93af"
+      "image": "img-o2jef3m5"
     },
     "instance_class": {{cluster.es_master_node.instance_class}},
     "count": {{cluster.es_master_node.count}},
@@ -527,7 +527,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-ut8y93af"
+      "image": "img-o2jef3m5"
     },
     "instance_class": {{cluster.es_node_2.instance_class}},
     "count": {{cluster.es_node_2.count}},
@@ -633,7 +633,7 @@
         "static.os.script.allowed_types": {{env.es_node.static.os.script.allowed_types}},
         "static.os.script.allowed_contexts": {{env.es_node.static.os.script.allowed_contexts}},
         "dynamic.os.action.destructive_requires_name": {{env.es_node.dynamic.os.action.destructive_requires_name}},
-        "dynamic.os.node.attr.data": {{env.es_node_2.dynamic.os.node.attr.data}}
+        "static.os.node.attr.data": {{env.es_node_2.static.os.node.attr.data}}
     },
     "health_check": {
       "enable": true,
@@ -784,7 +784,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-ut8y93af"
+      "image": "img-o2jef3m5"
     },
     "instance_class": {{cluster.es_node_3.instance_class}},
     "count": {{cluster.es_node_3.count}},
@@ -890,7 +890,7 @@
         "static.os.script.allowed_types": {{env.es_node.static.os.script.allowed_types}},
         "static.os.script.allowed_contexts": {{env.es_node.static.os.script.allowed_contexts}},
         "dynamic.os.action.destructive_requires_name": {{env.es_node.dynamic.os.action.destructive_requires_name}},
-        "dynamic.os.node.attr.data": {{env.es_node_3.dynamic.os.node.attr.data}}
+        "static.os.node.attr.data": {{env.es_node_3.static.os.node.attr.data}}
     },
     "health_check": {
       "enable": true,

@@ -1,6 +1,7 @@
 # paths
 OPENSEARCH_CONF_PATH=/opt/app/current/conf/opensearch/opensearch.yml
 STATIC_SETTINGS_PATH=/data/appctl/data/settings.static
+DYNAMIC_SETTINGS_PATH=/data/appctl/data/settings.dynamic
 JVM_OPTIONS_PATH=/opt/app/current/conf/opensearch/jvm.options
 LOG4J2_PROPERTIES_PATH=/opt/app/current/conf/opensearch/log4j2.properties
 IKANALYZER_CFG_XML_PATH=/opt/app/current/conf/opensearch/analysis-ik/IKAnalyzer.cfg.xml
@@ -43,10 +44,16 @@ refreshOpenSearchConf() {
     local indicesRequestsCacheSize=$(getItemFromConf "$settings" "static.os.indices.requests.cache.size")
     local reindexRemoteWhitelist=$(getItemFromConf "$settings" "static.os.reindex.remote.whitelist")
     local repositoriesUrlAllowedUrls=$(getItemFromConf "$settings" "static.os.repositories.url.allowed_urls")
+    local nodeAttrData=$(getItemFromConf "$settings" "static.os.node.attr.data")
     local scriptAllowedTypes=$(getItemFromConf "$settings" "static.os.script.allowed_types")
     local scriptAllowedContexts=$(getItemFromConf "$settings" "static.os.script.allowed_contexts")
+    local nodeAttrDataLine
     local scriptAllowedTypesLine
     local scriptAllowedContextsLine
+
+    if [ -n "$nodeAttrData" ]; then
+        nodeAttrDataLine="node.attr.data: $nodeAttrData"
+    fi
 
     if [ -n "$scriptAllowedTypes" ]; then
         scriptAllowedTypesLine="script.allowed_types: $scriptAllowedTypes"
@@ -58,10 +65,15 @@ refreshOpenSearchConf() {
 
     local cfg=$(cat <<OS_CONF
 cluster.name: $CLUSTER_ID
+
 node.name: $NODE_NAME
 node.roles: [ $rolestr ]
+node.attr.zone: $MY_ZONE
+$nodeAttrDataLine
+
 path.data: /data/opensearch/data
 path.logs: /data/opensearch/logs
+
 network.host: $MY_IP
 
 http.port: 9200
@@ -415,4 +427,9 @@ refreshIKAnalyzerCfgXml() {
 IKA_CONF
     )
     echo "$cfg" > ${IKANALYZER_CFG_XML_PATH}
+}
+
+# $1 option, <ip> or $MY_IP
+applyAllDynamicSettings() {
+    :
 }
