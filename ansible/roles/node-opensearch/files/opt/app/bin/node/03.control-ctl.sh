@@ -27,7 +27,7 @@ start() {
     enableHealthCheck
 }
 
-needInitProcess() {
+isFirstMaster() {
     test ! "$IS_MASTER" = "false"
     local tmplist=($STABLE_MASTER_NODES)
     test "${tmplist[0]}" = "$MY_IP"
@@ -60,7 +60,7 @@ init() {
     log "inject internal users"
     injectInternalUsers
 
-    if needInitProcess; then
+    if isFirstMaster; then
         log "inject cluster init config in opensearch.yml"
         injectClusterInitConf
     fi
@@ -76,7 +76,7 @@ init() {
     log "restore internal users"
     restoreInternalUsers
 
-    if needInitProcess; then
+    if isFirstMaster; then
         log "restore opensearch.yml"
         restoreOpenSearchConf
         log "apply all dynamic settings"

@@ -92,7 +92,22 @@ processWhenDynamicSettingsChanged() {
     if info=$(diff $DYNAMIC_SETTINGS_PATH $DYNAMIC_SETTINGS_PATH.new); then
         return
     fi
-    log "do something"
+
+    log "sync dynamic settings"
+    syncDynamicSettings
+
+    if ! isFirstMaster; then
+        return
+    fi
+
+    # wait 30s for cluster ready
+    if ! retry 6 5 0 isLocalServiceAvailable; then
+        log "timeout waiting for cluster available"
+        return $EC_DYNAMIC_SETTINGS_TIMEOUT
+    fi 
+
+    log "apply changed dynamic settings"
+    applyChangedDynamicSettings "$info"
 }
 
 dispatch() {

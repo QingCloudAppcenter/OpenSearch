@@ -448,3 +448,7 @@ applyActionDestructiveRequiresName() {
         updateClusterSettings "action.destructive_requires_name" $actionDestructiveRequiresName $@
     fi
 }
+
+applyChangedDynamicSettings() {
+    :
+}
