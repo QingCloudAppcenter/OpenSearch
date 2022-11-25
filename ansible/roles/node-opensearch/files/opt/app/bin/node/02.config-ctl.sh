@@ -429,7 +429,22 @@ IKA_CONF
     echo "$cfg" > ${IKANALYZER_CFG_XML_PATH}
 }
 
-# $1 option, <ip> or $MY_IP
-applyAllDynamicSettings() {
-    :
+applyClusterNoMasterBlock() {
+    local settings=$(cat $DYNAMIC_SETTINGS_PATH)
+    local clusterNoMasterBlock=$(getItemFromConf "$settings" "dynamic.os.cluster.no_master_block")
+    if [ -z "$clusterNoMasterBlock" ]; then
+        resetClusterSettings "cluster.no_master_block" $@
+    else
+        updateClusterSettings "cluster.no_master_block" \"$clusterNoMasterBlock\" $@
+    fi
+}
+
+applyActionDestructiveRequiresName() {
+    local settings=$(cat $DYNAMIC_SETTINGS_PATH)
+    local actionDestructiveRequiresName=$(getItemFromConf "$settings" "dynamic.os.action.destructive_requires_name")
+    if [ -z "$actionDestructiveRequiresName" ]; then
+        resetClusterSettings "action.destructive_requires_name" $@
+    else
+        updateClusterSettings "action.destructive_requires_name" $actionDestructiveRequiresName $@
+    fi
 }

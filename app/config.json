@@ -577,9 +577,9 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "dynamic.os.discovery.zen.no_master_block",
-        "label": "discovery.zen.no_master_block",
-        "description": "The discovery.zen.no_master_block settings controls what operations should be rejected when there is no active master.",
+        "key": "dynamic.os.cluster.no_master_block",
+        "label": "cluster.no_master_block",
+        "description": "The cluster.no_master_block settings controls what operations should be rejected when there is no active master.",
         "type": "string",
         "range": [
           "all",
