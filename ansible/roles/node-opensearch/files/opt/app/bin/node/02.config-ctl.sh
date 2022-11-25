@@ -429,6 +429,11 @@ IKA_CONF
     echo "$cfg" > ${IKANALYZER_CFG_XML_PATH}
 }
 
+DYNAMIC_KEY_LIST=(
+    dynamic.os.cluster.no_master_block/applyClusterNoMasterBlock
+    dynamic.os.action.destructive_requires_name/applyActionDestructiveRequiresName
+)
+
 applyClusterNoMasterBlock() {
     local settings=$(cat $DYNAMIC_SETTINGS_PATH)
     local clusterNoMasterBlock=$(getItemFromConf "$settings" "dynamic.os.cluster.no_master_block")
@@ -449,6 +454,22 @@ applyActionDestructiveRequiresName() {
     fi
 }
 
+# $1: diff command result
+# $2 option <ip> or $MY_IP
 applyChangedDynamicSettings() {
-    :
+    local settings="$1"
+    shift
+    local item
+    local key
+    local func
+    local res
+    for item in ${DYNAMIC_KEY_LIST[@]}; do
+        key=${item%/*}
+        func=${item#*/}
+        res=$(echo "$settings" | sed -n "/$key/p")
+        if [ -n "$res" ]; then
+            log "update dynamic setting: $key"
+            eval "$func \$@ || :"
+        fi
+    done
 }
