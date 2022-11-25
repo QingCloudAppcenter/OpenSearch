@@ -3,6 +3,7 @@ OPENSEARCH_CONF_PATH=/opt/app/current/conf/opensearch/opensearch.yml
 STATIC_SETTINGS_PATH=/data/appctl/data/settings.static
 JVM_OPTIONS_PATH=/opt/app/current/conf/opensearch/jvm.options
 LOG4J2_PROPERTIES_PATH=/opt/app/current/conf/opensearch/log4j2.properties
+IKANALYZER_CFG_XML_PATH=/opt/app/current/conf/opensearch/analysis-ik/IKAnalyzer.cfg.xml
 SECURITY_CONF_PATH=/opt/app/current/conf/opensearch/opensearch-security
 SECURITY_TOOL_PATH=/opt/opensearch/current/plugins/opensearch-security/tools
 OPENSEARCH_JAVA_HOME=/opt/opensearch/current/jdk
@@ -387,4 +388,31 @@ LOG4J
     )
 
     echo "$cfg" > ${LOG4J2_PROPERTIES_PATH}
+}
+
+refreshIKAnalyzerCfgXml() {
+    local settings=$(cat $STATIC_SETTINGS_PATH)
+    local ikRemoteExtDict=$(getItemFromConf "$settings" "static.ik.remote_ext_dict")
+    local ikRemoteExtStopwords=$(getItemFromConf "$settings" "static.ik.remote_ext_stopwords")
+    local dictStr
+    if [ -n "$ikRemoteExtDict" ]; then
+        dictStr="<entry key=\"remote_ext_dict\">$ikRemoteExtDict</entry>"
+    fi
+    local stopStr
+    if [ -n "$ikRemoteExtStopwords" ]; then
+        stopStr="<entry key=\"remote_ext_stopwords\">$ikRemoteExtStopwords</entry>"
+    fi
+
+    local cfg=$(cat <<IKA_CONF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+    <entry key="ext_dict">custom/jieba.dic;extra_main.dic</entry>
+    <entry key="ext_stopwords">extra_stopword.dic</entry>
+    $dictStr
+    $stopStr
+</properties>
+IKA_CONF
+    )
+    echo "$cfg" > ${IKANALYZER_CFG_XML_PATH}
 }

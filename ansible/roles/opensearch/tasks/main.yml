@@ -112,74 +112,54 @@
     path: /opt/app/current/conf/opensearch/opensearch-analysis-ik
     state: absent
 
-# - name: prepare dict directory
-#   file:
-#     path: /opt/opensearch/current/plugins/opensearch-analisys-ik/config/custom
-#     owner: opensearch
-#     group: svc
-#     state: directory
+- name: prepare dict directory
+  file:
+    path: /opt/app/current/conf/opensearch/analysis-ik/custom
+    owner: opensearch
+    owner: root
+    group: svc
+    state: directory
 
-# - name: check if jieba dic exists
-#   stat:
-#     path: "{{ role_path }}/files/tmp/jieba.dic"
-#   register: jieba_dic
-#   delegate_to: localhost
+- name: check if jieba dic exists
+  stat:
+    path: "{{ role_path }}/files/tmp/jieba.dic"
+  register: jieba_dic
+  delegate_to: localhost
 
-# - name: download jieba dict
-#   get_url:
-#     url: "https://github.com/QingCloudAppcenter/elk-archived/raw/master/docker-image/standard/elasticsearch/dicts/jieba.dic"
-#     dest: "{{ role_path }}/files/tmp/jieba.dic"
-#   delegate_to: localhost
-#   when: jieba_dic.stat.exists == False
+- name: download jieba dict
+  get_url:
+    url: "https://github.com/QingCloudAppcenter/elk-archived/raw/master/docker-image/standard/elasticsearch/dicts/jieba.dic"
+    dest: "{{ role_path }}/files/tmp/jieba.dic"
+  delegate_to: localhost
+  when: jieba_dic.stat.exists == False
 
-# - name: copy jieba dict
-#   copy:
-#     src: "{{ role_path }}/files/tmp/jieba.dic"
-#     dest: "/opt/opensearch/current/plugins/opensearch-analisys-ik/config/custom/jieba.dic"
-#     owner: opensearch
-#     group: svc
-#     mode: u=rw,go=r
+- name: copy jieba dict
+  copy:
+    src: "{{ role_path }}/files/tmp/jieba.dic"
+    dest: "/opt/app/current/conf/opensearch/analysis-ik/custom"
+    owner: root
+    group: svc
 
-# - name: check if package file exists
-#   stat:
-#     path: "{{ role_path }}/files/tmp/extra_stopword.dic"
-#   register: stopword_dic
-#   delegate_to: localhost
+- name: check if commons-logging-1.2-bin.tar.gz exists
+  stat:
+    path: "{{ role_path }}/files/tmp/commons-logging-1.2-bin.tar.gz"
+  register: commons_logging
+  delegate_to: localhost
 
-# - name: download dict for IKAnalyzer
-#   get_url:
-#     url: "https://github.com/QingCloudAppcenter/elk-archived/raw/master/docker-image/standard/elasticsearch/dicts/stop_words.dic"
-#     dest: "{{ role_path }}/files/tmp/extra_stopword.dic"
-#   delegate_to: localhost
-#   when: stopword_dic.stat.exists == False
+- name: download commons-logging-1.2-bin.tar.gz
+  get_url:
+    url: "https://dlcdn.apache.org//commons/logging/binaries/commons-logging-1.2-bin.tar.gz"
+    dest: "{{ role_path }}/files/tmp/commons-logging-1.2-bin.tar.gz"
+  delegate_to: localhost
+  when: commons_logging.stat.exists == False
 
-# - name: copy extra stopword dict
-#   copy:
-#     src: "{{ role_path }}/files/tmp/extra_stopword.dic"
-#     dest: "/opt/opensearch/current/plugins/opensearch-analisys-ik/config/custom/extra_stopword.dic"
-#     owner: opensearch
-#     group: svc
-
-# - name: check if mid_file exists
-#   stat:
-#     path: "{{ role_path }}/files/tmp/xxx"
-#   register: mid_file
-#   delegate_to: localhost
-
-# - name: download mid_file
-#   get_url:
-#     url: "https://github.com/medcl/elasticsearch-analysis-ik/releases/download/v7.10.2/elasticsearch-analysis-ik-7.10.2.zip"
-#     dest: "{{ role_path }}/files/tmp/mid_file.zip"
-#   delegate_to: localhost
-#   when: mid_file.stat.exists == False
-
-# - name: unzip mid_file.zip
-#   unarchive:
-#     src: "{{ role_path }}/files/tmp/mid_file.zip"
-#     dest: "/opt/opensearch/current/plugins/opensearch-analisys-ik"
-#     include: "config/*"
-#     owner: opensearch
-#     group: svc
-
-
-
+- name: unarchive commons-logging-1.2-bin.tar.gz
+  unarchive:
+    src: "files/tmp/commons-logging-1.2-bin.tar.gz"
+    dest: "/opt/opensearch/current/plugins/opensearch-analysis-ik"
+    owner: root
+    group: svc
+    extra_opts:
+      - "--strip-components=1"
+      - "commons-logging-1.2/commons-logging-1.2.jar"
+    

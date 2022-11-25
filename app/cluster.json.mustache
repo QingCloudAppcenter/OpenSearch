@@ -15,7 +15,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-ig0zkfwk"
+      "image": "img-ut8y93af"
     },
     "instance_class": {{cluster.es_node.instance_class}},
     "count": {{cluster.es_node.count}},
@@ -87,9 +87,9 @@
     },
     "env": {
         "static.os.ssl.http.enabled": {{env.es_node.static.os.ssl.http.enabled}},
-        "dynamic.sysctl.tcp_keepalive_intvl": {{env.es_node.dynamic.sysctl.tcp_keepalive_intvl}},
-        "dynamic.sysctl.tcp_keepalive_probes": {{env.es_node.dynamic.sysctl.tcp_keepalive_probes}},
-        "dynamic.sysctl.tcp_keepalive_time": {{env.es_node.dynamic.sysctl.tcp_keepalive_time}},
+        "confd.sysctl.tcp_keepalive_intvl": {{env.es_node.confd.sysctl.tcp_keepalive_intvl}},
+        "confd.sysctl.tcp_keepalive_probes": {{env.es_node.confd.sysctl.tcp_keepalive_probes}},
+        "confd.sysctl.tcp_keepalive_time": {{env.es_node.confd.sysctl.tcp_keepalive_time}},
         "static.log4j.clean_logs_older_than_n_days": {{env.es_node.static.log4j.clean_logs_older_than_n_days}},
         "dynamic.os.discovery.zen.no_master_block": {{env.es_node.dynamic.os.discovery.zen.no_master_block}},
         "static.jvm.enable_heap_dump": {{env.es_node.static.jvm.enable_heap_dump}},
@@ -116,8 +116,8 @@
         "static.log4j.logger.task_detailslog_rolling.level": {{env.es_node.static.log4j.logger.task_detailslog_rolling.level}},
         "static.os.repositories.url.allowed_urls": {{env.es_node.static.os.repositories.url.allowed_urls}},
         "static.os.reindex.remote.whitelist": {{env.es_node.static.os.reindex.remote.whitelist}},
-        "remote_ext_dict": {{env.es_node.remote_ext_dict}},
-        "remote_ext_stopwords": {{env.es_node.remote_ext_stopwords}},
+        "static.ik.remote_ext_dict": {{env.es_node.static.ik.remote_ext_dict}},
+        "static.ik.remote_ext_stopwords": {{env.es_node.static.ik.remote_ext_stopwords}},
         "static.os.script.allowed_types": {{env.es_node.static.os.script.allowed_types}},
         "static.os.script.allowed_contexts": {{env.es_node.static.os.script.allowed_contexts}},
         "dynamic.os.action.destructive_requires_name": {{env.es_node.dynamic.os.action.destructive_requires_name}},
@@ -272,7 +272,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-ig0zkfwk"
+      "image": "img-ut8y93af"
     },
     "instance_class": {{cluster.es_master_node.instance_class}},
     "count": {{cluster.es_master_node.count}},
@@ -343,9 +343,9 @@
     },
     "env": {
         "static.os.ssl.http.enabled": {{env.es_node.static.os.ssl.http.enabled}},
-        "dynamic.sysctl.tcp_keepalive_intvl": {{env.es_node.dynamic.sysctl.tcp_keepalive_intvl}},
-        "dynamic.sysctl.tcp_keepalive_probes": {{env.es_node.dynamic.sysctl.tcp_keepalive_probes}},
-        "dynamic.sysctl.tcp_keepalive_time": {{env.es_node.dynamic.sysctl.tcp_keepalive_time}},
+        "confd.sysctl.tcp_keepalive_intvl": {{env.es_node.confd.sysctl.tcp_keepalive_intvl}},
+        "confd.sysctl.tcp_keepalive_probes": {{env.es_node.confd.sysctl.tcp_keepalive_probes}},
+        "confd.sysctl.tcp_keepalive_time": {{env.es_node.confd.sysctl.tcp_keepalive_time}},
         "static.log4j.clean_logs_older_than_n_days": {{env.es_node.static.log4j.clean_logs_older_than_n_days}},
         "dynamic.os.discovery.zen.no_master_block": {{env.es_node.dynamic.os.discovery.zen.no_master_block}},
         "static.jvm.enable_heap_dump": {{env.es_node.static.jvm.enable_heap_dump}},
@@ -372,8 +372,8 @@
         "static.log4j.logger.task_detailslog_rolling.level": {{env.es_node.static.log4j.logger.task_detailslog_rolling.level}},
         "static.os.repositories.url.allowed_urls": {{env.es_node.static.os.repositories.url.allowed_urls}},
         "static.os.reindex.remote.whitelist": {{env.es_node.static.os.reindex.remote.whitelist}},
-        "remote_ext_dict": {{env.es_node.remote_ext_dict}},
-        "remote_ext_stopwords": {{env.es_node.remote_ext_stopwords}},
+        "static.ik.remote_ext_dict": {{env.es_node.static.ik.remote_ext_dict}},
+        "static.ik.remote_ext_stopwords": {{env.es_node.static.ik.remote_ext_stopwords}},
         "static.os.script.allowed_types": {{env.es_node.static.os.script.allowed_types}},
         "static.os.script.allowed_contexts": {{env.es_node.static.os.script.allowed_contexts}},
         "dynamic.os.action.destructive_requires_name": {{env.es_node.dynamic.os.action.destructive_requires_name}}
@@ -527,7 +527,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-ig0zkfwk"
+      "image": "img-ut8y93af"
     },
     "instance_class": {{cluster.es_node_2.instance_class}},
     "count": {{cluster.es_node_2.count}},
@@ -599,9 +599,9 @@
     },
     "env": {
         "static.os.ssl.http.enabled": {{env.es_node.static.os.ssl.http.enabled}},
-        "dynamic.sysctl.tcp_keepalive_intvl": {{env.es_node.dynamic.sysctl.tcp_keepalive_intvl}},
-        "dynamic.sysctl.tcp_keepalive_probes": {{env.es_node.dynamic.sysctl.tcp_keepalive_probes}},
-        "dynamic.sysctl.tcp_keepalive_time": {{env.es_node.dynamic.sysctl.tcp_keepalive_time}},
+        "confd.sysctl.tcp_keepalive_intvl": {{env.es_node.confd.sysctl.tcp_keepalive_intvl}},
+        "confd.sysctl.tcp_keepalive_probes": {{env.es_node.confd.sysctl.tcp_keepalive_probes}},
+        "confd.sysctl.tcp_keepalive_time": {{env.es_node.confd.sysctl.tcp_keepalive_time}},
         "static.log4j.clean_logs_older_than_n_days": {{env.es_node.static.log4j.clean_logs_older_than_n_days}},
         "dynamic.os.discovery.zen.no_master_block": {{env.es_node.dynamic.os.discovery.zen.no_master_block}},
         "static.jvm.enable_heap_dump": {{env.es_node.static.jvm.enable_heap_dump}},
@@ -628,8 +628,8 @@
         "static.log4j.logger.task_detailslog_rolling.level": {{env.es_node.static.log4j.logger.task_detailslog_rolling.level}},
         "static.os.repositories.url.allowed_urls": {{env.es_node.static.os.repositories.url.allowed_urls}},
         "static.os.reindex.remote.whitelist": {{env.es_node.static.os.reindex.remote.whitelist}},
-        "remote_ext_dict": {{env.es_node.remote_ext_dict}},
-        "remote_ext_stopwords": {{env.es_node.remote_ext_stopwords}},
+        "static.ik.remote_ext_dict": {{env.es_node.static.ik.remote_ext_dict}},
+        "static.ik.remote_ext_stopwords": {{env.es_node.static.ik.remote_ext_stopwords}},
         "static.os.script.allowed_types": {{env.es_node.static.os.script.allowed_types}},
         "static.os.script.allowed_contexts": {{env.es_node.static.os.script.allowed_contexts}},
         "dynamic.os.action.destructive_requires_name": {{env.es_node.dynamic.os.action.destructive_requires_name}},
@@ -784,7 +784,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-ig0zkfwk"
+      "image": "img-ut8y93af"
     },
     "instance_class": {{cluster.es_node_3.instance_class}},
     "count": {{cluster.es_node_3.count}},
@@ -856,9 +856,9 @@
     },
     "env": {
         "static.os.ssl.http.enabled": {{env.es_node.static.os.ssl.http.enabled}},
-        "dynamic.sysctl.tcp_keepalive_intvl": {{env.es_node.dynamic.sysctl.tcp_keepalive_intvl}},
-        "dynamic.sysctl.tcp_keepalive_probes": {{env.es_node.dynamic.sysctl.tcp_keepalive_probes}},
-        "dynamic.sysctl.tcp_keepalive_time": {{env.es_node.dynamic.sysctl.tcp_keepalive_time}},
+        "confd.sysctl.tcp_keepalive_intvl": {{env.es_node.confd.sysctl.tcp_keepalive_intvl}},
+        "confd.sysctl.tcp_keepalive_probes": {{env.es_node.confd.sysctl.tcp_keepalive_probes}},
+        "confd.sysctl.tcp_keepalive_time": {{env.es_node.confd.sysctl.tcp_keepalive_time}},
         "static.log4j.clean_logs_older_than_n_days": {{env.es_node.static.log4j.clean_logs_older_than_n_days}},
         "dynamic.os.discovery.zen.no_master_block": {{env.es_node.dynamic.os.discovery.zen.no_master_block}},
         "static.jvm.enable_heap_dump": {{env.es_node.static.jvm.enable_heap_dump}},
@@ -885,8 +885,8 @@
         "static.log4j.logger.task_detailslog_rolling.level": {{env.es_node.static.log4j.logger.task_detailslog_rolling.level}},
         "static.os.repositories.url.allowed_urls": {{env.es_node.static.os.repositories.url.allowed_urls}},
         "static.os.reindex.remote.whitelist": {{env.es_node.static.os.reindex.remote.whitelist}},
-        "remote_ext_dict": {{env.es_node.remote_ext_dict}},
-        "remote_ext_stopwords": {{env.es_node.remote_ext_stopwords}},
+        "static.ik.remote_ext_dict": {{env.es_node.static.ik.remote_ext_dict}},
+        "static.ik.remote_ext_stopwords": {{env.es_node.static.ik.remote_ext_stopwords}},
         "static.os.script.allowed_types": {{env.es_node.static.os.script.allowed_types}},
         "static.os.script.allowed_contexts": {{env.es_node.static.os.script.allowed_contexts}},
         "dynamic.os.action.destructive_requires_name": {{env.es_node.dynamic.os.action.destructive_requires_name}},

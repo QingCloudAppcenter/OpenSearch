@@ -698,7 +698,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "remote_ext_dict",
+        "key": "static.ik.remote_ext_dict",
         "label": "remote_ext_dict",
         "description": "Specify the location of extensional dictionary from remote.",
         "type": "string",
@@ -706,7 +706,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "remote_ext_stopwords",
+        "key": "static.ik.remote_ext_stopwords",
         "label": "remote_ext_stopwords",
         "description": "Specify the location of extensional stopwords dictionary from remote.",
         "type": "string",

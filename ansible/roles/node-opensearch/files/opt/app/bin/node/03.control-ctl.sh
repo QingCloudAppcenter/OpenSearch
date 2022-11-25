@@ -15,6 +15,7 @@ start() {
         refreshOpenSearchConf
         refreshJvmOptions
         refreshLog4j2Properties
+        refreshIKAnalyzerCfgXml
         log "prepair keystore"
         refreshkeyStore
         log "appctl node init"
@@ -38,6 +39,7 @@ init() {
         refreshOpenSearchConf
         refreshJvmOptions
         refreshLog4j2Properties
+        refreshIKAnalyzerCfgXml
         log "prepair keystore"
         refreshkeyStore
         log "_init"

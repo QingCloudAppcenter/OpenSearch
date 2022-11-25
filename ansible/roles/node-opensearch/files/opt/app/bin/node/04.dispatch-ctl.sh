@@ -45,6 +45,10 @@ processWhenStaticSettingsChanged() {
     if [ "$tmpcnt" -gt 0 ]; then
         flag="l$flag"
     fi
+    tmpcnt=$(echo "$info" | sed -n '/static.ik/p' | wc -l)
+    if [ "$tmpcnt" -gt 0 ]; then
+        flag="i$flag"
+    fi
 
     log "sync static settings"
     syncStaticSettings
@@ -67,6 +71,12 @@ processWhenStaticSettingsChanged() {
     if [ -n "$res" ]; then
         log "opensearch static config changed, refresh log4j2.properties"
         refreshLog4j2Properties
+    fi
+
+    res=$(echo "$flag" | sed -n '/i/p')
+    if [ -n "$res" ]; then
+        log "opensearch static config changed, refresh IKAnalyzer.cfg.xml"
+        refreshIKAnalyzerCfgXml
     fi
 
     log "restart opensearch.service"
