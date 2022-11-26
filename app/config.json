@@ -573,6 +573,14 @@
         "range": ["_local", "_all"],
         "required": "no"
       }, {
+        "key": "dynamic.os.cluster.routing.allocation.enable",
+        "label": "cluster.routing.allocation.enable",
+        "description": "Enable or disable allocation for specific kinds of shards.",
+        "type": "string",
+        "default": "all",
+        "range": ["all", "primaries", "new_primaries", "none"],
+        "required": "no"
+      }, {
         "key": "static.os.thread_pool.write.queue_size",
         "label": "thread_pool.write.queue_size",
         "description": "The queue_size allows to control the size of the queue of pending requests that have no threads to execute them.",

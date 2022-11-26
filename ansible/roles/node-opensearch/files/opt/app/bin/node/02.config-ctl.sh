@@ -435,6 +435,7 @@ DYNAMIC_KEY_LIST=(
     dynamic.os.prometheus.indices/applyPrometheusIndices
     dynamic.os.prometheus.cluster.settings/applyPrometheusClusterSettings
     dynamic.os.prometheus.nodes.filter/applyPrometheusNodesFilter
+    dynamic.os.cluster.routing.allocation.enable/applyClusterRoutingAllocationEnable
 )
 
 applyClusterNoMasterBlock() {
@@ -484,6 +485,25 @@ applyPrometheusNodesFilter() {
         resetClusterSettings "prometheus.nodes.filter" $@
     else
         updateClusterSettings "prometheus.nodes.filter" \"$prometheusNodesFilter\" $@
+    fi
+}
+
+applyClusterRoutingAllocationEnable() {
+    local settings=$(cat $DYNAMIC_SETTINGS_PATH)
+    local clusterRoutingAllocationEnable=$(getItemFromConf "$settings" "dynamic.os.cluster.routing.allocation.enable")
+    if [ -z "$clusterRoutingAllocationEnable" ]; then
+        resetClusterSettings "cluster.routing.allocation.enable" $@
+    else
+        updateClusterSettings "cluster.routing.allocation.enable" \"$clusterRoutingAllocationEnable\" $@
+    fi
+}
+
+# for maintainers
+applyClusterRANCR() {
+    if [ "$#" -eq 0 ]; then
+        resetClusterSettings "cluster.routing.allocation.node_concurrent_recoveries"
+    else
+        updateClusterSettings "cluster.routing.allocation.node_concurrent_recoveries" $1
     fi
 }
 

@@ -15,7 +15,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-1jdj32ih"
+      "image": "img-i0gawzic"
     },
     "instance_class": {{cluster.es_node.instance_class}},
     "count": {{cluster.es_node.count}},
@@ -105,6 +105,7 @@
         "dynamic.os.prometheus.indices": {{env.es_node.dynamic.os.prometheus.indices}},
         "dynamic.os.prometheus.cluster.settings": {{env.es_node.dynamic.os.prometheus.cluster.settings}},
         "dynamic.os.prometheus.nodes.filter": {{env.es_node.dynamic.os.prometheus.nodes.filter}},
+        "dynamic.os.cluster.routing.allocation.enable": {{env.es_node.dynamic.os.cluster.routing.allocation.enable}},
         "static.os.thread_pool.write.queue_size": {{env.es_node.static.os.thread_pool.write.queue_size}},
         "static.os.thread_pool.search.queue_size": {{env.es_node.static.os.thread_pool.search.queue_size}},
         "static.os.indices.memory.index_buffer_size": {{env.es_node.static.os.indices.memory.index_buffer_size}},
@@ -275,7 +276,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-1jdj32ih"
+      "image": "img-i0gawzic"
     },
     "instance_class": {{cluster.es_master_node.instance_class}},
     "count": {{cluster.es_master_node.count}},
@@ -364,6 +365,7 @@
         "dynamic.os.prometheus.indices": {{env.es_node.dynamic.os.prometheus.indices}},
         "dynamic.os.prometheus.cluster.settings": {{env.es_node.dynamic.os.prometheus.cluster.settings}},
         "dynamic.os.prometheus.nodes.filter": {{env.es_node.dynamic.os.prometheus.nodes.filter}},
+        "dynamic.os.cluster.routing.allocation.enable": {{env.es_node.dynamic.os.cluster.routing.allocation.enable}},
         "static.os.thread_pool.write.queue_size": {{env.es_node.static.os.thread_pool.write.queue_size}},
         "static.os.thread_pool.search.queue_size": {{env.es_node.static.os.thread_pool.search.queue_size}},
         "static.os.indices.memory.index_buffer_size": {{env.es_node.static.os.indices.memory.index_buffer_size}},
@@ -533,7 +535,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-1jdj32ih"
+      "image": "img-i0gawzic"
     },
     "instance_class": {{cluster.es_node_2.instance_class}},
     "count": {{cluster.es_node_2.count}},
@@ -623,6 +625,7 @@
         "dynamic.os.prometheus.indices": {{env.es_node.dynamic.os.prometheus.indices}},
         "dynamic.os.prometheus.cluster.settings": {{env.es_node.dynamic.os.prometheus.cluster.settings}},
         "dynamic.os.prometheus.nodes.filter": {{env.es_node.dynamic.os.prometheus.nodes.filter}},
+        "dynamic.os.cluster.routing.allocation.enable": {{env.es_node.dynamic.os.cluster.routing.allocation.enable}},
         "static.os.thread_pool.write.queue_size": {{env.es_node.static.os.thread_pool.write.queue_size}},
         "static.os.thread_pool.search.queue_size": {{env.es_node.static.os.thread_pool.search.queue_size}},
         "static.os.indices.memory.index_buffer_size": {{env.es_node.static.os.indices.memory.index_buffer_size}},
@@ -793,7 +796,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-1jdj32ih"
+      "image": "img-i0gawzic"
     },
     "instance_class": {{cluster.es_node_3.instance_class}},
     "count": {{cluster.es_node_3.count}},
@@ -883,6 +886,7 @@
         "dynamic.os.prometheus.indices": {{env.es_node.dynamic.os.prometheus.indices}},
         "dynamic.os.prometheus.cluster.settings": {{env.es_node.dynamic.os.prometheus.cluster.settings}},
         "dynamic.os.prometheus.nodes.filter": {{env.es_node.dynamic.os.prometheus.nodes.filter}},
+        "dynamic.os.cluster.routing.allocation.enable": {{env.es_node.dynamic.os.cluster.routing.allocation.enable}},
         "static.os.thread_pool.write.queue_size": {{env.es_node.static.os.thread_pool.write.queue_size}},
         "static.os.thread_pool.search.queue_size": {{env.es_node.static.os.thread_pool.search.queue_size}},
         "static.os.indices.memory.index_buffer_size": {{env.es_node.static.os.indices.memory.index_buffer_size}},
