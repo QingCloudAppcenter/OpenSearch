@@ -551,6 +551,28 @@
         "range": ["true", "false"],
         "required": "no"
       }, {
+        "key": "dynamic.os.prometheus.indices",
+        "label": "prometheus.indices",
+        "description": "Whether to export detailed index level metrics or not.",
+        "type": "boolean",
+        "default": false,
+        "required": "no"
+      }, {
+        "key": "dynamic.os.prometheus.cluster.settings",
+        "label": "prometheus.cluster.settings",
+        "description": "Whether to export cluster settings or not.",
+        "type": "boolean",
+        "default": false,
+        "required": "no"
+      }, {
+        "key": "dynamic.os.prometheus.nodes.filter",
+        "label": "prometheus.nodes.filter",
+        "description": "Whether to export metrics from local node or all nodes.",
+        "type": "string",
+        "default": "_local",
+        "range": ["_local", "_all"],
+        "required": "no"
+      }, {
         "key": "static.os.thread_pool.write.queue_size",
         "label": "thread_pool.write.queue_size",
         "description": "The queue_size allows to control the size of the queue of pending requests that have no threads to execute them.",

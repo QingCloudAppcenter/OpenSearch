@@ -256,3 +256,14 @@ JSON_DATA
     )
     invokeRestAPI PUT $MAX_TIME_SET_COMMON $params "$data"
 }
+
+getPrometheusMetrics() {
+    local url="/_prometheus/metrics"
+    local params
+    if [ $# -eq 1 ]; then
+        params="$url $1"
+    else
+        params="$url"
+    fi
+    invokeRestAPI GET $MAX_TIME_GET_COMMON $params
+}

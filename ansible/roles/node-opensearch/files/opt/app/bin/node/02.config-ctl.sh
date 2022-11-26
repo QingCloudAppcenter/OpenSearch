@@ -432,6 +432,9 @@ IKA_CONF
 DYNAMIC_KEY_LIST=(
     dynamic.os.cluster.no_master_block/applyClusterNoMasterBlock
     dynamic.os.action.destructive_requires_name/applyActionDestructiveRequiresName
+    dynamic.os.prometheus.indices/applyPrometheusIndices
+    dynamic.os.prometheus.cluster.settings/applyPrometheusClusterSettings
+    dynamic.os.prometheus.nodes.filter/applyPrometheusNodesFilter
 )
 
 applyClusterNoMasterBlock() {
@@ -454,6 +457,50 @@ applyActionDestructiveRequiresName() {
     fi
 }
 
+applyPrometheusIndices() {
+    local settings=$(cat $DYNAMIC_SETTINGS_PATH)
+    local prometheusIndices=$(getItemFromConf "$settings" "dynamic.os.prometheus.indices")
+    if [ -z "$prometheusIndices" ]; then
+        resetClusterSettings "prometheus.indices" $@
+    else
+        updateClusterSettings "prometheus.indices" $prometheusIndices $@
+    fi
+}
+
+applyPrometheusClusterSettings() {
+    local settings=$(cat $DYNAMIC_SETTINGS_PATH)
+    local prometheusClusterSettings=$(getItemFromConf "$settings" "dynamic.os.prometheus.cluster.settings")
+    if [ -z "$prometheusClusterSettings" ]; then
+        resetClusterSettings "prometheus.cluster.settings" $@
+    else
+        updateClusterSettings "prometheus.cluster.settings" $prometheusClusterSettings $@
+    fi
+}
+
+applyPrometheusNodesFilter() {
+    local settings=$(cat $DYNAMIC_SETTINGS_PATH)
+    local prometheusNodesFilter=$(getItemFromConf "$settings" "dynamic.os.prometheus.nodes.filter")
+    if [ -z "$prometheusNodesFilter" ]; then
+        resetClusterSettings "prometheus.nodes.filter" $@
+    else
+        updateClusterSettings "prometheus.nodes.filter" \"$prometheusNodesFilter\" $@
+    fi
+}
+
+# $1 option, <ip> or $MY_IP
+applyAllDynamicSettings() {
+    local item
+    local key
+    local func
+    local res
+    for item in ${DYNAMIC_KEY_LIST[@]}; do
+        key=${item%/*}
+        func=${item#*/}
+        log "update dynamic setting: ${key#dynamic.os.}"
+        eval "$func \$@ || :"
+    done
+}
+
 # $1: diff command result
 # $2 option <ip> or $MY_IP
 applyChangedDynamicSettings() {
@@ -468,7 +515,7 @@ applyChangedDynamicSettings() {
         func=${item#*/}
         res=$(echo "$settings" | sed -n "/$key/p")
         if [ -n "$res" ]; then
-            log "update dynamic setting: $key"
+            log "update dynamic setting: ${key#dynamic.os.}"
             eval "$func \$@ || :"
         fi
     done

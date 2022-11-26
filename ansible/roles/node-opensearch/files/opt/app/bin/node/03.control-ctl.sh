@@ -33,12 +33,6 @@ isFirstMaster() {
     test "${tmplist[0]}" = "$MY_IP"
 }
 
-# $1 option, <ip> or $MY_IP
-applyAllDynamicSettings() {
-    applyClusterNoMasterBlock $@ || :
-    applyActionDestructiveRequiresName $@ || :
-}
-
 init() {
     if ! isClusterInitialized; then
         log "prepair config files"

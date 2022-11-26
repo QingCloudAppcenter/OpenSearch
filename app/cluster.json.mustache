@@ -15,7 +15,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-u0chwp8h"
+      "image": "img-1jdj32ih"
     },
     "instance_class": {{cluster.es_node.instance_class}},
     "count": {{cluster.es_node.count}},
@@ -102,6 +102,9 @@
         "static.os.http.cors.enabled": {{env.es_node.static.os.http.cors.enabled}},
         "static.os.http.cors.allow-origin": {{env.es_node.static.os.http.cors.allow-origin}},
         "prometheus.node.exporter": {{env.es_node.prometheus.node.exporter}},
+        "dynamic.os.prometheus.indices": {{env.es_node.dynamic.os.prometheus.indices}},
+        "dynamic.os.prometheus.cluster.settings": {{env.es_node.dynamic.os.prometheus.cluster.settings}},
+        "dynamic.os.prometheus.nodes.filter": {{env.es_node.dynamic.os.prometheus.nodes.filter}},
         "static.os.thread_pool.write.queue_size": {{env.es_node.static.os.thread_pool.write.queue_size}},
         "static.os.thread_pool.search.queue_size": {{env.es_node.static.os.thread_pool.search.queue_size}},
         "static.os.indices.memory.index_buffer_size": {{env.es_node.static.os.indices.memory.index_buffer_size}},
@@ -272,7 +275,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-u0chwp8h"
+      "image": "img-1jdj32ih"
     },
     "instance_class": {{cluster.es_master_node.instance_class}},
     "count": {{cluster.es_master_node.count}},
@@ -358,6 +361,9 @@
         "static.os.http.cors.enabled": {{env.es_node.static.os.http.cors.enabled}},
         "static.os.http.cors.allow-origin": {{env.es_node.static.os.http.cors.allow-origin}},
         "prometheus.node.exporter": {{env.es_node.prometheus.node.exporter}},
+        "dynamic.os.prometheus.indices": {{env.es_node.dynamic.os.prometheus.indices}},
+        "dynamic.os.prometheus.cluster.settings": {{env.es_node.dynamic.os.prometheus.cluster.settings}},
+        "dynamic.os.prometheus.nodes.filter": {{env.es_node.dynamic.os.prometheus.nodes.filter}},
         "static.os.thread_pool.write.queue_size": {{env.es_node.static.os.thread_pool.write.queue_size}},
         "static.os.thread_pool.search.queue_size": {{env.es_node.static.os.thread_pool.search.queue_size}},
         "static.os.indices.memory.index_buffer_size": {{env.es_node.static.os.indices.memory.index_buffer_size}},
@@ -527,7 +533,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-u0chwp8h"
+      "image": "img-1jdj32ih"
     },
     "instance_class": {{cluster.es_node_2.instance_class}},
     "count": {{cluster.es_node_2.count}},
@@ -614,6 +620,9 @@
         "static.os.http.cors.enabled": {{env.es_node.static.os.http.cors.enabled}},
         "static.os.http.cors.allow-origin": {{env.es_node.static.os.http.cors.allow-origin}},
         "prometheus.node.exporter": {{env.es_node.prometheus.node.exporter}},
+        "dynamic.os.prometheus.indices": {{env.es_node.dynamic.os.prometheus.indices}},
+        "dynamic.os.prometheus.cluster.settings": {{env.es_node.dynamic.os.prometheus.cluster.settings}},
+        "dynamic.os.prometheus.nodes.filter": {{env.es_node.dynamic.os.prometheus.nodes.filter}},
         "static.os.thread_pool.write.queue_size": {{env.es_node.static.os.thread_pool.write.queue_size}},
         "static.os.thread_pool.search.queue_size": {{env.es_node.static.os.thread_pool.search.queue_size}},
         "static.os.indices.memory.index_buffer_size": {{env.es_node.static.os.indices.memory.index_buffer_size}},
@@ -784,7 +793,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-u0chwp8h"
+      "image": "img-1jdj32ih"
     },
     "instance_class": {{cluster.es_node_3.instance_class}},
     "count": {{cluster.es_node_3.count}},
@@ -871,6 +880,9 @@
         "static.os.http.cors.enabled": {{env.es_node.static.os.http.cors.enabled}},
         "static.os.http.cors.allow-origin": {{env.es_node.static.os.http.cors.allow-origin}},
         "prometheus.node.exporter": {{env.es_node.prometheus.node.exporter}},
+        "dynamic.os.prometheus.indices": {{env.es_node.dynamic.os.prometheus.indices}},
+        "dynamic.os.prometheus.cluster.settings": {{env.es_node.dynamic.os.prometheus.cluster.settings}},
+        "dynamic.os.prometheus.nodes.filter": {{env.es_node.dynamic.os.prometheus.nodes.filter}},
         "static.os.thread_pool.write.queue_size": {{env.es_node.static.os.thread_pool.write.queue_size}},
         "static.os.thread_pool.search.queue_size": {{env.es_node.static.os.thread_pool.search.queue_size}},
         "static.os.indices.memory.index_buffer_size": {{env.es_node.static.os.indices.memory.index_buffer_size}},
