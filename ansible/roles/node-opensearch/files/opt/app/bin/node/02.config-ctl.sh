@@ -2,12 +2,16 @@
 OPENSEARCH_CONF_PATH=/opt/app/current/conf/opensearch/opensearch.yml
 STATIC_SETTINGS_PATH=/data/appctl/data/settings.static
 DYNAMIC_SETTINGS_PATH=/data/appctl/data/settings.dynamic
+KEYSTORE_SETTINGS_PATH=/data/appctl/data/settings.keystore
 JVM_OPTIONS_PATH=/opt/app/current/conf/opensearch/jvm.options
 LOG4J2_PROPERTIES_PATH=/opt/app/current/conf/opensearch/log4j2.properties
 IKANALYZER_CFG_XML_PATH=/opt/app/current/conf/opensearch/analysis-ik/IKAnalyzer.cfg.xml
 SECURITY_CONF_PATH=/opt/app/current/conf/opensearch/opensearch-security
 SECURITY_TOOL_PATH=/opt/opensearch/current/plugins/opensearch-security/tools
+KEYSTORE_TOOL_PATH=/opt/opensearch/current/bin/opensearch-keystore
 OPENSEARCH_JAVA_HOME=/opt/opensearch/current/jdk
+OPENSEARCH_HOME=/opt/opensearch/current
+OPENSEARCH_PATH_CONF=/opt/app/current/conf/opensearch
 
 # $1 confing string
 # $2 key
@@ -539,4 +543,80 @@ applyChangedDynamicSettings() {
             eval "$func \$@ || :"
         fi
     done
+}
+
+# $1 - key
+# $2 - value
+addOrUpdateKeystore() {
+    runuser opensearch -g svc -s "/bin/bash" -c "echo -n $2 | OPENSEARCH_PATH_CONF=$OPENSEARCH_PATH_CONF $KEYSTORE_TOOL_PATH add -f $1 --stdin"
+}
+
+# $1 - key
+removeFromKeystore() {
+    runuser opensearch -g svc -s "/bin/bash" -c "OPENSEARCH_PATH_CONF=$OPENSEARCH_PATH_CONF $KEYSTORE_TOOL_PATH remove $1 | :"
+}
+
+listKeystore() {
+    runuser opensearch -g svc -s "/bin/bash" -c "OPENSEARCH_PATH_CONF=$OPENSEARCH_PATH_CONF $KEYSTORE_TOOL_PATH list"
+}
+
+applyAllKeystoreSettings() {
+    local rawline
+    local k
+    local v
+    while read -r rawline; do
+        tmpstr=${rawline#*/}
+        if [ -z "$tmpstr" ]; then
+            continue
+        fi
+        k=${tmpstr%%=*}
+        v=${tmpstr#*=}
+        log "add or update keysore: $k"
+        addOrUpdateKeystore "$k" "$v"
+    done <"$KEYSTORE_SETTINGS_PATH"
+}
+
+applyChangedKeystoreSettings() {
+    local origin=$(echo "$1" | sed -n "/^</p")
+    local rawline
+    local newline
+    local linesel
+    local tmpstr
+    local oldk
+    local oldv
+    local newk
+    local newv
+    while read -r rawline; do
+        tmpstr=${rawline%%/*}
+        linesel=${tmpstr#< }
+        tmpstr=${rawline#*/}
+        if [ -n "$tmpstr" ]; then
+            oldk=${tmpstr%%=*}
+            oldv=${tmpstr#*=}
+        else
+            oldk=""
+            oldv=""
+        fi
+        newline=$(echo "$1" | sed -n "/^> $linesel/p")
+        tmpstr=${newline#*/}
+        if [ -n "$tmpstr" ]; then
+            newk=${tmpstr%%=*}
+            newv=${tmpstr#*=}
+        else
+            newk=""
+            newv=""
+        fi
+        if [ -z "$oldk" ] || [ "$oldk" = "$newk" ]; then
+            log "add or update keysore: $newk"
+            addOrUpdateKeystore "$newk" "$newv"
+        elif [ -z "$newk" ]; then
+            log "remove from keystore: $oldk"
+            removeFromKeystore "$oldk"
+        else
+            log "remove from keystore: $oldk"
+            removeFromKeystore "$oldk"
+            log "add or update keystore: $newk"
+            addOrUpdateKeystore "$newk" "$newv"
+        fi
+    done <<<"$origin"
 }

@@ -776,6 +776,46 @@
         "changeable": true,
         "required": "no"
       }, {
+        "key": "keystore.os.key_value1",
+        "label": "keystore key-value 1",
+        "description": "One of keystore settings, eg. key=value.",
+        "type": "string",
+        "default": "",
+        "changeable": true,
+        "required": "no"
+      }, {
+        "key": "keystore.os.key_value2",
+        "label": "keystore key-value 2",
+        "description": "One of keystore settings, eg. key=value.",
+        "type": "string",
+        "default": "",
+        "changeable": true,
+        "required": "no"
+      }, {
+        "key": "keystore.os.key_value3",
+        "label": "keystore key-value 3",
+        "description": "One of keystore settings, eg. key=value.",
+        "type": "string",
+        "default": "",
+        "changeable": true,
+        "required": "no"
+      }, {
+        "key": "keystore.os.key_value4",
+        "label": "keystore key-value 4",
+        "description": "One of keystore settings, eg. key=value.",
+        "type": "string",
+        "default": "",
+        "changeable": true,
+        "required": "no"
+      }, {
+        "key": "keystore.os.key_value5",
+        "label": "keystore key-value 5",
+        "description": "One of keystore settings, eg. key=value.",
+        "type": "string",
+        "default": "",
+        "changeable": true,
+        "required": "no"
+      }, {
         "key": "static.log4j.logger.action.level",
         "label": "logger.action.level",
         "description": "The logger.action.level configuration in log4j2.properties.",

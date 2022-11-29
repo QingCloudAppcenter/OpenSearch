@@ -1,10 +1,4 @@
 ---
-- name: install tools
-  apt:
-    name: ['unzip']
-    state: present
-    update_cache: no
-
 - name: install node exporter binaries
   include_role:
     name: install-1.0.6
@@ -33,7 +27,7 @@
     append: yes
     state: present
 
-- name: install node opensearch binaries
+- name: install opensearch binaries
   include_role:
     name: install-1.0.6
   vars:

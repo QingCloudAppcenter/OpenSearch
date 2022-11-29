@@ -1,8 +1,3 @@
-
-refreshkeyStore() {
-    :
-}
-
 isLocalServiceAvailable() {
     local res=$(getClusterDesc)
     local clname=$(echo "$res" | jq -r '.cluster_name')
@@ -11,13 +6,13 @@ isLocalServiceAvailable() {
 
 start() {
     if ! isNodeInitialized; then
-        log "prepair config files"
+        log "prepare keystore"
+        applyAllKeystoreSettings
+        log "prepare config files"
         refreshOpenSearchConf
         refreshJvmOptions
         refreshLog4j2Properties
         refreshIKAnalyzerCfgXml
-        log "prepair keystore"
-        refreshkeyStore
         log "appctl node init"
         _initNode
     fi
@@ -35,13 +30,13 @@ isFirstMaster() {
 
 init() {
     if ! isClusterInitialized; then
-        log "prepair config files"
+        log "prepare keystore"
+        applyAllKeystoreSettings
+        log "prepare config files"
         refreshOpenSearchConf
         refreshJvmOptions
         refreshLog4j2Properties
         refreshIKAnalyzerCfgXml
-        log "prepair keystore"
-        refreshkeyStore
         log "_init"
         _init
     fi

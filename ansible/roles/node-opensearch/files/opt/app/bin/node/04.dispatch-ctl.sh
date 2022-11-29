@@ -1,4 +1,4 @@
-prepairPathOnPersistentDisk() {
+preparePathOnPersistentDisk() {
     mkdir -p /data/opensearch/{data,logs,dump}
     chown -R opensearch:svc /data/opensearch
 }
@@ -11,13 +11,18 @@ syncDynamicSettings() {
     cat $DYNAMIC_SETTINGS_PATH.new > $DYNAMIC_SETTINGS_PATH
 }
 
+syncKeystoreSettings() {
+    cat $KEYSTORE_SETTINGS_PATH.new > $KEYSTORE_SETTINGS_PATH
+}
+
 syncAllSettings() {
     syncStaticSettings
     syncDynamicSettings
+    syncKeystoreSettings
 }
 
 isSettingsChanged() {
-    if diff $STATIC_SETTINGS_PATH $STATIC_SETTINGS_PATH.new && diff $DYNAMIC_SETTINGS_PATH $DYNAMIC_SETTINGS_PATH.new; then
+    if diff $STATIC_SETTINGS_PATH $STATIC_SETTINGS_PATH.new && diff $DYNAMIC_SETTINGS_PATH $DYNAMIC_SETTINGS_PATH.new && diff $KEYSTORE_SETTINGS_PATH $KEYSTORE_SETTINGS_PATH.new; then
         return 1
     else
         return 0
@@ -104,16 +109,29 @@ processWhenDynamicSettingsChanged() {
     if ! retry 6 5 0 isLocalServiceAvailable; then
         log "timeout waiting for cluster available"
         return $EC_DYNAMIC_SETTINGS_TIMEOUT
-    fi 
+    fi
 
     log "apply changed dynamic settings"
     applyChangedDynamicSettings "$info"
 }
 
+processWhenKeystoreSettingsChanged() {
+    local info
+    if info=$(diff $KEYSTORE_SETTINGS_PATH $KEYSTORE_SETTINGS_PATH.new); then
+        return
+    fi
+
+    log "sync keystore settings"
+    syncKeystoreSettings
+
+    log "apply changed keystore settings"
+    applyChangedKeystoreSettings "$info"
+}
+
 dispatch() {
     if ! isClusterInitialized; then
-        log "new node created! prepair paths on persistent disk"
-        prepairPathOnPersistentDisk
+        log "new node created! prepare paths on persistent disk"
+        preparePathOnPersistentDisk
         log "sync all settings"
         syncAllSettings
         return
@@ -128,6 +146,8 @@ dispatch() {
         log "settings are not changed, skipping!"
         return
     fi
+
+    processWhenKeystoreSettingsChanged
     
     processWhenDynamicSettingsChanged
 
