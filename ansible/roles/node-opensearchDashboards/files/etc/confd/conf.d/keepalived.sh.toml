@@ -5,4 +5,5 @@ mode = "0700"
 keys = [
   "/",
 ]
-reload_cmd = "/opt/app/bin/tmpl/keepalived.sh; appctl reload keepalived"
+#reload_cmd = "/opt/app/bin/tmpl/keepalived.sh; appctl reload keepalived"
+reload_cmd = ":"

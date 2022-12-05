@@ -5,4 +5,5 @@ mode = "0700"
 keys = [
   "/",
 ]
-reload_cmd = "/opt/app/bin/tmpl/cerebro.sh; appctl reload cerebro"
+#reload_cmd = "/opt/app/bin/tmpl/cerebro.sh; appctl reload cerebro"
+reload_cmd = ":"

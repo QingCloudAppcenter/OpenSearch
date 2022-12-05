@@ -1,0 +1,3 @@
+healthCheck() {
+    log "normal check"
+}

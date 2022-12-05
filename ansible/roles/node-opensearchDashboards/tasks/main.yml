@@ -5,8 +5,8 @@
 
 - name: copy binaries
   copy:
-    src: "{{ role_path }}/files/opt/app/"
-    dest: /opt/app/
+    src: "{{ role_path }}/files/opt/app/bin/node/"
+    dest: /opt/app/current/bin/node
     owner: root
     group: svc
     mode: preserve

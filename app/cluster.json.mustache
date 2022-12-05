@@ -15,7 +15,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-u28aco3h"
+      "image": "img-5wxbfnk3"
     },
     "instance_class": {{cluster.es_node.instance_class}},
     "count": {{cluster.es_node.count}},
@@ -281,7 +281,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-u28aco3h"
+      "image": "img-5wxbfnk3"
     },
     "instance_class": {{cluster.es_master_node.instance_class}},
     "count": {{cluster.es_master_node.count}},
@@ -545,7 +545,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-u28aco3h"
+      "image": "img-5wxbfnk3"
     },
     "instance_class": {{cluster.es_node_2.instance_class}},
     "count": {{cluster.es_node_2.count}},
@@ -811,7 +811,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-u28aco3h"
+      "image": "img-5wxbfnk3"
     },
     "instance_class": {{cluster.es_node_3.instance_class}},
     "count": {{cluster.es_node_3.count}},
@@ -1126,7 +1126,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-k792vkml"
+      "image": "img-fwaasbvd"
     },
     "instance_class": {{cluster.kbn_node.instance_class}},
     "count": {{cluster.kbn_node.count}},
@@ -1154,7 +1154,8 @@
         "proxy.connect.timeout": {{env.kbn_node.proxy.connect.timeout}},
         "proxy.timeout": {{env.kbn_node.proxy.timeout}},
         "proxy.max.conn": {{env.kbn_node.proxy.max.conn}},
-        "nginx_client_max_body_size": {{env.kbn_node.nginx_client_max_body_size}}
+        "nginx_client_max_body_size": {{env.kbn_node.nginx_client_max_body_size}},
+        "static.os.ssl.http.enabled": {{env.es_node.static.os.ssl.http.enabled}}
     },
     "health_check": {
       "enable": true,
@@ -1163,7 +1164,7 @@
       "action_timeout_sec": 150,
       "healthy_threshold": 2,
       "unhealthy_threshold": 3,
-      "check_cmd": "appctl check",
+      "check_cmd": "appctl healthCheck",
       "action_cmd": "appctl revive"
     }
   }],

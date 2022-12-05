@@ -1,0 +1,21 @@
+[Unit]
+Description=OpenSearch Dashboards
+
+[Service]
+Type=simple
+User=opensearch-dashboards
+Group=svc
+# Load env vars from /etc/default/ and /etc/sysconfig/ if they exist.
+# Prefixing the path with '-' makes it try to load, but if the file doesn't
+# exist, it continues onward.
+EnvironmentFile=-/opt/app/current/conf/opensearch-dashboards/opensearch_dashboards.env
+Environment=OSD_PATH_CONF=/opt/app/current/conf/opensearch-dashboards
+ExecStart=/opt/opensearch-dashboards/current/bin/opensearch-dashboards
+Restart=on-failure
+RestartSec=3
+StartLimitBurst=3
+StartLimitInterval=60
+WorkingDirectory=/opt/opensearch-dashboards/current
+
+[Install]
+WantedBy=multi-user.target

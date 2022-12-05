@@ -1,49 +1,61 @@
 ---
-- name: install tools
-  apt:
-    name: ['unzip']
-    state: present
-    update_cache: no
-
-- name: Install pkg
+- name: install dashboards binaries
   include_role:
-    name: utils
-    tasks_from: install-pkg
+    name: install-1.0.6
   vars:
-    version: "{{ opensearch_dashboards_version }}"
-    parentRole: dashboards
-  loop:
-    - pkgUrl: "https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/{{ opensearch_dashboards_version }}/opensearch-dashboards-{{ opensearch_dashboards_package_version }}-linux-x64.tar.gz"
-  loop_control:
-    loop_var: opts
+    opts:
+      pkg_name: opensearch-dashboards
+      pkg_version: "{{ opensearch_dashboards_version }}"
+      pkg_url: https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/{{ opensearch_dashboards_version }}/opensearch-dashboards-{{ opensearch_dashboards_package_version }}-linux-x64.tar.gz
+      pkg_type: tar.gz
+      creates: bin
+      extracts: yes
+      extra_opts:
+        - "--strip-components=1"
 
-- name: copy configuration files
+- name: group svc
+  group:
+    name: svc
+    state: present
+
+- name: User - opensearch-dashboards
+  user:
+    name: opensearch-dashboards
+    groups: svc
+    shell: /usr/sbin/nologin
+    create_home: no
+    append: yes
+    state: present
+
+- name: copy logrotate configuration files
   copy:
-    src: "{{ role_path }}/files/{{ file_path }}"
-    dest: /{{ file_path }}
+    src: etc/logrotate.d/
+    dest: /opt/app/current/conf/logrotate
+    owner: root
+    group: svc
+    mode: preserve
+
+- name: copy default configuration files
+  copy:
+    src: /opt/opensearch-dashboards/current/config/
+    dest: /opt/app/current/conf/opensearch-dashboards
+    owner: root
+    group: svc
+    mode: preserve
+    remote_src: yes
+
+- name: copy env configuration files
+  copy:
+    src: opt/app/conf/opensearch-dashboards/
+    dest: /opt/app/current/conf/opensearch-dashboards
+    owner: root
+    group: svc
+    mode: preserve
+
+- name: copy service file
+  copy:
+    src: lib/systemd/system/
+    dest: /opt/app/current/conf/systemd
     owner: root
     group: root
     mode: preserve
-  loop:
-  - opt/app/conf/opensearchDashboards/
-  loop_control:
-    loop_var: file_path
-
-- name: install service
-  copy:
-    src: "{{ role_path }}/files/{{ file_path }}"
-    dest: /{{ file_path }}
-    owner: root
-    group: root
-    mode: preserve
-  loop:
-  - lib/systemd/system/
-  loop_control:
-    loop_var: file_path
-
-- name: mask opensearch dashboards service
-  systemd:
-    name: dashboards
-    enabled: no
-    masked: yes
-    state: stopped
