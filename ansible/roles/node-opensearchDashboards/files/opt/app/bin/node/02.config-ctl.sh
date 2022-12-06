@@ -1,5 +1,6 @@
 DASHBOARDS_CONF_PATH=/opt/app/current/conf/opensearch-dashboards/opensearch_dashboards.yml
 STATIC_SETTINGS_PATH=/data/appctl/data/settings.static
+DYNAMIC_SETTINGS_PATH=/data/appctl/data/settings.dynamic
 OSD_PID_PATH=/data/opensearch-dashboards/data/opensearchDashboards.pid
 OPENSEARCH_SSL_CA_SYS_PATH=/opt/app/current/conf/opensearch-dashboards/certs/qc/root-ca.pem
 OPENSEARCH_SSL_CA_USER_PATH=/opt/app/current/conf/opensearch-dashboards/certs/user/root-ca.pem
@@ -70,4 +71,51 @@ pid.file: $OSD_PID_PATH
 OSD_CONF
 )
     echo "$cfg" > $DASHBOARDS_CONF_PATH
+}
+
+refreshAllDynamicServiceStatus() {
+    local settings=$(cat $DYNAMIC_SETTINGS_PATH)
+    local enable_caddy=$(getItemFromConf "$settings" "dynamic.other.enable_caddy")
+    if [ "$enable_caddy" = "true" ]; then
+        systemctl start caddy
+    else
+        systemctl stop caddy
+    fi
+    local enable_cerebro=$(getItemFromConf "$settings" "dynamic.other.enable_cerebro")
+    if [ "$enable_cerebro" = "true" ]; then
+        systemctl start cerebro
+    else
+        systemctl stop cerebro
+    fi
+}
+
+# $1 service name
+refreshDynamicService() {
+    if [ ! -e $DYNAMIC_SETTINGS_PATH ]; then
+        log "cluster is booting up, do nothing!"
+        return
+    fi
+    local settings=$(cat $DYNAMIC_SETTINGS_PATH)
+    local curstatus
+    case "$1" in
+        "caddy")
+        curstatus=$(getItemFromConf "$settings" "dynamic.other.enable_caddy")
+        ;;
+        "cerebro")
+        curstatus=$(getItemFromConf "$settings" "dynamic.other.enable_cerebro")
+        ;;
+        *)
+        curstatus=""
+        ;;
+    esac
+    if [ -z "$curstatus" ]; then
+        log "unknown service, skipping!"
+        return
+    fi
+    if [ "$curstatus" = "true" ]; then
+        log "restart service: $1"
+        systemctl restart $1 || :
+    else
+        log "the $1 service is disabled, do nothing!"
+    fi
 }

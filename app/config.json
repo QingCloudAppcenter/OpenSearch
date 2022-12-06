@@ -531,6 +531,18 @@
     "description": "application configuration properties",
     "type": "array",
     "properties": [{
+      "key": "global",
+      "description": "The global configuration propoerties fo the application",
+      "type": "array",
+      "properties": [{
+        "key": "dynamic.other.enable_caddy",
+        "label": "enable_caddy",
+        "description": "Enable caddy service on all nodes.",
+        "type": "boolean",
+        "default": true,
+        "required":"no"
+      }]
+    },{
       "key": "es_node",
       "description": "The role configuration properties of the application",
       "type": "array",
@@ -981,7 +993,7 @@
       "description": "The role configuration properties of the application",
       "type": "array",
       "properties": [{
-        "key": "enable_cerebro",
+        "key": "dynamic.other.enable_cerebro",
         "label": "enable_cerebro",
         "description": "Whether to enable Cerebro.",
         "type": "boolean",

@@ -19,6 +19,8 @@ start() {
     systemctl start opensearch-dashboards
     log "enable health check"
     enableHealthCheck
+    log "refresh all dynamic service status"
+    refreshAllDynamicServiceStatus
 }
 
 stop() {
