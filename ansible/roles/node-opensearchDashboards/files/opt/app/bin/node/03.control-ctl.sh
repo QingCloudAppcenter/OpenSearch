@@ -24,6 +24,7 @@ start() {
         _initNode
     fi
     startService haproxy
+    startService keepalived
     startService opensearch-dashboards $OSD_PID_PATH
 }
 

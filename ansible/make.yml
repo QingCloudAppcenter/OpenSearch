@@ -49,10 +49,10 @@
     when: "'opensearchDashboards' in group_names"
     loop:
     # - cerebro
-    - opensearchDashboards
+    # - opensearchDashboards
     # - nodejs-1.0.0
-    - haproxy-1.0.8
-    # - keepalived-1.0.1
+    # - haproxy-1.0.8
+    # - keepalived-1.0.6
     - node-opensearchDashboards
     loop_control:
       loop_var: svc_name
