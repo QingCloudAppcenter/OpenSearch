@@ -5,4 +5,4 @@ mode = "0700"
 keys = [
   "/",
 ]
-reload_cmd = "/opt/app/current/bin/tmpl/haproxy.sh; appctl reloadService haproxy"
+reload_cmd = "/opt/app/current/bin/tmpl/haproxy.sh; appctl restartService haproxy"

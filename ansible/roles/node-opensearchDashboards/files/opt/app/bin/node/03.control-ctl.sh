@@ -2,16 +2,6 @@ fakeInitCluster() {
     touch $APPCTL_CLUSTER_FILE
 }
 
-# $1 - service name
-# $2, option - pid path
-startService() {
-    if [ -n "$2" ] && [ -e "$2" ]; then
-        log "skipping! pid file: $2 exists"
-        return
-    fi
-    systemctl start $1
-}
-
 start() {
     if ! isNodeInitialized; then
         log "prepare folders"
@@ -23,15 +13,30 @@ start() {
         log "init node"
         _initNode
     fi
-    startService haproxy
-    startService keepalived
-    startService opensearch-dashboards $OSD_PID_PATH
+    log "start services"
+    systemctl start haproxy
+    systemctl start keepalived
+    systemctl start opensearch-dashboards
+    log "enable health check"
+    enableHealthCheck
 }
 
 stop() {
-    :
+    log "disable health check"
+    disableHealthCheck
+    log "stop services"
+    systemctl stop opensearch-dashboards
+    systemctl stop keepalived
+    systemctl stop haproxy
 }
 
-reloadService() {
+restart() {
+    log "normal restart"
+    stop
+    start
+}
+
+restartService() {
+    log "restart service: $1"
     systemctl restart $1
 }

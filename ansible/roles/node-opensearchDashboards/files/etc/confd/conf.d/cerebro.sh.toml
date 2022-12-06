@@ -1,9 +1,8 @@
 [template]
 src = "cerebro.sh.tmpl"
-dest = "/opt/app/bin/tmpl/cerebro.sh"
+dest = "/opt/app/current/bin/tmpl/cerebro.sh"
 mode = "0700"
 keys = [
   "/",
 ]
-#reload_cmd = "/opt/app/bin/tmpl/cerebro.sh; appctl reload cerebro"
-reload_cmd = ":"
+reload_cmd = "/opt/app/current/bin/tmpl/cerebro.sh; appctl restartService cerebro"

@@ -33,7 +33,7 @@
       name: java-1.0.1
     vars:
       java_version: 8
-    when: ('logstash' in group_names) or ('' in group_names)
+    when: ('logstash' in group_names) or ('opensearchDashboards' in group_names) or ('' in group_names)
 
   - include_role:
       name: "{{ svc_name }}"
@@ -49,7 +49,7 @@
     when: "'opensearchDashboards' in group_names"
     loop:
     # - cerebro
-    # - opensearchDashboards
+    - opensearchDashboards
     # - nodejs-1.0.0
     # - haproxy-1.0.8
     # - keepalived-1.0.6

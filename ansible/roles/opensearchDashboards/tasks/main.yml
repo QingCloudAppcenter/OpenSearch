@@ -59,3 +59,63 @@
     owner: root
     group: root
     mode: preserve
+
+- name: User - cerebro
+  user:
+    name: cerebro
+    groups: svc
+    shell: /usr/sbin/nologin
+    create_home: no
+    append: yes
+    state: present
+
+- name: install cerebro binaries
+  include_role:
+    name: install-1.0.6
+  vars:
+    opts:
+      pkg_name: cerebro
+      pkg_version: "{{ cerebro_version }}"
+      pkg_url: https://github.com/lmenezes/cerebro/releases/download/v{{ cerebro_version }}/cerebro-{{ cerebro_version }}.tgz
+      pkg_type: tar.gz
+      creates: bin
+      extracts: yes
+      extra_opts:
+        - "--strip-components=1"
+
+- name: copy cerebro default configuration files
+  copy:
+    src: /opt/cerebro/current/conf/
+    dest: /opt/app/current/conf/cerebro
+    owner: root
+    group: svc
+    mode: preserve
+    remote_src: yes
+
+- name: copy cerebro configuration files
+  copy:
+    src: opt/app/conf/cerebro/
+    dest: /opt/app/current/conf/cerebro
+    owner: root
+    group: svc
+    mode: preserve
+
+- name: link cerebro log config file
+  file:
+    src: /opt/app/current/conf/cerebro/logback.xml
+    dest: /opt/cerebro/current/conf/logback.xml
+    state: link
+    force: true
+
+- name: link cerebro service file
+  file:
+    src: /opt/app/current/conf/systemd/cerebro.service
+    dest: /lib/systemd/system/cerebro.service
+    state: link
+
+- name: mask service
+  systemd:
+    name: cerebro
+    enabled: no
+    masked: yes
+    state: stopped

@@ -63,7 +63,7 @@ opensearch_security.multitenancy.enabled: true
 opensearch_security.multitenancy.tenants.preferred: [Private, Global]
 opensearch_security.readonly_mode.roles: [kibana_read_only]
 # Use this setting if you are running opensearch-dashboards without https
-opensearch_security.cookie.secure: $sslHttpEnabled
+opensearch_security.cookie.secure: false
 
 path.data: /data/opensearch-dashboards/data
 pid.file: $OSD_PID_PATH

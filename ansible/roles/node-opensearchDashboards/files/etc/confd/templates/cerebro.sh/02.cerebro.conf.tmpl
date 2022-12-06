@@ -2,12 +2,19 @@ generatePassword() {
   < /dev/urandom tr -dc 'A-Za-z0-9!#$%&()*+,-./:;<=>?@[\]^_`{|}~' | head -c ${1:-24}
 }
 
-flush > /opt/app/conf/cerebro/cerebro.conf << CEREBRO_CONF_EOF
+sslHttpEnabled={{ getv "/env/static.os.ssl.http.enabled" }}
+osproto=http
+if [ "$sslHttpEnabled" = "true" ]; then
+  osproto=https
+fi
+
+flush > /opt/app/current/conf/cerebro/cerebro.conf << CEREBRO_CONF_EOF
 secret = "$(generatePassword)"
 basePath = "/"
-pidfile.path=/var/run/cerebro/cerebro.pid
+pidfile.path=/data/cerebro/data/cerebro.pid
 rest.history.size = 50 // defaults to 50 if not specified
 data.path = "/data/cerebro/data/cerebro.db"
+play.ws.ssl.loose.acceptAnyCertificate = true
 
 es = {
   gzip = true
@@ -17,7 +24,7 @@ auth = {
 }
 
 hosts = [{
-  host = "http://{{ getv "/cluster/endpoints/reserved_ips/esvip/value" }}:9200"
+  host = "$osproto://{{ getv "/cluster/endpoints/reserved_ips/esvip/value" }}:9200"
   name = "{{ getv "/cluster/cluster_id" }}"
   # auth = {
   #   username = "username"
