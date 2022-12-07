@@ -243,6 +243,7 @@ calcSecretHash() {
 # inject internal user when cluster init
 injectInternalUsers() {
     local syshash=$(calcSecretHash $SYS_USER_PWD)
+    local osdhash=$(calcSecretHash $OSD_USER_PWD)
     local cfg=$(cat<<INTERNAL_USER
 # managed by appctl, do not modify
 $SYS_USER:
@@ -252,14 +253,24 @@ $SYS_USER:
   backend_roles:
   - "admin"
   description: "internal user: $SYS_USER"
+
+$OSD_USER:
+  hash: "$osdhash"
+  reserved: true
+  hidden: true
+  description: "internal user: $OSD_USER"
 INTERNAL_USER
 )
 
-    echo "$cfg" >> ${SECURITY_CONF_PATH}/internal_users.yml
+    echo "$cfg" >> $SECURITY_CONF_PATH/internal_users.yml
+
+    sed -i "/kibanaserver/a\ \ - \"$OSD_USER\"" $SECURITY_CONF_PATH/roles_mapping.yml
 }
 
 restoreInternalUsers() {
     sed -i '/# managed by appctl, do not modify/,$d' ${SECURITY_CONF_PATH}/internal_users.yml
+
+    sed -i "/$OSD_USER/d" $SECURITY_CONF_PATH/roles_mapping.yml
 }
 
 refreshLog4j2Properties() {
