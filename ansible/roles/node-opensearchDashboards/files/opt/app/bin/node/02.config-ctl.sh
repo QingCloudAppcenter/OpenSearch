@@ -68,6 +68,10 @@ opensearch_security.cookie.secure: false
 
 path.data: /data/opensearch-dashboards/data
 pid.file: $OSD_PID_PATH
+logging.dest: /data/opensearch-dashboards/logs/opensearch-dashboards.log
+logging.silent: false
+logging.quiet: false
+logging.verbose: false
 OSD_CONF
 )
     echo "$cfg" > $DASHBOARDS_CONF_PATH
