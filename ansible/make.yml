@@ -49,7 +49,7 @@
     when: "'opensearchDashboards' in group_names"
     loop:
     # - cerebro
-    - opensearchDashboards
+    # - opensearchDashboards
     # - nodejs-1.0.0
     # - haproxy-1.0.8
     # - keepalived-1.0.6
