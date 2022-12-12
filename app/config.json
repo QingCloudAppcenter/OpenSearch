@@ -541,6 +541,13 @@
         "type": "boolean",
         "default": true,
         "required":"no"
+      }, {
+        "key": "cert.os.user_ca",
+        "label": "CA certificate for opensearch nodes",
+        "description": "your CA certificate for opensearch nodes",
+        "type": "password",
+        "default": "",
+        "required": "no"
       }]
     },{
       "key": "es_node",

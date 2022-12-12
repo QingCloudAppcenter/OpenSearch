@@ -48,7 +48,6 @@
       name: "{{ svc_name }}"
     when: "'opensearchDashboards' in group_names"
     loop:
-    # - cerebro
     # - opensearchDashboards
     # - nodejs-1.0.0
     # - haproxy-1.0.8

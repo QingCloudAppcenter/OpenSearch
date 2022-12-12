@@ -6,7 +6,7 @@ habacklogop=httpclose
 if [ "$sslHttpEnabled" = "true" ]; then
   hamode=tcp
   halogop=tcplog
-  habacklogop=ssl-hello-chk
+  habacklogop=tcp-check
 fi
 flush > /opt/app/current/conf/haproxy/haproxy.cfg << ES_PROXY_EOF
 global

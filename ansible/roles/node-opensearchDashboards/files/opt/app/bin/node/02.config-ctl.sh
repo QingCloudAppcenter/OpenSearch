@@ -1,6 +1,7 @@
 DASHBOARDS_CONF_PATH=/opt/app/current/conf/opensearch-dashboards/opensearch_dashboards.yml
 STATIC_SETTINGS_PATH=/data/appctl/data/settings.static
 DYNAMIC_SETTINGS_PATH=/data/appctl/data/settings.dynamic
+CERT_OS_USER_CA_PATH=/data/appctl/data/cert.os.user_ca
 OSD_PID_PATH=/data/opensearch-dashboards/data/opensearchDashboards.pid
 OPENSEARCH_SSL_CA_SYS_PATH=/opt/app/current/conf/opensearch-dashboards/certs/qc/root-ca.pem
 OPENSEARCH_SSL_CA_USER_PATH=/opt/app/current/conf/opensearch-dashboards/certs/user/root-ca.pem
@@ -122,4 +123,9 @@ refreshDynamicService() {
     else
         log "the $1 service is disabled, do nothing!"
     fi
+}
+
+# $1 - cert path
+isCertValid() {
+    openssl x509 -in $1 -text -noout
 }
