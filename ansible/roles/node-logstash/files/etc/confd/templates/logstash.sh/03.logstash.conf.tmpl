@@ -1,7 +1,7 @@
 confDir=/data/logstash/config
 lsConf=$confDir/logstash.conf
 lsConfLock=$lsConf.lock
-lsConfSample=/opt/app/conf/logstash/sample.conf
+lsConfSample=/opt/app/current/conf/logstash/logstash-sample.conf
 
 flush > $lsConfSample << LS_MAIN_CONF_EOF
 input {

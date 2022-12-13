@@ -25,3 +25,34 @@ testConf() {
 upgrade() {
   timeout 6h appctl retry 1000 30 0 testConf || log "WARN: detected configuration failures and no human involved."
 }
+
+# $1 service name
+refreshDynamicService() {
+    if [ ! -e $DYNAMIC_SETTINGS_PATH ]; then
+        log "cluster is booting up, do nothing!"
+        return
+    fi
+    local settings=$(cat $DYNAMIC_SETTINGS_PATH)
+    local curstatus
+    case "$1" in
+        "caddy")
+        curstatus=$(getItemFromConf "$settings" "dynamic.other.enable_caddy")
+        ;;
+        "cerebro")
+        curstatus=$(getItemFromConf "$settings" "dynamic.other.enable_cerebro")
+        ;;
+        *)
+        curstatus=""
+        ;;
+    esac
+    if [ -z "$curstatus" ]; then
+        log "unknown service, skipping!"
+        return
+    fi
+    if [ "$curstatus" = "true" ]; then
+        log "restart service: $1"
+        systemctl restart $1 || :
+    else
+        log "the $1 service is disabled, do nothing!"
+    fi
+}

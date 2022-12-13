@@ -8,16 +8,16 @@ Group=svc
 # Load env vars from /etc/default/ and /etc/sysconfig/ if they exist.
 # Prefixing the path with '-' makes it try to load, but if the file doesn't
 # exist, it continues onward.
-EnvironmentFile=/opt/app/conf/logstash/.env
-ExecStart=/usr/share/logstash/bin/logstash
+EnvironmentFile=-/opt/app/current/conf/logstash/logstash.env
+ExecStart=/opt/logstash/current/bin/logstash "--path.settings" "/opt/app/current/conf/logstash"
 Restart=always
-WorkingDirectory=/data/logstash
+WorkingDirectory=/
 Nice=19
 LimitNOFILE=1048576
 
-CapabilityBoundingSet=CAP_NET_BIND_SERVICE
-AmbientCapabilities=CAP_NET_BIND_SERVICE
-NoNewPrivileges=true
+# When stopping, how long to wait before giving up and sending SIGKILL?
+# Keep in mind that SIGKILL on a process can cause data loss.
+TimeoutStopSec=infinity
 
 [Install]
 WantedBy=multi-user.target
