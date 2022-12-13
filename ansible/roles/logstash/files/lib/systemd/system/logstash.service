@@ -17,7 +17,8 @@ LimitNOFILE=1048576
 
 # When stopping, how long to wait before giving up and sending SIGKILL?
 # Keep in mind that SIGKILL on a process can cause data loss.
-TimeoutStopSec=infinity
+TimeoutStopSec=30
+TimeoutSec=60
 
 [Install]
 WantedBy=multi-user.target

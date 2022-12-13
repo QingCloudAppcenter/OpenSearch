@@ -1077,7 +1077,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-a3h3k958"
+      "image": "img-7d2d8t1k"
     },
     "instance_class": {{cluster.lst_node.instance_class}},
     "count": {{cluster.lst_node.count}},
@@ -1104,8 +1104,9 @@
       }
     },
     "env": {
-        "config.reload.automatic": {{env.lst_node.config.reload.automatic}},
-        "config.reload.interval": {{env.lst_node.config.reload.interval}},
+        "static.lst.config.reload.automatic": {{env.lst_node.static.lst.config.reload.automatic}},
+        "static.lst.config.reload.interval": {{env.lst_node.static.lst.config.reload.interval}},
+        "dynamic.other.enable_caddy": {{env.global.dynamic.other.enable_caddy}},
         "input_conf_content": {{env.lst_node.input_conf_content}},
         "filter_conf_content": {{env.lst_node.filter_conf_content}},
         "output_conf_content": {{env.lst_node.output_conf_content}},
@@ -1118,7 +1119,7 @@
       "timeout_sec": 10,
       "healthy_threshold": 2,
       "unhealthy_threshold": 5,
-      "check_cmd": "appctl check",
+      "check_cmd": "appctl healthCheck",
       "action_cmd": "appctl revive"
     }
   }, {

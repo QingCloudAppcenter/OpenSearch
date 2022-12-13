@@ -1,0 +1,79 @@
+STATIC_SETTINGS_PATH=/data/appctl/data/settings.static
+DYNAMIC_SETTINGS_PATH=/data/appctl/data/settings.dynamic
+LOGSTASH_YML_PATH=/opt/app/current/conf/logstash/logstash.yml
+JVM_OPTIONS_PATH=/opt/app/current/conf/logstash/jvm.options
+
+# $1 confing string
+# $2 key
+getItemFromConf() {
+    local res=$(echo "$1" | sed '/^'$2'=/!d;s/^'$2'=//')
+    echo "$res"
+}
+
+refreshLogstashYml() {
+    local settings=$(cat $STATIC_SETTINGS_PATH)
+    local configReloadAutomatic=$(getItemFromConf "$settings" "static.lst.config.reload.automatic")
+    local configReloadInterval=$(getItemFromConf "$settings" "static.lst.config.reload.interval")
+    local cfg=$(cat<<LOGSTASH_YML
+config.reload.automatic: $configReloadAutomatic
+config.reload.interval: $configReloadInterval
+
+http.host: "$MY_IP"
+
+node.name: $MY_NODE_NAME
+
+path.config: /data/logstash/config/logstash.conf
+path.data: /data/logstash/data
+path.logs: /data/logstash/logs
+path.plugins: [ /data/logstash/plugins ]
+LOGSTASH_YML
+    )
+    echo "$cfg" > $LOGSTASH_YML_PATH
+}
+
+refreshJvmOptions() {
+    local maxHeap=$((31*1024))
+    local halfMem=$((MY_MEM/2))
+    local realHeap
+    if [ "$halfMem" -le $maxHeap ]; then
+        realHeap=$halfMem
+    else
+        realHeap=$maxHeap
+    fi
+
+    local cfg=$(cat<<JVM_CONF
+-Xms${realHeap}m
+-Xmx${realHeap}m
+
+11-13:-XX:+UseConcMarkSweepGC
+11-13:-XX:CMSInitiatingOccupancyFraction=75
+11-13:-XX:+UseCMSInitiatingOccupancyOnly
+
+-Duser.language=zh
+-Duser.country=CN
+-Duser.variant=
+
+#-Djava.io.tmpdir=$HOME
+
+-Djava.awt.headless=true
+
+-Dfile.encoding=UTF-8
+
+#-Djna.nosys=true
+
+-Djruby.compile.invokedynamic=true
+
+-Djruby.jit.threshold=0
+
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:HeapDumpPath=/data/logstash/dump/heapdump.hprof
+
+-Xlog:gc*,gc+age=trace,safepoint:file=/data/logstash/logs/gc.log:utctime,pid,tags:filecount=32,filesize=64m
+
+-Djava.security.egd=file:/dev/urandom
+
+-Dlog4j2.isThreadContextMapInheritable=true
+JVM_CONF
+    )
+    echo "$cfg" > $JVM_OPTIONS_PATH
+}
