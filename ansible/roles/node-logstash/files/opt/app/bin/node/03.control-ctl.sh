@@ -3,6 +3,9 @@ start() {
         log "prepare config files"
         refreshJvmOptions
         refreshLogstashYml
+        refreshDemoPipeline
+        refreshPipeline
+        refreshKeystore
         log "appctl node init"
         _initNode
     fi

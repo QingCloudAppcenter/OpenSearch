@@ -1082,41 +1082,9 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "input_conf_content",
-        "label": "input_conf_content",
-        "description": "When you run logstash, you use the -f to specify your config file, and this config is what your config file contained in input section",
-        "type": "string",
-        "default": "http { port => 9700 }",
-        "changeable": true,
-        "required": "no"
-      }, {
-        "key": "filter_conf_content",
-        "label": "filter_conf_content",
-        "description": "When you run logstash, you use the -f to specify your config file, and this config is what your config file contained in filter section",
-        "type": "string",
-        "default": "",
-        "changeable": true,
-        "required": "no"
-      }, {
-        "key": "output_conf_content",
-        "label": "output_conf_content",
-        "description": "When you run logstash, you use the -f to specify your config file, and this config is what your config file contained in output section",
-        "type": "string",
-        "default": "",
-        "changeable": true,
-        "required": "no"
-      }, {
-        "key": "output_es_content",
-        "label": "output_os_content",
-        "description": "When you run logstash, you use the -f to specify your config file, and this config is what your config file contained in output OpenSearch section",
-        "type": "string",
-        "default": "",
-        "changeable": true,
-        "required": "no"
-      }, {
-        "key": "gemfile_append_content",
-        "label": "gemfile_append_content",
-        "description": "This config is used to adding content into Gemfile for logstash",
+        "key": "depend.lst.pipeline",
+        "label": "logstash pipeline",
+        "description": "Logstash pipeline config",
         "type": "string",
         "default": "",
         "changeable": true,

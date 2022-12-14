@@ -15,9 +15,14 @@ syncDynamicSettings() {
     cat $DYNAMIC_SETTINGS_PATH.new > $DYNAMIC_SETTINGS_PATH
 }
 
+syncDependSettings() {
+    cat $DEPEND_SETTINGS_PATH.new > $DEPEND_SETTINGS_PATH
+}
+
 syncAllSettings() {
     syncStaticSettings
     syncDynamicSettings
+    syncDependSettings
 }
 
 dispatch() {

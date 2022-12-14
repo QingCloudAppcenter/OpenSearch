@@ -11,3 +11,14 @@ flush > /data/appctl/data/settings.dynamic.new <<SETTINGS_DYNAMIC_NEW
 {{ $key }}={{ getv (printf "/env/%s" $key)}}
 {{- end }}
 SETTINGS_DYNAMIC_NEW
+
+oslist=({{- range getvs "/hosts/es_node*/*/ip" }}
+{{ . }}
+{{- end }})
+
+flush > /data/appctl/data/settings.depend.new <<SETTINGS_DEPEND_NEW
+{{- range $key := ls "/env" | filter "^depend.*" }}
+{{ $key }}={{ getv (printf "/env/%s" $key)}}
+{{- end }}
+depend.lst.oslist=${oslist[@]}
+SETTINGS_DEPEND_NEW
