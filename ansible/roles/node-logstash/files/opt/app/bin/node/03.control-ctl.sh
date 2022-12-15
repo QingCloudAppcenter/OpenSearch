@@ -14,3 +14,20 @@ start() {
     log "enable health check"
     enableHealthCheck
 }
+
+stop() {
+    log "disable health check"
+    disableHealthCheck
+    log "stop service"
+    systemctl stop logstash
+}
+
+restart() {
+    log "normal restart"
+    stop
+    start
+}
+
+upgrade() {
+    log "just a message for debug"
+}
