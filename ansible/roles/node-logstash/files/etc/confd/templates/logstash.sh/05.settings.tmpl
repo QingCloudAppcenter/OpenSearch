@@ -18,7 +18,7 @@ oslist=({{- range getvs "/hosts/es_node*/*/ip" }}
 
 flush > /data/appctl/data/settings.depend.new <<SETTINGS_DEPEND_NEW
 {{- range $key := ls "/env" | filter "^depend.*" }}
-{{ $key }}={{ getv (printf "/env/%s" $key)}}
+{{ $key }}={{ replace (getv (printf "/env/%s" $key)) "$" "\\$" -1}}
 {{- end }}
 depend.lst.oslist=${oslist[@]}
 SETTINGS_DEPEND_NEW

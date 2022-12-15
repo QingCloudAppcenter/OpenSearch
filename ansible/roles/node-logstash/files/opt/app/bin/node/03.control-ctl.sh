@@ -13,6 +13,8 @@ start() {
     systemctl start logstash
     log "enable health check"
     enableHealthCheck
+    log "refresh all dynamic service status"
+    refreshAllDynamicServiceStatus
 }
 
 stop() {

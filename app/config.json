@@ -542,9 +542,23 @@
         "default": true,
         "required":"no"
       }, {
+        "key": "cert.os.ssl.http.enabled",
+        "label": "enable opensearch nodes' http ssl",
+        "description": "Enable opensearch nodes' http ssl or not. Use system provided certificates or custome certificate, if enabled",
+        "type": "boolean",
+        "default": true,
+        "required": "no"
+      }, {
+        "key": "cert.os.user_ca_enabled",
+        "label": "enable custom CA certificate",
+        "description": "enable custom CA certificate for opensearch nodes or not.",
+        "type": "boolean",
+        "default": false,
+        "required": "no"
+      }, {
         "key": "cert.os.user_ca",
-        "label": "CA certificate for opensearch nodes",
-        "description": "your CA certificate for opensearch nodes",
+        "label": "custom CA certificate",
+        "description": "custom CA certificate for opensearch nodes",
         "type": "password",
         "default": "",
         "required": "no"
@@ -554,14 +568,6 @@
       "description": "The role configuration properties of the application",
       "type": "array",
       "properties": [{
-        "key": "static.os.ssl.http.enabled",
-        "label": "ssl.http.enabled",
-        "description": "Enable REST API http ssl or not",
-        "type": "string",
-        "default": "true",
-        "range": ["true", "false"],
-        "required": "no"
-      }, {
         "key": "prometheus.node.exporter",
         "label": "prometheus.node.exporter",
         "description": "Prometheus exporter for hardware and OS metrics exposed by *NIX kernels with pluggable metric collectors.",

@@ -8,12 +8,24 @@ PIPELINE_CONFIG_PATH=/data/logstash/config/logstash.conf
 PIPELINE_DEMO_CONFIG_PATH=/data/logstash/config/logstash-demo.conf
 KEYSTORE_PATH=/opt/app/current/conf/logstash/logstash.keystore
 KEYSTORE_TOOL_PATH=/opt/logstash/current/bin/logstash-keystore
-
+CERT_OS_USER_CA_PATH=/data/appctl/data/cert.os.user_ca
+OPENSEARCH_SSL_CA_SYS_PATH=/opt/app/current/conf/logstash/certs/qc/root-ca.pem
+OPENSEARCH_SSL_CA_USER_PATH=/opt/app/current/conf/logstash/certs/user/root-ca.pem
 # $1 confing string
 # $2 key
 getItemFromConf() {
     local res=$(echo "$1" | sed '/^'$2'=/!d;s/^'$2'=//')
     echo "$res"
+}
+
+isReloadAutomatic() {
+    local settings=$(cat $STATIC_SETTINGS_PATH)
+    local configReloadAutomatic=$(getItemFromConf "$settings" "static.lst.config.reload.automatic")
+    if [ "$configReloadAutomatic" = "true" ]; then
+        return 0
+    else
+        return 1
+    fi
 }
 
 refreshLogstashYml() {
@@ -99,9 +111,12 @@ refreshKeystore() {
 refreshDemoPipeline() {
     local settings=$(cat $DEPEND_SETTINGS_PATH)
     local osSslHttpEnabled=$(getItemFromConf "$settings" "depend.os.ssl.http.enabled")
-    local proto=http
-    if [ "$osSslHttpEnabled" = "true" ]; then
-        proto=https
+    local osUserCaEnabled=$(getItemFromConf "$settings" "depend.os.user_ca_enabled")
+    local certstring=""
+    if [ "$osUserCaEnabled" = "false" ]; then
+        certstring="cacert => \"$OPENSEARCH_SSL_CA_SYS_PATH\""
+    elif [ -e $OPENSEARCH_SSL_CA_USER_PATH ]; then
+        certstring="cacert => \"$OPENSEARCH_SSL_CA_USER_PATH\""
     fi
     local lstOslist=($(getItemFromConf "$settings" "depend.lst.oslist"))
     local hostlist
@@ -125,7 +140,7 @@ output {
         password => "\${logstash_pass}"
         ssl_certificate_verification => false
         ssl => $osSslHttpEnabled
-        cacert => "/opt/app/current/conf/logstash/certs/qc/root-ca.pem"
+        $certstring
     }
 }
 DEMO_PIPELIEN_YML
@@ -148,4 +163,49 @@ $realconfig
 PIPELIEN_YML
     )
     echo "$cfg" > $PIPELINE_CONFIG_PATH
+}
+
+# $1 - cert path
+isCertValid() {
+    openssl x509 -in $1 -text -noout
+}
+
+refreshAllDynamicServiceStatus() {
+    local settings=$(cat $DYNAMIC_SETTINGS_PATH)
+    local enable_caddy=$(getItemFromConf "$settings" "dynamic.other.enable_caddy")
+    if [ "$enable_caddy" = "true" ]; then
+        systemctl start caddy
+    else
+        systemctl stop caddy
+    fi
+}
+
+refreshDynamicService() {
+    if [ ! -e $DYNAMIC_SETTINGS_PATH ]; then
+        log "cluster is booting up, do nothing!"
+        return
+    fi
+    local settings=$(cat $DYNAMIC_SETTINGS_PATH)
+    local curstatus
+    case "$1" in
+        "caddy")
+        curstatus=$(getItemFromConf "$settings" "dynamic.other.enable_caddy")
+        ;;
+        "cerebro")
+        curstatus=$(getItemFromConf "$settings" "dynamic.other.enable_cerebro")
+        ;;
+        *)
+        curstatus=""
+        ;;
+    esac
+    if [ -z "$curstatus" ]; then
+        log "unknown service, skipping!"
+        return
+    fi
+    if [ "$curstatus" = "true" ]; then
+        log "restart service: $1"
+        systemctl restart $1 || :
+    else
+        log "the $1 service is disabled, do nothing!"
+    fi
 }

@@ -86,7 +86,7 @@
       }
     },
     "env": {
-        "static.os.ssl.http.enabled": {{env.es_node.static.os.ssl.http.enabled}},
+        "static.os.ssl.http.enabled": {{env.global.cert.os.ssl.http.enabled}},
         "confd.sysctl.tcp_keepalive_intvl": {{env.es_node.confd.sysctl.tcp_keepalive_intvl}},
         "confd.sysctl.tcp_keepalive_probes": {{env.es_node.confd.sysctl.tcp_keepalive_probes}},
         "confd.sysctl.tcp_keepalive_time": {{env.es_node.confd.sysctl.tcp_keepalive_time}},
@@ -351,7 +351,7 @@
       }
     },
     "env": {
-        "static.os.ssl.http.enabled": {{env.es_node.static.os.ssl.http.enabled}},
+        "static.os.ssl.http.enabled": {{env.global.cert.os.ssl.http.enabled}},
         "confd.sysctl.tcp_keepalive_intvl": {{env.es_node.confd.sysctl.tcp_keepalive_intvl}},
         "confd.sysctl.tcp_keepalive_probes": {{env.es_node.confd.sysctl.tcp_keepalive_probes}},
         "confd.sysctl.tcp_keepalive_time": {{env.es_node.confd.sysctl.tcp_keepalive_time}},
@@ -616,7 +616,7 @@
       }
     },
     "env": {
-        "static.os.ssl.http.enabled": {{env.es_node.static.os.ssl.http.enabled}},
+        "static.os.ssl.http.enabled": {{env.global.cert.os.ssl.http.enabled}},
         "confd.sysctl.tcp_keepalive_intvl": {{env.es_node.confd.sysctl.tcp_keepalive_intvl}},
         "confd.sysctl.tcp_keepalive_probes": {{env.es_node.confd.sysctl.tcp_keepalive_probes}},
         "confd.sysctl.tcp_keepalive_time": {{env.es_node.confd.sysctl.tcp_keepalive_time}},
@@ -882,7 +882,7 @@
       }
     },
     "env": {
-        "static.os.ssl.http.enabled": {{env.es_node.static.os.ssl.http.enabled}},
+        "static.os.ssl.http.enabled": {{env.global.cert.os.ssl.http.enabled}},
         "confd.sysctl.tcp_keepalive_intvl": {{env.es_node.confd.sysctl.tcp_keepalive_intvl}},
         "confd.sysctl.tcp_keepalive_probes": {{env.es_node.confd.sysctl.tcp_keepalive_probes}},
         "confd.sysctl.tcp_keepalive_time": {{env.es_node.confd.sysctl.tcp_keepalive_time}},
@@ -1077,7 +1077,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-pv08byl8"
+      "image": "img-208tewfz"
     },
     "instance_class": {{cluster.lst_node.instance_class}},
     "count": {{cluster.lst_node.count}},
@@ -1107,8 +1107,10 @@
         "static.lst.config.reload.automatic": {{env.lst_node.static.lst.config.reload.automatic}},
         "static.lst.config.reload.interval": {{env.lst_node.static.lst.config.reload.interval}},
         "dynamic.other.enable_caddy": {{env.global.dynamic.other.enable_caddy}},
-        "depend.os.ssl.http.enabled": {{env.es_node.static.os.ssl.http.enabled}},
-        "depend.lst.pipeline": {{env.lst_node.depend.lst.pipeline}}
+        "depend.os.ssl.http.enabled": {{env.global.cert.os.ssl.http.enabled}},
+        "depend.lst.pipeline": {{env.lst_node.depend.lst.pipeline}},
+        "depend.os.user_ca_enabled": {{env.global.cert.os.user_ca_enabled}},
+        "cert.os.user_ca": {{env.global.cert.os.user_ca}}
     },
     "health_check": {
       "enable": true,
@@ -1152,9 +1154,10 @@
         "proxy.timeout": {{env.kbn_node.proxy.timeout}},
         "proxy.max.conn": {{env.kbn_node.proxy.max.conn}},
         "nginx_client_max_body_size": {{env.kbn_node.nginx_client_max_body_size}},
-        "static.os.ssl.http.enabled": {{env.es_node.static.os.ssl.http.enabled}},
+        "static.os.ssl.http.enabled": {{env.global.cert.os.ssl.http.enabled}},
         "dynamic.other.enable_caddy": {{env.global.dynamic.other.enable_caddy}},
         "dynamic.other.enable_cerebro": {{env.kbn_node.dynamic.other.enable_cerebro}},
+        "cert.os.user_ca_enabled": {{env.global.cert.os.user_ca_enabled}},
         "cert.os.user_ca": {{env.global.cert.os.user_ca}}
     },
     "health_check": {
