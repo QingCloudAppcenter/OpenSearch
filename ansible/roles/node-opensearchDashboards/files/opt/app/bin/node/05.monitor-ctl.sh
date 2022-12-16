@@ -18,7 +18,7 @@ CHECK_SERVICE_LIST=(
 )
 
 # return non 0 if service is in-active
-checkAllServiceStatus() {
+checkServices() {
     local item
     for item in ${CHECK_SERVICE_LIST[@]}; do
         if ! systemctl is-active $item; then
@@ -65,7 +65,7 @@ healthCheck() {
         return
     fi
     
-    checkAllServiceStatus
+    checkServices
 
     checkEndpoints
 

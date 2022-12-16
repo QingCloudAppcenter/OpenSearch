@@ -1077,7 +1077,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-208tewfz"
+      "image": "img-uhh193ff"
     },
     "instance_class": {{cluster.lst_node.instance_class}},
     "count": {{cluster.lst_node.count}},
@@ -1171,6 +1171,14 @@
       "action_cmd": "appctl revive"
     }
   }],
+  "display_tabs": {
+    "pipeline demo": {
+      "cmd": "appctl showTabForDemoPipelineConfig",
+      "roles_to_execute_on": ["lst_node"],
+      "description": "Demo config for logstash pipeline.",
+      "timeout": 10
+    }
+  },
   "endpoints": {
     "reserved_ips": {
       "esvip": {

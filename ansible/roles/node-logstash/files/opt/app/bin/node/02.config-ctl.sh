@@ -209,3 +209,16 @@ refreshDynamicService() {
         log "the $1 service is disabled, do nothing!"
     fi
 }
+
+showTabForDemoPipelineConfig() {
+    local cfg=$(cat<<TAB_INFO
+{
+    "labels": ["$PIPELINE_DEMO_CONFIG_PATH"],
+    "data":[
+        [$(jq -Rs . $PIPELINE_DEMO_CONFIG_PATH)]
+    ]
+}
+TAB_INFO
+)
+    echo "$cfg"
+}

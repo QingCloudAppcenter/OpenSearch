@@ -1,4 +1,4 @@
-flush > /opt/app/current/conf/caddy/index.html << LS_HTML_EOF
+flush > /data/opensearch/index.html << LS_HTML_EOF
 <!DOCTYPE html>
 <html>
   <head>
@@ -95,3 +95,13 @@ flush > /opt/app/current/conf/caddy/index.html << LS_HTML_EOF
   </body>
 </html>
 LS_HTML_EOF
+
+flush > /data/logstash/index.html << LS_HTML2_EOF
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="refresh" content="0;url=/ ">
+  </head>
+  <body></body>
+</html>
+LS_HTML2_EOF

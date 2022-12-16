@@ -1,6 +1,9 @@
 preparePathOnPersistentDisk() {
     mkdir -p /data/opensearch/dicts /data/logstash/{config,data,dump,logs,plugins}
-    chown -R logstash.svc /data/{opensearch,logstash}
+    chown -R logstash.svc /data/logstash
+    chown -R caddy.svc /data/opensearch
+    touch $PIPELINE_CONFIG_PATH
+    chown ubuntu:svc $PIPELINE_CONFIG_PATH
 }
 
 fakeInitCluster() {

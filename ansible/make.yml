@@ -39,6 +39,7 @@
       name: "{{ svc_name }}"
     when: "'logstash' in group_names"
     loop:
+    - jq-1.0.9
     - logstash
     - node-logstash
     loop_control:
