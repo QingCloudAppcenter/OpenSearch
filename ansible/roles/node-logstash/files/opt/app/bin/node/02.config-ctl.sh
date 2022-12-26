@@ -103,9 +103,9 @@ refreshKeystore() {
     rm -f $KEYSTORE_PATH
     runuser logstash -g svc -s "/bin/bash" -c "echo y | $KEYSTORE_TOOL_PATH --path.settings $LOGSTASH_CONF_PATH create"
     
-    runuser logstash -g svc -s "/bin/bash" -c "echo $SYS_USER | $KEYSTORE_TOOL_PATH --path.settings $LOGSTASH_CONF_PATH add logstash_user"
+    runuser logstash -g svc -s "/bin/bash" -c "echo logstash | $KEYSTORE_TOOL_PATH --path.settings $LOGSTASH_CONF_PATH add logstash_user"
 
-    runuser logstash -g svc -s "/bin/bash" -c "echo $SYS_USER_PWD | $KEYSTORE_TOOL_PATH --path.settings $LOGSTASH_CONF_PATH add logstash_pass"
+    runuser logstash -g svc -s "/bin/bash" -c "echo $LST_USER_PWD | $KEYSTORE_TOOL_PATH --path.settings $LOGSTASH_CONF_PATH add logstash_pass"
 }
 
 refreshDemoPipeline() {
