@@ -57,8 +57,8 @@ server.host: $MY_IP
 opensearch.hosts: [$proto://$OS_VIP:9200]
 opensearch.ssl.verificationMode: $sslver
 opensearch.ssl.certificateAuthorities: [ $cas ]
-opensearch.username: $SYS_USER
-opensearch.password: $SYS_USER_PWD
+opensearch.username: kibanaserver
+opensearch.password: $OSD_USER_PWD
 opensearch.requestHeadersWhitelist: [authorization, securitytenant]
 
 opensearch_security.multitenancy.enabled: true
