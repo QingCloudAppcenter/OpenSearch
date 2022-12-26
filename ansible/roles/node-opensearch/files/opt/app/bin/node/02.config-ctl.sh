@@ -244,6 +244,7 @@ calcSecretHash() {
 injectInternalUsers() {
     local syshash=$(calcSecretHash $SYS_USER_PWD)
     local osdhash=$(calcSecretHash $OSD_USER_PWD)
+    local lsthash=$(calcSecretHash $LST_USER_PWD)
     local cfg=$(cat<<INTERNAL_USER
 # managed by appctl, do not modify
 $SYS_USER:
@@ -253,24 +254,34 @@ $SYS_USER:
   backend_roles:
   - "admin"
   description: "internal user: $SYS_USER"
-
-$OSD_USER:
-  hash: "$osdhash"
-  reserved: true
-  hidden: true
-  description: "internal user: $OSD_USER"
 INTERNAL_USER
 )
 
     echo "$cfg" >> $SECURITY_CONF_PATH/internal_users.yml
 
-    sed -i "/kibanaserver/a\ \ - \"$OSD_USER\"" $SECURITY_CONF_PATH/roles_mapping.yml
+    local line=$(sed -n '/^logstash:/=' $SECURITY_CONF_PATH/internal_users.yml)
+    line=$((line+1))
+    sed -i "$line s/.*/#&/" $SECURITY_CONF_PATH/internal_users.yml
+    sed -i "$line i \ \ hash: \"$lsthash\"" $SECURITY_CONF_PATH/internal_users.yml
+
+    line=$(sed -n '/^kibanaserver:/=' $SECURITY_CONF_PATH/internal_users.yml)
+    line=$((line+1))
+    sed -i "$line s/.*/#&/" $SECURITY_CONF_PATH/internal_users.yml
+    sed -i "$line i \ \ hash: \"$osdhash\"" $SECURITY_CONF_PATH/internal_users.yml
 }
 
 restoreInternalUsers() {
     sed -i '/# managed by appctl, do not modify/,$d' ${SECURITY_CONF_PATH}/internal_users.yml
 
-    sed -i "/$OSD_USER/d" $SECURITY_CONF_PATH/roles_mapping.yml
+    local line=$(sed -n '/^logstash:/=' $SECURITY_CONF_PATH/internal_users.yml)
+    line=$((line+1))
+    sed -i "$line d" $SECURITY_CONF_PATH/internal_users.yml
+    sed -i "$line s/#//" $SECURITY_CONF_PATH/internal_users.yml
+
+    line=$(sed -n '/^kibanaserver:/=' $SECURITY_CONF_PATH/internal_users.yml)
+    line=$((line+1))
+    sed -i "$line d" $SECURITY_CONF_PATH/internal_users.yml
+    sed -i "$line s/#//" $SECURITY_CONF_PATH/internal_users.yml
 }
 
 refreshLog4j2Properties() {
