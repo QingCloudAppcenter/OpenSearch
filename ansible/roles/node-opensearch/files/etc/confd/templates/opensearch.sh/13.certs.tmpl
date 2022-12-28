@@ -1,0 +1,35 @@
+# $1 - flag cert string
+# $2 - save path
+formatCert() {
+    local flatstr="$1"
+    local head="${flatstr%%- *}-"
+    local tail="-${flatstr##* -}"
+    local body="${flatstr#*- }"
+    body="${body% -*}"
+    body="${body// /\\n}"
+    : > $2
+    echo "$head" >> $2
+    echo -e "$body" >> $2
+    echo "$tail" >> $2
+}
+
+tmpstr=$(echo {{ getv "/env/cert.os.user_ca"}})
+if [ -n "$tmpstr" ]; then
+    formatCert "$tmpstr" /data/appctl/data/cert.os.user_ca.new
+else
+    : > /data/appctl/data/cert.os.user_ca.new
+fi
+
+tmpstr=$(echo {{ getv "/env/cert.os.user_node_cert"}})
+if [ -n "$tmpstr" ]; then
+    formatCert "$tmpstr" /data/appctl/data/cert.os.user_node_cert.new
+else
+    : > /data/appctl/data/cert.os.user_node_cert.new
+fi
+
+tmpstr=$(echo {{ getv "/env/cert.os.user_node_key"}})
+if [ -n "$tmpstr" ]; then
+    formatCert "$tmpstr" /data/appctl/data/cert.os.user_node_key.new
+else
+    : > /data/appctl/data/cert.os.user_node_key.new
+fi

@@ -12,6 +12,10 @@ KEYSTORE_TOOL_PATH=/opt/opensearch/current/bin/opensearch-keystore
 OPENSEARCH_JAVA_HOME=/opt/opensearch/current/jdk
 OPENSEARCH_HOME=/opt/opensearch/current
 OPENSEARCH_PATH_CONF=/opt/app/current/conf/opensearch
+CERT_OS_USER_CA_PATH=/data/appctl/data/cert.os.user_ca
+CERT_OS_USER_NODE_CERT_PATH=/data/appctl/data/cert.os.user_node_cert
+CERT_OS_USER_NODE_KEY_PATH=/data/appctl/data/cert.os.user_node_key
+OPENSEARCH_CONF_USER_CERTS_PATH=/opt/app/current/conf/opensearch/certs/user
 
 # $1 confing string
 # $2 key
@@ -67,6 +71,12 @@ refreshOpenSearchConf() {
         scriptAllowedContextsLine="script.allowed_contexts: $scriptAllowedContexts"
     fi
 
+    local osUserCaEnabled=$(getItemFromConf "$settings" "static.os.user_ca_enabled")
+    local certStr="qc"
+    if [ "$osUserCaEnabled" = "true" ]; then
+        certStr="user"
+    fi
+
     local cfg=$(cat <<OS_CONF
 cluster.name: $CLUSTER_ID
 
@@ -111,9 +121,9 @@ $osAdditionalLine2
 $osAdditionalLine3
 
 plugins.security.ssl.http.enabled: $sslHttpEnabled
-plugins.security.ssl.http.pemcert_filepath: certs/qc/node1.pem
-plugins.security.ssl.http.pemkey_filepath: certs/qc/node1-key.pem
-plugins.security.ssl.http.pemtrustedcas_filepath: certs/qc/root-ca.pem
+plugins.security.ssl.http.pemcert_filepath: certs/$certStr/node1.pem
+plugins.security.ssl.http.pemkey_filepath: certs/$certStr/node1-key.pem
+plugins.security.ssl.http.pemtrustedcas_filepath: certs/$certStr/root-ca.pem
 
 plugins.security.ssl.transport.pemkey_filepath: certs/qc/node1-key.pem
 plugins.security.ssl.transport.pemcert_filepath: certs/qc/node1.pem
@@ -641,4 +651,15 @@ applyChangedKeystoreSettings() {
             addOrUpdateKeystore "$newk" "$newv"
         fi
     done <<<"$origin"
+}
+
+# $1 - cert path
+isCertValid() {
+    openssl x509 -in $1 -text -noout
+}
+
+refreshAllCerts() {
+    cat $CERT_OS_USER_CA_PATH > $OPENSEARCH_CONF_USER_CERTS_PATH/root-ca.pem
+    cat $CERT_OS_USER_NODE_CERT_PATH > $OPENSEARCH_CONF_USER_CERTS_PATH/node1.pem
+    cat $CERT_OS_USER_NODE_KEY_PATH > $OPENSEARCH_CONF_USER_CERTS_PATH/node1-key.pem
 }

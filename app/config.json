@@ -562,6 +562,20 @@
         "type": "password",
         "default": "",
         "required": "no"
+      }, {
+        "key": "cert.os.user_node_cert",
+        "label": "custom node certificate",
+        "description": "custom certificate for opensearch nodes",
+        "type": "password",
+        "default": "",
+        "required": "no"
+      }, {
+        "key": "cert.os.user_node_key",
+        "label": "custom node certificate key",
+        "description": "custom certificate key for opensearch nodes",
+        "type": "password",
+        "default": "",
+        "required": "no"
       }]
     },{
       "key": "es_node",

@@ -9,6 +9,7 @@ start() {
         log "prepare keystore"
         applyAllKeystoreSettings
         log "prepare config files"
+        refreshAllCerts
         refreshOpenSearchConf
         refreshJvmOptions
         refreshLog4j2Properties
@@ -33,6 +34,7 @@ init() {
         log "prepare keystore"
         applyAllKeystoreSettings
         log "prepare config files"
+        refreshAllCerts
         refreshOpenSearchConf
         refreshJvmOptions
         refreshLog4j2Properties

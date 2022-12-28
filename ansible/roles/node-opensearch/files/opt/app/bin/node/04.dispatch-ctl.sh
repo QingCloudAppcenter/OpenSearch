@@ -15,14 +15,29 @@ syncKeystoreSettings() {
     cat $KEYSTORE_SETTINGS_PATH.new > $KEYSTORE_SETTINGS_PATH
 }
 
+syncCertSettings() {
+    cat $CERT_OS_USER_CA_PATH.new > $CERT_OS_USER_CA_PATH
+    cat $CERT_OS_USER_NODE_CERT_PATH.new > $CERT_OS_USER_NODE_CERT_PATH
+    cat $CERT_OS_USER_NODE_KEY_PATH.new > $CERT_OS_USER_NODE_KEY_PATH
+}
+
 syncAllSettings() {
     syncStaticSettings
     syncDynamicSettings
     syncKeystoreSettings
+    syncCertSettings
 }
 
 isSettingsChanged() {
-    if diff $STATIC_SETTINGS_PATH $STATIC_SETTINGS_PATH.new && diff $DYNAMIC_SETTINGS_PATH $DYNAMIC_SETTINGS_PATH.new && diff $KEYSTORE_SETTINGS_PATH $KEYSTORE_SETTINGS_PATH.new; then
+    if diff $STATIC_SETTINGS_PATH $STATIC_SETTINGS_PATH.new && diff $DYNAMIC_SETTINGS_PATH $DYNAMIC_SETTINGS_PATH.new && diff $KEYSTORE_SETTINGS_PATH $KEYSTORE_SETTINGS_PATH.new && diff $CERT_OS_USER_CA_PATH $CERT_OS_USER_CA_PATH.new && diff $CERT_OS_USER_NODE_CERT_PATH $CERT_OS_USER_NODE_CERT_PATH.new && diff $CERT_OS_USER_NODE_KEY_PATH $CERT_OS_USER_NODE_KEY_PATH.new; then
+        return 1
+    else
+        return 0
+    fi
+}
+
+isCertChanged() {
+    if diff $CERT_OS_USER_CA_PATH $CERT_OS_USER_CA_PATH.new && diff $CERT_OS_USER_NODE_CERT_PATH $CERT_OS_USER_NODE_CERT_PATH.new && diff $CERT_OS_USER_NODE_KEY_PATH $CERT_OS_USER_NODE_KEY_PATH.new; then
         return 1
     else
         return 0
@@ -30,6 +45,13 @@ isSettingsChanged() {
 }
 
 processWhenStaticSettingsChanged() {
+    if isCertChanged; then
+        log "sync user cert settings"
+        syncCertSettings
+        log "update user cert files"
+        refreshAllCerts
+    fi
+
     local info
     if info=$(diff $STATIC_SETTINGS_PATH $STATIC_SETTINGS_PATH.new); then
         return
