@@ -5,5 +5,4 @@ mode = "0700"
 keys = [
   "/",
 ]
-#reload_cmd = "/opt/app/bin/tmpl/node-exporter.sh;appctl reload node_exporter"
-reload_cmd = ":"
+reload_cmd = "/opt/app/current/bin/tmpl/node-exporter.sh;appctl refreshDynamicService node_exporter"

@@ -1,5 +1,5 @@
 preparePathOnPersistentDisk() {
-    mkdir -p /data/opensearch/{data,logs,dump}
+    mkdir -p /data/opensearch/{data,logs,dump,analysis}
     chown -R opensearch:svc /data/opensearch
 }
 
@@ -122,6 +122,9 @@ processWhenDynamicSettingsChanged() {
 
     log "sync dynamic settings"
     syncDynamicSettings
+
+    log "refresh changed dynamic service"
+    refreshChangedDynamicService "$info"
 
     if ! isFirstMaster; then
         return

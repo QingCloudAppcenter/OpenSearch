@@ -663,3 +663,74 @@ refreshAllCerts() {
     cat $CERT_OS_USER_NODE_CERT_PATH > $OPENSEARCH_CONF_USER_CERTS_PATH/node1.pem
     cat $CERT_OS_USER_NODE_KEY_PATH > $OPENSEARCH_CONF_USER_CERTS_PATH/node1-key.pem
 }
+
+refreshAllDynamicServiceStatus() {
+    local settings=$(cat $DYNAMIC_SETTINGS_PATH)
+    local enable_caddy=$(getItemFromConf "$settings" "dynamic.other.enable_caddy")
+    if [ "$enable_caddy" = "true" ]; then
+        systemctl start caddy
+    else
+        systemctl stop caddy
+    fi
+    local enable_exporter=$(getItemFromConf "$settings" "dynamic.other.enable_exporter")
+    if [ "$enable_exporter" = "true" ]; then
+        systemctl start node_exporter
+    else
+        systemctl stop node_exporter
+    fi
+}
+
+# $1 service name
+refreshDynamicService() {
+    if [ ! -e $DYNAMIC_SETTINGS_PATH ]; then
+        log "cluster is booting up, do nothing!"
+        return
+    fi
+    local settings=$(cat $DYNAMIC_SETTINGS_PATH)
+    local curstatus
+    case "$1" in
+        "caddy")
+        curstatus=$(getItemFromConf "$settings" "dynamic.other.enable_caddy")
+        ;;
+        "node_exporter")
+        curstatus=$(getItemFromConf "$settings" "dynamic.other.enable_exporter")
+        ;;
+        *)
+        curstatus=""
+        ;;
+    esac
+    if [ -z "$curstatus" ]; then
+        log "unknown service, skipping!"
+        return
+    fi
+    if [ "$curstatus" = "true" ]; then
+        log "restart service: $1"
+        systemctl restart $1 || :
+    else
+        log "the $1 service is disabled, stop it!"
+        systemctl stop $1 || :
+    fi
+}
+
+DYNAMIC_SERVICE_LIST=(
+    dynamic.other.enable_caddy/caddy
+    dynamic.other.enable_exporter/node_exporter
+)
+
+refreshChangedDynamicService() {
+    local settings="$1"
+    shift
+    local item
+    local key
+    local service
+    local res
+    for item in ${DYNAMIC_SERVICE_LIST[@]}; do
+        key=${item%/*}
+        service=${item#*/}
+        res=$(echo "$settings" | sed -n "/$key/p")
+        if [ -n "$res" ]; then
+            log "refresh dynamic service: $service"
+            refreshDynamicService $service
+        fi
+    done
+}

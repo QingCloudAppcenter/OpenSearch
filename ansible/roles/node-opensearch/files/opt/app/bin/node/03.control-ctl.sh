@@ -21,6 +21,8 @@ start() {
     systemctl start opensearch
     log "enable health check"
     enableHealthCheck
+    log "refresh all dynamic service status"
+    refreshAllDynamicServiceStatus
 }
 
 isFirstMaster() {

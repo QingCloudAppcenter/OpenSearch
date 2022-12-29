@@ -583,7 +583,7 @@
       "type": "array",
       "properties": [{
         "key": "prometheus.node.exporter",
-        "label": "prometheus.node.exporter",
+        "label": "enable.node.exporter",
         "description": "Prometheus exporter for hardware and OS metrics exposed by *NIX kernels with pluggable metric collectors.",
         "type": "string",
         "default": "true",

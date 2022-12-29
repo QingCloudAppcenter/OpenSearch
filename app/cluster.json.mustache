@@ -15,7 +15,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-ww0qacn7"
+      "image": "img-w7h2yvu5"
     },
     "instance_class": {{cluster.es_node.instance_class}},
     "count": {{cluster.es_node.count}},
@@ -106,7 +106,8 @@
         "static.os.gateway.recover_after_data_nodes": {{env.es_node.static.os.gateway.recover_after_data_nodes}},
         "static.os.http.cors.enabled": {{env.es_node.static.os.http.cors.enabled}},
         "static.os.http.cors.allow-origin": {{env.es_node.static.os.http.cors.allow-origin}},
-        "prometheus.node.exporter": {{env.es_node.prometheus.node.exporter}},
+        "dynamic.other.enable_exporter": {{env.es_node.prometheus.node.exporter}},
+        "dynamic.other.enable_caddy": {{env.global.dynamic.other.enable_caddy}},
         "dynamic.os.prometheus.indices": {{env.es_node.dynamic.os.prometheus.indices}},
         "dynamic.os.prometheus.cluster.settings": {{env.es_node.dynamic.os.prometheus.cluster.settings}},
         "dynamic.os.prometheus.nodes.filter": {{env.es_node.dynamic.os.prometheus.nodes.filter}},
@@ -285,7 +286,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-ww0qacn7"
+      "image": "img-w7h2yvu5"
     },
     "instance_class": {{cluster.es_master_node.instance_class}},
     "count": {{cluster.es_master_node.count}},
@@ -375,7 +376,8 @@
         "static.os.gateway.recover_after_data_nodes": {{env.es_node.static.os.gateway.recover_after_data_nodes}},
         "static.os.http.cors.enabled": {{env.es_node.static.os.http.cors.enabled}},
         "static.os.http.cors.allow-origin": {{env.es_node.static.os.http.cors.allow-origin}},
-        "prometheus.node.exporter": {{env.es_node.prometheus.node.exporter}},
+        "dynamic.other.enable_exporter": {{env.es_node.prometheus.node.exporter}},
+        "dynamic.other.enable_caddy": {{env.global.dynamic.other.enable_caddy}},
         "dynamic.os.prometheus.indices": {{env.es_node.dynamic.os.prometheus.indices}},
         "dynamic.os.prometheus.cluster.settings": {{env.es_node.dynamic.os.prometheus.cluster.settings}},
         "dynamic.os.prometheus.nodes.filter": {{env.es_node.dynamic.os.prometheus.nodes.filter}},
@@ -553,7 +555,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-ww0qacn7"
+      "image": "img-w7h2yvu5"
     },
     "instance_class": {{cluster.es_node_2.instance_class}},
     "count": {{cluster.es_node_2.count}},
@@ -644,7 +646,8 @@
         "static.os.gateway.recover_after_data_nodes": {{env.es_node.static.os.gateway.recover_after_data_nodes}},
         "static.os.http.cors.enabled": {{env.es_node.static.os.http.cors.enabled}},
         "static.os.http.cors.allow-origin": {{env.es_node.static.os.http.cors.allow-origin}},
-        "prometheus.node.exporter": {{env.es_node.prometheus.node.exporter}},
+        "dynamic.other.enable_exporter": {{env.es_node.prometheus.node.exporter}},
+        "dynamic.other.enable_caddy": {{env.global.dynamic.other.enable_caddy}},
         "dynamic.os.prometheus.indices": {{env.es_node.dynamic.os.prometheus.indices}},
         "dynamic.os.prometheus.cluster.settings": {{env.es_node.dynamic.os.prometheus.cluster.settings}},
         "dynamic.os.prometheus.nodes.filter": {{env.es_node.dynamic.os.prometheus.nodes.filter}},
@@ -823,7 +826,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-ww0qacn7"
+      "image": "img-w7h2yvu5"
     },
     "instance_class": {{cluster.es_node_3.instance_class}},
     "count": {{cluster.es_node_3.count}},
@@ -914,7 +917,8 @@
         "static.os.gateway.recover_after_data_nodes": {{env.es_node.static.os.gateway.recover_after_data_nodes}},
         "static.os.http.cors.enabled": {{env.es_node.static.os.http.cors.enabled}},
         "static.os.http.cors.allow-origin": {{env.es_node.static.os.http.cors.allow-origin}},
-        "prometheus.node.exporter": {{env.es_node.prometheus.node.exporter}},
+        "dynamic.other.enable_exporter": {{env.es_node.prometheus.node.exporter}},
+        "dynamic.other.enable_caddy": {{env.global.dynamic.other.enable_caddy}},
         "dynamic.os.prometheus.indices": {{env.es_node.dynamic.os.prometheus.indices}},
         "dynamic.os.prometheus.cluster.settings": {{env.es_node.dynamic.os.prometheus.cluster.settings}},
         "dynamic.os.prometheus.nodes.filter": {{env.es_node.dynamic.os.prometheus.nodes.filter}},
@@ -1188,7 +1192,7 @@
     }
   }],
   "display_tabs": {
-    "pipeline demo": {
+    "logstash demo": {
       "cmd": "appctl showTabForDemoPipelineConfig",
       "roles_to_execute_on": ["lst_node"],
       "description": "Demo config for logstash pipeline.",
