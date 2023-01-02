@@ -1,5 +1,5 @@
 # max time for REST API
-MAX_TIME_GET_COMMON=10
+MAX_TIME_GET_COMMON=3
 MAX_TIME_SET_COMMON=30
 
 # wrap the invoke of opensearch rest api
@@ -59,6 +59,31 @@ clearMasterExclude() {
 
 getClusterCoordination() {
     local url="/_cluster/state/metadata/cluster_coordination"
+    local params
+    if [ $# -eq 1 ]; then
+        params="$url $1"
+    else
+        params="$url"
+    fi
+    invokeRestAPI GET $MAX_TIME_GET_COMMON $params
+}
+
+# $1 nodename
+# $2 option, <ip address>
+getNodeStats() {
+    local url="/_nodes/$1/stats"
+    local params
+    if [ $# -eq 1 ]; then
+        params="$url"
+    else
+        params="$url $2"
+    fi
+    invokeRestAPI GET $MAX_TIME_GET_COMMON $params
+}
+
+# $1 option, <ip address>
+getClusterStats() {
+    local url="/_cluster/stats"
     local params
     if [ $# -eq 1 ]; then
         params="$url $1"

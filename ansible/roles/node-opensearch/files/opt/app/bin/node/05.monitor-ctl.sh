@@ -130,3 +130,68 @@ revive() {
     
     rm -f $REVIVE_LOCK_PATH
 }
+
+measure() {
+    local res1=$(getClusterMetrics)
+    local res2=$(getNodeMetrics)
+    echo "$res1 $res2" | jq -cs add
+}
+
+getNodesCnt() {
+    local tmpstr1=($STABLE_DATA_NODES)
+    local tmpstr2=($STABLE_MASTER_NODES)
+    tmpstr1=${#tmpstr1[@]}
+    tmpstr2=${#tmpstr2[@]}
+    echo $((tmpstr1+tmpstr2))
+}
+
+getClusterMetrics() {
+    local nodeCnt=$(getNodesCnt)
+    local rawinfo=$(getClusterHealthInfo $MY_IP)
+    if [ -z "$rawinfo" ]; then
+        echo "{}"
+        return 0
+    fi
+    local res=$(echo "$rawinfo" | jq --arg ncnt $nodeCnt -c '{
+        "cluster_health_status": (if .status == "green" then 0 elif .status == "yellow" then 1 else 2 end),
+        "nodes_avail_percent": (.number_of_nodes / ($ncnt | tonumber) * 100),
+        "number_of_nodes": .number_of_nodes,
+        "relocating_shards": .relocating_shards,
+        "initializing_shards": .initializing_shards,
+        "unassigned_shards": .unassigned_shards,
+        "number_of_pending_tasks": .number_of_pending_tasks,
+        "number_of_in_flight_fetch": .number_of_in_flight_fetch,
+        "task_max_waiting_in_queue_millis": .task_max_waiting_in_queue_millis,
+        "active_shards_percent": .active_shards_percent_as_number
+    }')
+    echo "$res"
+}
+
+getNodeMetrics() {
+    local nodename=$(echo -n $(cat $OPENSEARCH_CONF_PATH | sed '/^'node.name':/!d;s/^'node.name'://'))
+    local rawinfo=$(getNodeStats $nodename $MY_IP)
+    if [ -z "$rawinfo" ]; then
+        echo "{}"
+        return 0
+    fi
+    rawinfo=$(echo $rawinfo | jq '.nodes | to_entries[] | .value')
+    local res1=$(echo "$rawinfo" | jq -c '{
+        "indices_indexing_index_ops": (.indices.indexing.index_total),
+        "indices_search_query_ops": (.indices.search.query_total),
+        "jvm_mem_heap_used_percent": .jvm.mem.heap_used_percent,
+        "jvm_threads_count": .jvm.threads.count,
+        "indices_docs_count": .indices.docs.count,
+        "indices_docs_deleted": .indices.docs.deleted,
+        "fs_total_avail_percent": (.fs.total.available_in_bytes / .fs.total.total_in_bytes * 100),
+        "os_cpu_load_average_1m": (.os.cpu.load_average."1m" * 100),
+        "os_cpu_load_average_5m": (.os.cpu.load_average."5m" * 100),
+        "os_cpu_load_average_15m": (.os.cpu.load_average."15m" * 100),
+    }')
+    rawinfo=$(getClusterStats $MY_IP | jq '.indices')
+    local res2=$(echo "$rawinfo" | jq -c '{
+        "indices_count": .count,
+        "shards_total": .shards.total,
+        "shards_primaries": .shards.primaries
+    }')
+    echo "$res1 $res2" | jq -cs add
+}

@@ -15,7 +15,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-fizub0g6"
+      "image": "img-1ju7b5f5"
     },
     "instance_class": {{cluster.es_node.instance_class}},
     "count": {{cluster.es_node.count}},
@@ -151,44 +151,59 @@
       "enable": true,
       "cmd": "appctl measure",
       "items": {
-        "os_cluster_status": {
+        "cluster_health_status": {
           "unit": "",
-          "value_type": "str",
-          "statistics_type": "latest",
-          "enums": ["green", "yellow", "red"]
+          "value_type": "int",
+          "statistics_type": "latest"
         },
-        "cluster_jvm_heap_used_in_percent": {
+        "jvm_mem_heap_used_percent": {
           "unit": "%",
           "value_type": "int",
-          "statistics_type": "avg",
-          "scale_factor_when_display": 0.01
+          "statistics_type": "latest"
         },
-        "cluster_jvm_threads_count": {
+        "jvm_threads_count": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "cluster_indices_count": {
+        "indices_indexing_index_ops": {
+          "unit": "",
+          "value_type": "int",
+          "statistics_type": "delta",
+          "scale_factor_when_display": 0.1
+        },
+        "indices_search_query_ops": {
+          "unit": "",
+          "value_type": "int",
+          "statistics_type": "delta",
+          "scale_factor_when_display": 0.1
+        },
+        "indices_count": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "cluster_shards_primaries_count": {
+        "shards_total": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "cluster_shards_replication_count": {
+        "shards_primaries": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "cluster_docs_count": {
+        "indices_docs_count": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "cluster_docs_deleted_count": {
+        "indices_docs_deleted": {
+          "unit": "",
+          "value_type": "int",
+          "statistics_type": "latest"
+        },
+        "nodes_avail_percent": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
@@ -228,65 +243,50 @@
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "active_shards_percent_as_number": {
+        "active_shards_percent": {
           "unit": "%",
           "value_type": "int",
-          "statistics_type": "latest",
-          "scale_factor_when_display": 0.01
+          "statistics_type": "latest"
         },
-        "node_indexing_pr_percent_c_p": {
+        "fs_total_avail_percent": {
+            "unit": "%",
+            "value_type": "int",
+            "statistics_type": "latest"
+        },
+        "os_cpu_load_average_1m": {
             "unit": "",
             "value_type": "int",
             "statistics_type": "latest",
             "scale_factor_when_display": 0.01
         },
-        "node_indexing_pr_percent_all": {
+        "os_cpu_load_average_5m": {
             "unit": "",
             "value_type": "int",
             "statistics_type": "latest",
             "scale_factor_when_display": 0.01
         },
-        "node_indexing_pr_coordinating": {
-            "unit": "MB",
+        "os_cpu_load_average_15m": {
+            "unit": "",
             "value_type": "int",
-            "statistics_type": "latest"
-        },
-        "node_indexing_pr_primary": {
-            "unit": "MB",
-            "value_type": "int",
-            "statistics_type": "latest"
-        },
-        "node_indexing_pr_replica": {
-            "unit": "MB",
-            "value_type": "int",
-            "statistics_type": "latest"
-        },
-        "node_indexing_pr_all": {
-            "unit": "MB",
-            "value_type": "int",
-            "statistics_type": "latest"
-        },
-        "node_indexing_pr_limit": {
-            "unit": "MB",
-            "value_type": "int",
-            "statistics_type": "latest"
+            "statistics_type": "latest",
+            "scale_factor_when_display": 0.01
         }
       },
       "groups": {
-        "cluster_docs_group": ["cluster_docs_count", "cluster_docs_deleted_count"],
-        "cluster_shards_group": ["cluster_shards_primaries_count", "cluster_shards_replication_count", "relocating_shards", "initializing_shards", "unassigned_shards"],
-        "index_pressure_group": ["node_indexing_pr_coordinating", "node_indexing_pr_primary", "node_indexing_pr_replica", "node_indexing_pr_all", "node_indexing_pr_limit"],
-        "index_pressure_percent_group": ["node_indexing_pr_percent_c_p", "node_indexing_pr_percent_all"]
+        "indices_docs_group": ["indices_docs_count", "indices_docs_deleted"],
+        "cluster_shards_group": ["relocating_shards", "initializing_shards", "unassigned_shards"],
+        "node_shards_group": ["shards_total", "shards_primaries"],
+        "os_cpu_load_group": ["os_cpu_load_average_1m", "os_cpu_load_average_5m", "os_cpu_load_average_15m"]
       },
-      "display": ["os_cluster_status", "number_of_nodes", "cluster_indices_count", "cluster_jvm_heap_used_in_percent", "cluster_jvm_threads_count", "cluster_docs_group", "cluster_shards_group", "number_of_pending_tasks", "number_of_in_flight_fetch", "task_max_waiting_in_queue_millis", "active_shards_percent_as_number", "index_pressure_group", "index_pressure_percent_group"],
-      "alarm": ["os_cluster_status", "number_of_nodes", "cluster_jvm_heap_used_in_percent", "cluster_jvm_threads_count", "relocating_shards", "unassigned_shards", "number_of_pending_tasks", "number_of_in_flight_fetch", "task_max_waiting_in_queue_millis", "active_shards_percent_as_number", "node_indexing_pr_percent_all", "node_indexing_pr_percent_c_p"]
+      "display": ["cluster_health_status", "nodes_avail_percent", "number_of_nodes", "jvm_mem_heap_used_percent", "jvm_threads_count", "indices_indexing_index_ops", "indices_search_query_ops", "indices_count", "indices_docs_group", "cluster_shards_group", "node_shards_group", "number_of_pending_tasks", "number_of_in_flight_fetch", "task_max_waiting_in_queue_millis", "active_shards_percent", "fs_total_avail_percent", "os_cpu_load_group"],
+      "alarm": ["cluster_health_status", "nodes_avail_percent", "number_of_nodes", "jvm_mem_heap_used_percent", "jvm_threads_count", "relocating_shards", "unassigned_shards", "number_of_pending_tasks", "number_of_in_flight_fetch", "task_max_waiting_in_queue_millis", "active_shards_percent", "fs_total_avail_percent", "os_cpu_load_average_1m", "os_cpu_load_average_5m", "os_cpu_load_average_15m"]
     }
   }, {
     "role": "es_master_node",
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-fizub0g6"
+      "image": "img-1ju7b5f5"
     },
     "instance_class": {{cluster.es_master_node.instance_class}},
     "count": {{cluster.es_master_node.count}},
@@ -555,7 +555,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-fizub0g6"
+      "image": "img-1ju7b5f5"
     },
     "instance_class": {{cluster.es_node_2.instance_class}},
     "count": {{cluster.es_node_2.count}},
@@ -826,7 +826,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-fizub0g6"
+      "image": "img-1ju7b5f5"
     },
     "instance_class": {{cluster.es_node_3.instance_class}},
     "count": {{cluster.es_node_3.count}},
