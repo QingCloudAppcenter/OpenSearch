@@ -292,3 +292,26 @@ restart() {
     stop
     start
 }
+
+#path
+JAVA_HOME=/opt/opensearch/current/jdk
+JVM_DUMP_PATH=/data/opensearch/dump
+
+dump() {
+    local ip=$(echo "$1" | jq -r '."node.ip"')
+    local timeout=$(echo "$1" | jq -r '.timeout')
+    
+    if [ ! "$ip" = "$MY_IP" ]; then return 0; fi
+
+    local path=$JVM_DUMP_PATH/dump.$(date '+%F_%k%M').hprof
+
+    timeout ${timeout:-1800}s $JAVA_HOME/bin/jhsdb jmap --pid $(cat /var/run/opensearch/opensearch.pid) --binaryheap --dumpfile $path || return 0
+}
+
+clearDump() {
+  local ip=$(echo "$1" | jq -r '."node.ip"')
+
+  if [ ! "$ip" = "$MY_IP" ]; then return 0; fi
+
+  find $JVM_DUMP_PATH -name '*.hprof' -delete || return 0
+}
