@@ -81,6 +81,19 @@ getNodeStats() {
     invokeRestAPI GET $MAX_TIME_GET_COMMON $params
 }
 
+# $1 nodename
+# $2 option, <ip address>
+getNodeJvm() {
+    local url="/_nodes/$1/jvm"
+    local params
+    if [ $# -eq 1 ]; then
+        params="$url"
+    else
+        params="$url $2"
+    fi
+    invokeRestAPI GET $MAX_TIME_GET_COMMON $params
+}
+
 # $1 option, <ip address>
 getClusterStats() {
     local url="/_cluster/stats"

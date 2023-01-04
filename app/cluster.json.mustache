@@ -15,7 +15,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-2ptg896m"
+      "image": "img-y6by9r2j"
     },
     "instance_class": {{cluster.es_node.instance_class}},
     "count": {{cluster.es_node.count}},
@@ -56,7 +56,7 @@
       },
       "restart_rolling": {
         "type": "custom",
-        "cmd": "appctl restart role",
+        "cmd": "appctl rollingRestart",
         "timeout": 2000,
         "service_params": {
           "node.ip": {{service_params.restart.node.ip}},
@@ -286,7 +286,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-2ptg896m"
+      "image": "img-y6by9r2j"
     },
     "instance_class": {{cluster.es_master_node.instance_class}},
     "count": {{cluster.es_master_node.count}},
@@ -326,7 +326,7 @@
       },
       "restart_rolling": {
         "type": "custom",
-        "cmd": "appctl restart role",
+        "cmd": "appctl rollingRestart",
         "timeout": 2000,
         "service_params": {
           "node.ip": {{service_params.restart.node.ip}},
@@ -555,7 +555,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-2ptg896m"
+      "image": "img-y6by9r2j"
     },
     "instance_class": {{cluster.es_node_2.instance_class}},
     "count": {{cluster.es_node_2.count}},
@@ -596,7 +596,7 @@
       },
       "restart_rolling": {
         "type": "custom",
-        "cmd": "appctl restart role",
+        "cmd": "appctl rollingRestart",
         "timeout": 2000,
         "service_params": {
           "node.ip": {{service_params.restart.node.ip}},
@@ -826,7 +826,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-2ptg896m"
+      "image": "img-y6by9r2j"
     },
     "instance_class": {{cluster.es_node_3.instance_class}},
     "count": {{cluster.es_node_3.count}},
@@ -867,7 +867,7 @@
       },
       "restart_rolling": {
         "type": "custom",
-        "cmd": "appctl restart role",
+        "cmd": "appctl rollingRestart",
         "timeout": 2000,
         "service_params": {
           "node.ip": {{service_params.restart.node.ip}},

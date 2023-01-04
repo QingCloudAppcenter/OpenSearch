@@ -315,3 +315,37 @@ clearDump() {
 
   find $JVM_DUMP_PATH -name '*.hprof' -delete || return 0
 }
+
+rollingRestart() {
+    local earliest="$(($(date +%s%3N) - 5000))"
+    local nodes; nodes=$(echo "$1" | jq -r '."node.ip"')
+    if [ -z "$nodes" ]; then nodes=${ROLE_NODES// /,}; fi
+    local tmp=$(echo "$nodes" | sed -n "/$MY_IP/p")
+    if [ -z "$tmp" ]; then return 0; fi
+
+    local opTimeout; opTimeout=$(echo "$1" | jq -r '.timeout')
+    timeout --preserve-status ${opTimeout:-600} appctl restartInOrder $nodes $earliest $IS_MASTER || {
+        log "WARN: failed to restart nodes '$nodes' in order ($?)"
+        return 0
+    }
+}
+
+restartInOrder() {
+  local nodes="$1" earliest=$2 isMaster=${3:-false}
+  local node; for node in ${nodes//,/ }; do
+    if [ "$node" = "$MY_IP" ]; then restart; fi
+
+    retry 600 1 0 isLocalServiceAvailable && retry 60 2 0 checkNodeRestarted $earliest $node || log "WARN: Node '$node' seems not restarted."
+    # retry 21600 2 0 isClusterStableWithShards $node || log "WARN: Node '$node' seems not loaded within 12 hours."
+
+    if [ "$node" = "$MY_IP" ]; then return 0; fi
+  done
+}
+
+checkNodeRestarted() {
+  local earliest=$1 node=${2:-$MY_IP} startTime
+  local jvminfo=$(getNodeJvm $node)
+  startTime="$(echo "$jvminfo" | jq -r '.nodes | to_entries[] | .value | .jvm | .start_time_in_millis')"
+  log "start:$startTime, earliest:$earliest"
+  [ -n "$startTime" ] && [ $startTime -ge $earliest ]
+}
