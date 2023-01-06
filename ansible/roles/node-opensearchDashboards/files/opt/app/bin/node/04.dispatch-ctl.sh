@@ -83,6 +83,10 @@ processWhenStaticSettingsChanged() {
 }
 
 dispatch() {
+    if [ "$UPGRADING_FLAG" = "true" ]; then
+        log "upgrading cluster, skipping!"
+        return
+    fi
     if ! isClusterInitialized; then
         log "first boot up, sync settings"
         syncAllSettings

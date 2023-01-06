@@ -42,7 +42,3 @@ restartService() {
     log "restart service: $1"
     systemctl restart $1
 }
-
-upgrade() {
-    log "just a message for debug"
-}
