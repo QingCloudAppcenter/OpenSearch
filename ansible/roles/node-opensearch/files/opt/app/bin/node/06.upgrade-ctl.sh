@@ -1,6 +1,7 @@
 # path
 OPENSEARCH_SEC_BACKUP_PATH=/data/appctl/data/sec_backup
 OPENSEARCH_CONF_SYS_CERTS_PATH=/opt/app/current/conf/opensearch/certs/qc
+CADDY_OLD_FILE=/data/opensearch/index.html
 
 modifySecurityFile() {
     local syshash=$(calcSecretHash $SYS_USER_PWD)
@@ -34,15 +35,25 @@ INTERNAL_USER
 }
 
 upgrade() {
-    log "try to start opensearch service"
+    log "remove $CADDY_OLD_FILE"
+    rm -f $CADDY_OLD_FILE
+
+    log "sync all settings"
+    syncAllSettings
+
     log "prepare config files"
     refreshAllCerts
     refreshOpenSearchConf
     refreshJvmOptions
     refreshLog4j2Properties
     refreshIKAnalyzerCfgXml
-    log "appctl node init"
-    _initNode
+
+    log "appctl init"
+    _init
+
+    log "modify folder permission"
+    chown -R opensearch:svc /data/opensearch/{data,logs}
+    
     log "start opensearch.service"
     systemctl start opensearch
 
@@ -67,7 +78,7 @@ upgrade() {
         log "write back new password failed!"
         return $EC_SEC_WRITEBACK_FAILED
     fi
-    
+
     log "apply all dynamic settings"
     applyAllDynamicSettings
 }
