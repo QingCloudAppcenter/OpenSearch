@@ -29,7 +29,3 @@ restart() {
     stop
     start
 }
-
-upgrade() {
-    log "just a message for debug"
-}

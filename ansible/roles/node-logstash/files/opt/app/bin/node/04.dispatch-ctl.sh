@@ -131,6 +131,10 @@ processWhenStaticSettingsChanged() {
 }
 
 dispatch() {
+    if [ "$UPGRADING_FLAG" = "true" ]; then
+        log "upgrading cluster, skipping!"
+        return
+    fi
     if ! isClusterInitialized; then
         log "new node created! prepare paths on persistent disk"
         preparePathOnPersistentDisk
