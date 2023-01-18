@@ -17,6 +17,10 @@ start() {
         log "appctl node init"
         _initNode
     fi
+    if [ $VERTICAL_SCALING_FLAG = "true" ]; then
+        log "refresh jvm.options when vertical scaling"
+        refreshJvmOptions
+    fi
     log "start opensearch.service"
     systemctl start opensearch
     log "enable health check"
