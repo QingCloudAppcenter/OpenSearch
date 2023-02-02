@@ -6,16 +6,16 @@
   "advanced_actions": [
     "scale_horizontal"
   ],
-  "upgrade_policy": [
+  {{! "upgrade_policy": [
     "appv-qsj7ua3y"
-  ],
+  ], }}
   "upgrading_policy": "parallel",
   "nodes": [{
     "role": "es_node",
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-pg6jq551"
+      "image": "img-luejgt9i"
     },
     "instance_class": {{cluster.es_node.instance_class}},
     "count": {{cluster.es_node.count}},
@@ -285,7 +285,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-pg6jq551"
+      "image": "img-luejgt9i"
     },
     "instance_class": {{cluster.es_master_node.instance_class}},
     "count": {{cluster.es_master_node.count}},
@@ -553,7 +553,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-pg6jq551"
+      "image": "img-luejgt9i"
     },
     "instance_class": {{cluster.es_node_2.instance_class}},
     "count": {{cluster.es_node_2.count}},
@@ -823,7 +823,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-pg6jq551"
+      "image": "img-luejgt9i"
     },
     "instance_class": {{cluster.es_node_3.instance_class}},
     "count": {{cluster.es_node_3.count}},

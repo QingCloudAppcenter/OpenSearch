@@ -580,7 +580,10 @@ applyChangedDynamicSettings() {
 # $1 - key
 # $2 - value
 addOrUpdateKeystore() {
-    runuser opensearch -g svc -s "/bin/bash" -c "echo -n $2 | OPENSEARCH_PATH_CONF=$OPENSEARCH_PATH_CONF $KEYSTORE_TOOL_PATH add -f $1 --stdin"
+    local tmpstr=$2
+    tmpstr=${tmpstr//\\/\\\\}
+    tmpstr=${tmpstr//\$/\\\$}
+    runuser opensearch -g svc -s "/bin/bash" -c "echo -n $tmpstr | OPENSEARCH_PATH_CONF=$OPENSEARCH_PATH_CONF $KEYSTORE_TOOL_PATH add -f $1 --stdin"
 }
 
 # $1 - key
