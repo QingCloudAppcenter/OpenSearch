@@ -105,61 +105,17 @@
   "Operation Timeout": "最大等待时间",
   "The dump timeout in seconds": "dump 操作最大等待时间，以秒为单位；如超过此时间仍未完成，将强制停止此操作（已生成的文件片段将保留）",
   "The node IP of OpenSearch on which to clear dump JVM heap": "此处填写要清除 Heap Dump 文件的 OpenSearch 节点 IP, 请确保此 IP 是选中的角色里的一个节点，否则操作将被忽略；若不填则表示清除所有同角色节点上的 Dump 文件；操作完成后可通过访问 http://IP/dump/ 确认",
-  "The node IP of OpenSearch on which to restart": "此处填写要重启的 OpenSearch 节点 IP，请确保此 IP 是选中的角色里的一个节点，否则操作将被忽略；若不填则表示重启所有同角色节点上的 OpenSearch 服务",
+  "The node IP of OpenSearch on which to restart": "此处填写要重启的 OpenSearch 节点 IP, 请确保此 IP 是选中的角色里的一个节点，否则操作将被忽略；若不填则表示重启所有同角色节点上的 OpenSearch 服务",
   "The restart timeout in seconds": "所有节点重启完成最大等待时间，以秒为单位；本操作每次只重启一个所选中角色的节点（以节点 IP 升序排列），并等待被重启节点所有分片加载完毕后再重启下一个；比如 600 秒表示若总共重启时间超过 10 分钟将停止操作，请结合日志自行检查重启结果；日志文件可以通过 http://IP/logs 访问",
   
   "restart_rolling": "滚动重启",
   "dump": "生成 Heap Dump",
   "clear_dump": "清除 Heap Dump",
-  
-  
-  "esvip": "Opensearch VIP",
-  
-  
-  "count": "次",
-  "esnode_count": "个",
-  
-
-  
-  "os_cluster_status": "集群健康状态",
-  "number_of_nodes": "节点数",
-  "cluster_jvm_heap_used_in_percent": "集群JVM堆内存使用百分比",
-  "cluster_jvm_threads_count": "集群JVM线程数",
-  "relocating_shards": "正在迁移的分片数",
-  "unassigned_shards": "未分配的分片数",
-  "number_of_pending_tasks": "等待中的任务数",
-  "number_of_in_flight_fetch": "执行中的fetch数",
-  "task_max_waiting_in_queue_millis": "任务在队列中的最大等待时间",
-  "active_shards_percent_as_number": "活跃分片百分比",
-  "cluster_indices_count": "集群索引数",
-  "cluster_docs_group": "集群文档监控组",
-  "cluster_docs_count": "集群文档数",
-  "cluster_docs_deleted_count": "集群已删除文档数",
-  "cluster_shards_group": "集群分片监控组",
-  "cluster_shards_primaries_count": "集群主分片数",
-  "cluster_shards_replication_count": "集群副本分片数",
-  "initializing_shards": "初始化中的分片数",
-  
-  "Specify the location of shared file system repository.": "指定共享文件系统仓库的位置",
-  "Specify the location of read-only URL repository.": "指定只读URL仓库的位置",
-  "The additional configuration in elasticsearch.yml.": "elasticsearch.yml中的附加配置",
-  
-  "Mapping type": "映射类型（mapping types）",
-  
-  
-  "Enables you to specify a path to mount Kibana at if you are running behind a proxy. Use the server.rewriteBasePath setting to tell Kibana if it should remove the basePath from requests it receives, and to prevent a deprecation warning at startup. This setting cannot end in a slash (/).": "需要在 Kibana 前面加一层代理时，可以通过此参数设置 Kibana 的路径，不能以斜线（/）结尾，详情可参考官方文档：https://www.elastic.co/guide/en/kibana/master/settings.html",
-  "Specifies whether Kibana should rewrite requests that are prefixed with server.basePath or require that they are rewritten by your reverse proxy": "是否重写 bashPath，详情可参考官方文档：https://www.elastic.co/guide/en/kibana/master/settings.html",
- 
-
-  "The path of heap dump.": "Heap dump 文件的存储路径",
-  "index_pressure_group": "索引压力",
-  "node_indexing_pr_percent_c_p": "索引压力百分比（coordinating, primary）",
-  "node_indexing_pr_percent_all": "索引压力百分比（all）",
-  "index_pressure_percent_group": "索引压力百分比",
-  
-
   "logstash demo": "logstash 配置示例",
-  "notice_when_upgrade": "升级前请手动备份 OS 节点所有 script.* 配置（共 6 个）以及所有 Logstash 节点 /data 目录以外的数据；升级过程中请避免创建新索引或分片以加快升级速度",
+  "Demo config for logstash pipeline.": "logstash pipeline 的配置示例. 参考配置示例中 output 部分的内容以获取连接 OpenSearch 集群的方法.",
+  "notice_when_upgrade": "升级前请手动备份 OpenSearch 节点所有 script.* 配置（共 6 个）以及所有 Logstash 节点 /data 目录以外的数据；升级过程中请避免创建新索引或分片以加快升级速度",
+  "esvip": "Opensearch VIP",
+
   "err_code130": "不允许同时删除主节点和数据节点; 请分别删除主节点和数据节点.",
   "err_code131": "无法转移主节点的管理权限; 请确认拥有足够数量的主节点.",
   "err_code132": "等待转移主节点的管理权限超时; 请确认拥有足够数量的主节点.",
