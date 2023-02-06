@@ -81,6 +81,7 @@
     "Clean logs older than n days, n can be changed here.": "Clean logs older than n days, n can be changed here.",
     "Log in OpenSearch with the default username admin.": "Log in OpenSearch with the default username for admin. Modification is not supported after creation.",
     "Log in OpenSearch with the default password admin.": "Log in OpenSearch with the default password admin. Modification is not supported after creation.",
+    "err_code130": "Can't remove master nodes and data nodes together. Please remove master nodes and data nodes seperately",
     "err_code21": "Can't retrieve cluster health info",
     "err_code22": "Cluster is unhealthy if nodes removed",
     "err_code23": "Can't stop ES",
