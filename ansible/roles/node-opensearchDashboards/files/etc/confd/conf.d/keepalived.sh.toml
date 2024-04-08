@@ -1,8 +1,8 @@
 [template]
 src = "keepalived.sh.tmpl"
-dest = "/opt/app/bin/tmpl/keepalived.sh"
+dest = "/opt/app/current/bin/tmpl/keepalived.sh"
 mode = "0700"
 keys = [
   "/",
 ]
-reload_cmd = "/opt/app/bin/tmpl/keepalived.sh; appctl reload keepalived"
+reload_cmd = "/opt/app/current/bin/tmpl/keepalived.sh; appctl restartService keepalived"

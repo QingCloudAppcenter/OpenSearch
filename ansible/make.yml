@@ -7,11 +7,11 @@
   #- /root/.qcacode
   strategy: free
   roles:
-  - app-agent-1.0.1
-  - appctl-1.0.9
+  - app-agent-1.1.1
+  - appctl-1.3.0
   - arping-1.0.5
   - common
-  - role: caddy-1.0.6
+  - role: caddy-1.1.8
     vars:
       caddy_plugins: upload
   - update-apt-sources-1.0.0
@@ -23,10 +23,8 @@
       name: "{{ svc_name }}"
     when: "'opensearch' in group_names"
     loop:
-    - java-1.0.1
     - opensearch
-    - jq-1.0.3
-    - node-exporter-0.18.1
+    - jq-1.0.9
     - node-opensearch
     loop_control:
       loop_var: svc_name
@@ -35,12 +33,13 @@
       name: java-1.0.1
     vars:
       java_version: 8
-    when: ('logstash' in group_names) or ('' in group_names)
+    when: ('opensearchDashboards' in group_names) or ('' in group_names)
 
   - include_role:
       name: "{{ svc_name }}"
     when: "'logstash' in group_names"
     loop:
+    - jq-1.0.9
     - logstash
     - node-logstash
     loop_control:
@@ -50,12 +49,10 @@
       name: "{{ svc_name }}"
     when: "'opensearchDashboards' in group_names"
     loop:
-    - java-1.0.1
-    - cerebro
-    - opensearchDashboards
-    - nodejs-1.0.0
-    - haproxy-1.0.3
-    - keepalived-1.0.1
+    # - opensearchDashboards
+    # - nodejs-1.0.0
+    # - haproxy-1.0.8
+    # - keepalived-1.0.6
     - node-opensearchDashboards
     loop_control:
       loop_var: svc_name

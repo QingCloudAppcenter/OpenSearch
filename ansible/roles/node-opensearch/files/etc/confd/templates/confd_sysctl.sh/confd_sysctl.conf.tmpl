@@ -1,0 +1,6 @@
+flush > /opt/app/current/conf/sysctl/confd_sysctl.conf <<CONFD_SYSCTL_CONF
+net.ipv4.tcp_keepalive_intvl={{ getv "/env/confd.sysctl.tcp_keepalive_intvl" }}
+net.ipv4.tcp_keepalive_probes={{ getv "/env/confd.sysctl.tcp_keepalive_probes" }}
+net.ipv4.tcp_keepalive_time={{ getv "/env/confd.sysctl.tcp_keepalive_time" }}
+CONFD_SYSCTL_CONF
+sysctl -p/opt/app/current/conf/sysctl/confd_sysctl.conf

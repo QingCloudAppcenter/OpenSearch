@@ -9,7 +9,7 @@ fi
 
 {{- $esVip := getv "/cluster/endpoints/reserved_ips/esvip/value" }}
 
-flush > /opt/app/conf/keepalived/keepalived.conf << KEEPALIVED_EOF
+flush > /opt/app/current/conf/keepalived/keepalived.conf << KEEPALIVED_EOF
 global_defs {
   enable_script_security
   script_user root root

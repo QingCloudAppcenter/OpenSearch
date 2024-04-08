@@ -1,8 +1,8 @@
 [template]
 src = "haproxy.sh.tmpl"
-dest = "/opt/app/bin/tmpl/haproxy.sh"
+dest = "/opt/app/current/bin/tmpl/haproxy.sh"
 mode = "0700"
 keys = [
   "/",
 ]
-reload_cmd = "/opt/app/bin/tmpl/haproxy.sh; appctl reload haproxy"
+reload_cmd = "/opt/app/current/bin/tmpl/haproxy.sh; appctl restartService haproxy"

@@ -1,49 +1,121 @@
 ---
-- name: install tools
-  apt:
-    name: ['unzip']
-    state: present
-    update_cache: no
-
-- name: Install pkg
+- name: install dashboards binaries
   include_role:
-    name: utils
-    tasks_from: install-pkg
+    name: install-1.0.6
   vars:
-    version: "{{ opensearch_dashboards_version }}"
-    parentRole: dashboards
-  loop:
-    - pkgUrl: "https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/{{ opensearch_dashboards_version }}/opensearch-dashboards-{{ opensearch_dashboards_package_version }}-linux-x64.tar.gz"
-  loop_control:
-    loop_var: opts
+    opts:
+      pkg_name: opensearch-dashboards
+      pkg_version: "{{ opensearch_dashboards_version }}"
+      pkg_url: https://artifacts.opensearch.org/releases/bundle/opensearch-dashboards/{{ opensearch_dashboards_version }}/opensearch-dashboards-{{ opensearch_dashboards_package_version }}-linux-x64.tar.gz
+      pkg_type: tar.gz
+      creates: bin
+      extracts: yes
+      extra_opts:
+        - "--strip-components=1"
 
-- name: copy configuration files
+- name: group svc
+  group:
+    name: svc
+    state: present
+
+- name: User - opensearch-dashboards
+  user:
+    name: opensearch-dashboards
+    groups: svc
+    shell: /usr/sbin/nologin
+    create_home: no
+    append: yes
+    state: present
+
+- name: copy logrotate configuration files
   copy:
-    src: "{{ role_path }}/files/{{ file_path }}"
-    dest: /{{ file_path }}
+    src: etc/logrotate.d/
+    dest: /opt/app/current/conf/logrotate
+    owner: root
+    group: svc
+    mode: preserve
+
+- name: copy default configuration files
+  copy:
+    src: /opt/opensearch-dashboards/current/config/
+    dest: /opt/app/current/conf/opensearch-dashboards
+    owner: root
+    group: svc
+    mode: preserve
+    remote_src: yes
+
+- name: copy env configuration files
+  copy:
+    src: opt/app/conf/opensearch-dashboards/
+    dest: /opt/app/current/conf/opensearch-dashboards
+    owner: root
+    group: svc
+    mode: preserve
+
+- name: copy service file
+  copy:
+    src: lib/systemd/system/
+    dest: /opt/app/current/conf/systemd
     owner: root
     group: root
     mode: preserve
-  loop:
-  - opt/app/conf/opensearchDashboards/
-  loop_control:
-    loop_var: file_path
 
-- name: install service
+- name: User - cerebro
+  user:
+    name: cerebro
+    groups: svc
+    shell: /usr/sbin/nologin
+    create_home: no
+    append: yes
+    state: present
+
+- name: install cerebro binaries
+  include_role:
+    name: install-1.0.6
+  vars:
+    opts:
+      pkg_name: cerebro
+      pkg_version: "{{ cerebro_version }}"
+      pkg_url: https://github.com/lmenezes/cerebro/releases/download/v{{ cerebro_version }}/cerebro-{{ cerebro_version }}.tgz
+      pkg_type: tar.gz
+      creates: bin
+      extracts: yes
+      extra_opts:
+        - "--strip-components=1"
+
+- name: copy cerebro default configuration files
   copy:
-    src: "{{ role_path }}/files/{{ file_path }}"
-    dest: /{{ file_path }}
+    src: /opt/cerebro/current/conf/
+    dest: /opt/app/current/conf/cerebro
     owner: root
-    group: root
+    group: svc
     mode: preserve
-  loop:
-  - lib/systemd/system/
-  loop_control:
-    loop_var: file_path
+    remote_src: yes
 
-- name: mask opensearch dashboards service
+- name: copy cerebro configuration files
+  copy:
+    src: opt/app/conf/cerebro/
+    dest: /opt/app/current/conf/cerebro
+    owner: root
+    group: svc
+    mode: preserve
+
+- name: link cerebro log config file
+  file:
+    src: /opt/app/current/conf/cerebro/logback.xml
+    dest: /opt/cerebro/current/conf/logback.xml
+    state: link
+    force: true
+
+- name: link cerebro service file
+  file:
+    src: /opt/app/current/conf/systemd/cerebro.service
+    dest: /lib/systemd/system/cerebro.service
+    state: link
+
+- name: mask service
   systemd:
-    name: dashboards
+    name: cerebro
     enabled: no
     masked: yes
     state: stopped

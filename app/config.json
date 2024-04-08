@@ -39,7 +39,7 @@
     }, {
       "key": "es_node",
       "label": "OpenSearch Node",
-      "description": "ES general-purpose node",
+      "description": "Data nodes with label node.attr.data: hot",
       "type": "array",
       "properties": [{
         "key": "cpu",
@@ -81,7 +81,7 @@
       }, {
         "key": "count",
         "label": "Node Count",
-        "description": "Number of ES nodes to create",
+        "description": "Number of nodes to create",
         "type": "integer",
         "min": 0,
         "max": 200,
@@ -116,7 +116,7 @@
       }, {
         "key": "volume_size",
         "label": "Volume Size",
-        "description": "The volume size for each ES node",
+        "description": "The volume size for each node",
         "type": "integer",
         "min": 30,
         "step": 30,
@@ -127,7 +127,7 @@
     }, {
       "key": "es_master_node",
       "label": "OpenSearch Master Node",
-      "description": "role-based node properties",
+      "description": "Dedicated master nodes",
       "type": "array",
       "properties": [{
         "key": "cpu",
@@ -170,7 +170,7 @@
       }, {
         "key": "count",
         "label": "Node Count",
-        "description": "Number of ES master nodes to create",
+        "description": "Number of master nodes to create",
         "type": "integer",
         "range": [
           1,
@@ -195,7 +195,7 @@
       }, {
         "key": "volume_class",
         "label": "Volume Class",
-        "description": "The volume type for each instance, such as high performance, high performance plus",
+        "description": "The volume type for each node, such as high performance, high performance plus, NeonSAN",
         "type": "integer",
         "range": [
           100,
@@ -218,7 +218,7 @@
     }, {
       "key": "es_node_2",
       "label": "OpenSearch Node 2",
-      "description": "ES node group can be used to hold hot-warm-cold data by label node.attr.data",
+      "description": "Data nodes with label node.attr.data: warm",
       "type": "array",
       "properties": [{
         "key": "cpu",
@@ -261,7 +261,7 @@
       }, {
         "key": "count",
         "label": "Node Count",
-        "description": "Number of ES nodes to create",
+        "description": "Number of nodes to create",
         "type": "integer",
         "min": 0,
         "max": 200,
@@ -295,7 +295,7 @@
       }, {
         "key": "volume_size",
         "label": "Volume Size",
-        "description": "The volume size for each ES node",
+        "description": "The volume size for each node",
         "type": "integer",
         "min": 30,
         "step": 30,
@@ -306,7 +306,7 @@
     }, {
       "key": "es_node_3",
       "label": "OpenSearch Node 3",
-      "description": "ES node group can be used to hold hot-warm-cold data by label node.attr.data",
+      "description": "Data nodes with label node.attr.data: cold",
       "type": "array",
       "properties": [{
         "key": "cpu",
@@ -349,7 +349,7 @@
       }, {
         "key": "count",
         "label": "Node Count",
-        "description": "Number of ES nodes to create",
+        "description": "Number of nodes to create",
         "type": "integer",
         "min": 0,
         "max": 200,
@@ -383,7 +383,7 @@
       }, {
         "key": "volume_size",
         "label": "Volume Size",
-        "description": "The volume size for each ES node",
+        "description": "The volume size for each node",
         "type": "integer",
         "min": 30,
         "step": 30,
@@ -437,7 +437,7 @@
       }, {
         "key": "count",
         "label": "Node Count",
-        "description": "Number of nodes for the cluster to create",
+        "description": "Number of nodes to create",
         "type": "integer",
         "min": 0,
         "max": 50,
@@ -531,54 +531,114 @@
     "description": "application configuration properties",
     "type": "array",
     "properties": [{
-      "key": "opensearch.admin.user",
-      "label": "opensearch.admin.user",
-      "description": "Log in OpenSearch with the default username for admin.",
-      "type": "string",
-      "default": "admin",
-      "changeable": false,
-      "required": "yes"
-    }, {
-      "key": "opensearch.admin.password",
-      "label": "opensearch.admin.password",
-      "description": "Must contain a combination of uppercase and lowercase letters and numbers, special characters can be used (including @#%*_+-=), and the length is between 8-32",
-      "type": "password",
-      "default": "Change1Pwd",
-      "pattern": "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z@#\\%\\*\\_\\+\\-\\=]{8,32}$",
-      "changeable": true,
-      "required": "yes"
-    }, {
+      "key": "global",
+      "description": "The global configuration propoerties fo the application",
+      "type": "array",
+      "properties": [{
+        "key": "dynamic.other.enable_caddy",
+        "label": "enable_caddy",
+        "description": "Enable caddy service on all nodes.",
+        "type": "boolean",
+        "default": true,
+        "required":"no"
+      }, {
+        "key": "cert.os.ssl.http.enabled",
+        "label": "Enable opensearch nodes' http ssl",
+        "description": "Enable opensearch nodes' http ssl or not. Use system provided certificates or custome certificate, if enabled",
+        "type": "boolean",
+        "default": true,
+        "required": "no"
+      }, {
+        "key": "cert.os.user_ca_enabled",
+        "label": "Enable custom CA certificate",
+        "description": "Enable custom CA certificate for opensearch nodes or not.",
+        "type": "boolean",
+        "default": false,
+        "required": "no"
+      }, {
+        "key": "cert.os.user_ca",
+        "label": "Custom CA certificate",
+        "description": "Custom CA certificate for opensearch nodes",
+        "type": "password",
+        "default": "",
+        "required": "no"
+      }, {
+        "key": "cert.os.user_node_cert",
+        "label": "Custom node certificate",
+        "description": "Custom certificate for opensearch nodes",
+        "type": "password",
+        "default": "",
+        "required": "no"
+      }, {
+        "key": "cert.os.user_node_key",
+        "label": "Custom node certificate key",
+        "description": "Custom certificate key for opensearch nodes",
+        "type": "password",
+        "default": "",
+        "required": "no"
+      }]
+    },{
       "key": "es_node",
       "description": "The role configuration properties of the application",
       "type": "array",
       "properties": [{
         "key": "prometheus.node.exporter",
-        "label": "prometheus.node.exporter",
+        "label": "enable.node.exporter",
         "description": "Prometheus exporter for hardware and OS metrics exposed by *NIX kernels with pluggable metric collectors.",
         "type": "string",
         "default": "true",
         "range": ["true", "false"],
         "required": "no"
       }, {
-        "key": "thread_pool.write.queue_size",
+        "key": "dynamic.os.prometheus.indices",
+        "label": "prometheus.indices",
+        "description": "Settings for opensearch-exporter-plugin. Whether to export detailed index level metrics or not.",
+        "type": "boolean",
+        "default": false,
+        "required": "no"
+      }, {
+        "key": "dynamic.os.prometheus.cluster.settings",
+        "label": "prometheus.cluster.settings",
+        "description": "Settings for opensearch-exporter-plugin. Whether to export cluster settings or not.",
+        "type": "boolean",
+        "default": false,
+        "required": "no"
+      }, {
+        "key": "dynamic.os.prometheus.nodes.filter",
+        "label": "prometheus.nodes.filter",
+        "description": "Settings for opensearch-exporter-plugin. Whether to export metrics from local node or all nodes.",
+        "type": "string",
+        "default": "_local",
+        "range": ["_local", "_all"],
+        "required": "no"
+      }, {
+        "key": "dynamic.os.cluster.routing.allocation.enable",
+        "label": "cluster.routing.allocation.enable",
+        "description": "Enable or disable allocation for specific kinds of shards.",
+        "type": "string",
+        "default": "all",
+        "range": ["all", "primaries", "new_primaries", "none"],
+        "required": "no"
+      }, {
+        "key": "static.os.thread_pool.write.queue_size",
         "label": "thread_pool.write.queue_size",
         "description": "The queue_size allows to control the size of the queue of pending requests that have no threads to execute them.",
         "type": "integer",
-        "min": 200,
-        "max": 10240,
-        "default": 1024,
+        "min": 2000,
+        "max": 50000,
+        "default": 10000,
         "required": "no"
       }, {
-        "key": "thread_pool.search.queue_size",
+        "key": "static.os.thread_pool.search.queue_size",
         "label": "thread_pool.search.queue_size",
         "description": "The queue_size allows to control the initial size of the queue of pending requests that have no threads to execute them.",
         "type": "integer",
-        "min": 1000,
-        "max": 10240,
-        "default": 1024,
+        "min": 200,
+        "max": 10000,
+        "default": 1000,
         "required": "no"
       }, {
-        "key": "action.destructive_requires_name",
+        "key": "dynamic.os.action.destructive_requires_name",
         "label": "action.destructive_requires_name",
         "description": "In order to enable allowing to delete indices via wildcards or _all, set this config to false.",
         "type": "boolean",
@@ -586,19 +646,20 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "discovery.zen.no_master_block",
-        "label": "discovery.zen.no_master_block",
-        "description": "The discovery.zen.no_master_block settings controls what operations should be rejected when there is no active master.",
+        "key": "dynamic.os.cluster.no_master_block",
+        "label": "cluster.no_master_block",
+        "description": "The cluster.no_master_block settings controls what operations should be rejected when there is no active master.",
         "type": "string",
         "range": [
           "all",
-          "write"
+          "write",
+          "metadata_write"
         ],
         "default": "write",
         "changeable": true,
         "required": "no"
       }, {
-        "key": "gateway.recover_after_time",
+        "key": "static.os.gateway.recover_after_time",
         "label": "gateway.recover_after_time",
         "description": "If the expected number of nodes is not achieved, the recovery process waits for the configured amount of time before trying to recover regardless. Defaults to 5m if one of the expected_nodes settings is configured.",
         "type": "string",
@@ -607,7 +668,25 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "http.cors.enabled",
+        "key": "static.os.gateway.expected_data_nodes",
+        "label": "gateway.expected_data_nodes",
+        "description": "Number of data nodes expected in the cluster. Recovery of local shards begins when the expected number of data nodes join the cluster. Defaults to 0.",
+        "type": "integer",
+        "min": -1,
+        "default": 0,
+        "changeable": true,
+        "required": "no"
+      }, {
+        "key": "static.os.gateway.recover_after_data_nodes",
+        "label": "gateway.recover_after_data_nodes",
+        "description": "Recover as long as this many data nodes have joined the cluster.",
+        "type": "integer",
+        "min": -1,
+        "default": -1,
+        "changeable": true,
+        "required": "no"
+      }, {
+        "key": "static.os.http.cors.enabled",
         "label": "http.cors.enabled",
         "description": "Enable or disable cross-origin resource sharing, i.e. whether a browser on another origin can execute requests against Opensearch.",
         "type": "boolean",
@@ -615,7 +694,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "http.cors.allow-origin",
+        "key": "static.os.http.cors.allow-origin",
         "label": "http.cors.allow-origin",
         "description": "Which origins to allow.",
         "type": "string",
@@ -623,15 +702,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "indices.fielddata.cache.size",
-        "label": "indices.fielddata.cache.size",
-        "description": "The max size of the field data cache.",
-        "type": "string",
-        "default": "90%",
-        "changeable": true,
-        "required": "no"
-      }, {
-        "key": "indices.memory.index_buffer_size",
+        "key": "static.os.indices.memory.index_buffer_size",
         "label": "indices.memory.index_buffer_size",
         "description": "Accepts either a percentage or a byte size value. It defaults to 10%, meaning that 10% of the total heap allocated to a node will be used as the indexing buffer size shared across all shards.",
         "type": "string",
@@ -639,7 +710,15 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "indices.queries.cache.size",
+        "key": "static.os.indices.fielddata.cache.size",
+        "label": "indices.fielddata.cache.size",
+        "description": "The max size of the field data cache.",
+        "type": "string",
+        "default": "-1b",
+        "changeable": true,
+        "required": "no"
+      }, {
+        "key": "static.os.indices.queries.cache.size",
         "label": "indices.queries.cache.size",
         "description": "Controls the memory size for the filter cache , defaults to 10%. Accepts either a percentage value, like 5%, or an exact value, like 512mb.",
         "type": "string",
@@ -647,7 +726,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "indices.requests.cache.size",
+        "key": "static.os.indices.requests.cache.size",
         "label": "indices.requests.cache.size",
         "description": "The shard-level request cache module caches the local results on each shard. The cache is managed at the node level, and has a default maximum size of 1% of the heap.",
         "type": "string",
@@ -655,31 +734,31 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "node.attr.data",
+        "key": "static.os.node.attr.data",
         "label": "node.attr.data",
-        "description": "Custom attribute for ES node",
+        "description": "Custom attribute for OpenSearch node, used for hot-warm-cold setup.",
         "type": "string",
         "default": "hot",
         "changeable": true,
         "required": "no"
       }, {
-        "key": "script.allowed_types",
+        "key": "static.os.script.allowed_types",
         "label": "script.allowed_types",
-        "description": "Specify script.allowed_types in opensearch.yml",
+        "description": "Security settings for scripting, please refer to https://www.elastic.co/guide/en/elasticsearch/reference/8.6/modules-scripting-security.html",
         "type": "string",
         "default": "",
         "changeable": true,
         "required": "no"
       }, {
-        "key": "script.allowed_contexts",
+        "key": "static.os.script.allowed_contexts",
         "label": "script.allowed_contexts",
-        "description": "Specify script.allowed_contexts in opensearch.yml",
+        "description": "Security settings for scripting, please refer to https://www.elastic.co/guide/en/elasticsearch/reference/8.6/modules-scripting-security.html",
         "type": "string",
         "default": "",
         "changeable": true,
         "required": "no"
       }, {
-        "key": "reindex.remote.whitelist",
+        "key": "static.os.reindex.remote.whitelist",
         "label": "reindex.remote.whitelist",
         "description": "Remote hosts for 'reindex' operation have to be explicitly whitelisted in opensearch.yaml using the reindex.remote.whitelist property. It can be set to a comma delimited list of allowed remote host and port combinations (e.g. otherhost:9200, another:9200, 127.0.10.*:9200, localhost:*)",
         "type": "string",
@@ -688,63 +767,95 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "remote_ext_dict",
+        "key": "static.ik.remote_ext_dict",
         "label": "remote_ext_dict",
-        "description": "Specify the location of extensional dictionary from remote.",
+        "description": "Settings for opensearch-analysis-ik plugin. Specify the location of extensional dictionary from remote.",
         "type": "string",
         "default": "",
         "changeable": true,
         "required": "no"
       }, {
-        "key": "remote_ext_stopwords",
+        "key": "static.ik.remote_ext_stopwords",
         "label": "remote_ext_stopwords",
-        "description": "Specify the location of extensional stopwords dictionary from remote.",
+        "description": "Settings for opensearch-analysis-ik plugin. Specify the location of extensional stopwords dictionary from remote.",
         "type": "string",
         "default": "",
         "changeable": true,
         "required": "no"
       }, {
-        "key": "path.repo",
-        "label": "path.repo",
-        "description": "Specify the location of shared file system repository.",
-        "type": "string",
-        "default": "[]",
-        "changeable": true,
-        "required": "no"
-      }, {
-        "key": "repositories.url.allowed_urls",
+        "key": "static.os.repositories.url.allowed_urls",
         "label": "repositories.url.allowed_urls",
-        "description": "Specify the location of read-only URL repository.",
+        "description": "Specifies the read-only URL repositories that snapshots can be restored from. Refer to https://www.elastic.co/guide/en/elasticsearch/reference/8.6/snapshot-settings.html",
         "type": "string",
         "default": "[]",
         "changeable": true,
         "required": "no"
       }, {
-        "key": "es_additional_line1",
+        "key": "static.os.os_additional_line1",
         "label": "os_additional_line1",
-        "description": "The additional configuration in opensearch.yml.",
+        "description": "The additional configuration in opensearch.yml. e.g. key: value",
         "type": "string",
         "default": "",
         "changeable": true,
         "required": "no"
       }, {
-        "key": "es_additional_line2",
+        "key": "static.os.os_additional_line2",
         "label": "os_additional_line2",
-        "description": "The additional configuration in opensearch.yml.",
+        "description": "The additional configuration in opensearch.yml. e.g. key: value",
         "type": "string",
         "default": "",
         "changeable": true,
         "required": "no"
       }, {
-        "key": "es_additional_line3",
+        "key": "static.os.os_additional_line3",
         "label": "os_additional_line3",
-        "description": "The additional configuration in opensearch.yml.",
+        "description": "The additional configuration in opensearch.yml. e.g. key: value",
         "type": "string",
         "default": "",
         "changeable": true,
         "required": "no"
       }, {
-        "key": "logger.action.level",
+        "key": "keystore.os.key_value1",
+        "label": "keystore key-value 1",
+        "description": "One of keystore settings, e.g. key=value.",
+        "type": "password",
+        "default": "",
+        "changeable": true,
+        "required": "no"
+      }, {
+        "key": "keystore.os.key_value2",
+        "label": "keystore key-value 2",
+        "description": "One of keystore settings, e.g. key=value.",
+        "type": "password",
+        "default": "",
+        "changeable": true,
+        "required": "no"
+      }, {
+        "key": "keystore.os.key_value3",
+        "label": "keystore key-value 3",
+        "description": "One of keystore settings, e.g. key=value.",
+        "type": "password",
+        "default": "",
+        "changeable": true,
+        "required": "no"
+      }, {
+        "key": "keystore.os.key_value4",
+        "label": "keystore key-value 4",
+        "description": "One of keystore settings, e.g. key=value.",
+        "type": "password",
+        "default": "",
+        "changeable": true,
+        "required": "no"
+      }, {
+        "key": "keystore.os.key_value5",
+        "label": "keystore key-value 5",
+        "description": "One of keystore settings, e.g. key=value.",
+        "type": "password",
+        "default": "",
+        "changeable": true,
+        "required": "no"
+      }, {
+        "key": "static.log4j.logger.action.level",
         "label": "logger.action.level",
         "description": "The logger.action.level configuration in log4j2.properties.",
         "type": "string",
@@ -759,7 +870,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "rootLogger.level",
+        "key": "static.log4j.rootLogger.level",
         "label": "rootLogger.level",
         "description": "The rootLogger.level configuration in log4j2.properties.",
         "type": "string",
@@ -774,7 +885,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "logger.deprecation.level",
+        "key": "static.log4j.logger.deprecation.level",
         "label": "logger.deprecation.level",
         "description": "The logger.deprecation.level configuration in log4j2.properties.",
         "type": "string",
@@ -789,7 +900,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "logger.index_search_slowlog_rolling.level",
+        "key": "static.log4j.logger.index_search_slowlog_rolling.level",
         "label": "logger.index_search_slowlog_rolling.level",
         "description": "The logger.index_search_slowlog_rolling.level configuration in log4j2.properties.",
         "type": "string",
@@ -804,7 +915,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "logger.index_indexing_slowlog.level",
+        "key": "static.log4j.logger.index_indexing_slowlog.level",
         "label": "logger.index_indexing_slowlog.level",
         "description": "The logger.index_indexing_slowlog.level configuration in log4j2.properties.",
         "type": "string",
@@ -819,7 +930,31 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "enable_heap_dump",
+        "key": "static.log4j.logger.task_detailslog_rolling.level",
+        "label": "logger.task_detailslog_rolling.level",
+        "description": "The logger.task_detailslog_rolling.level configuration in log4j2.properties.",
+        "type": "string",
+        "range": [
+          "debug",
+          "trace",
+          "info",
+          "warn",
+          "error"
+        ],
+        "default": "trace",
+        "changeable": true,
+        "required": "no"
+      }, {
+        "key": "static.log4j.clean_logs_older_than_n_days",
+        "label": "clean_logs_older_than_n_days",
+        "description": "Clean logs older than n days.",
+        "type": "integer",
+        "min": 0,
+        "default": 7,
+        "changeable": true,
+        "required": "no"
+      }, {
+        "key": "static.jvm.enable_heap_dump",
         "label": "enable_heap_dump",
         "description": "Whether to enable heap dump on out of memory error.",
         "type": "boolean",
@@ -827,44 +962,27 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "heap_dump_path",
-        "label": "heap_dump_path",
-        "description": "The path of heap dump.",
-        "type": "string",
-        "default": "/data/opensearch/dump",
-        "changeable": true,
-        "required": "no"
-      }, {
-        "key": "clean_logs_older_than_n_days",
-        "label": "clean_logs_older_than_n_days",
-        "description": "Clean logs older than n days, n can be changed here.",
-        "type": "integer",
-        "min": 0,
-        "default": 7,
-        "changeable": true,
-        "required": "no"
-      }, {
-        "key": "appctl.tcp_keepalive_intvl",
+        "key": "confd.sysctl.tcp_keepalive_intvl",
         "label": "tcp_keepalive_intvl",
-        "description": "the interval between subsequent keepalive probes, regardless of what the connection has exchanged in the meantime",
+        "description": "Kernel parameter: net.ipv4.tcp_keepalive_intvl, the interval between subsequent keepalive probes, regardless of what the connection has exchanged in the meantime.",
         "type": "integer",
         "min": 0,
         "default": 75,
         "changeable": true,
         "required": "no"
       }, {
-        "key": "appctl.tcp_keepalive_probes",
+        "key": "confd.sysctl.tcp_keepalive_probes",
         "label": "tcp_keepalive_probes",
-        "description": "the number of unacknowledged probes to send before considering the connection dead and notifying the application layer",
+        "description": "Kernel parameter: net.ipv4.tcp_keepalive_probes, the number of unacknowledged probes to send before considering the connection dead and notifying the application layer.",
         "type": "integer",
         "min": 0,
         "default": 9,
         "changeable": true,
         "required": "no"
       }, {
-        "key": "appctl.tcp_keepalive_time",
+        "key": "confd.sysctl.tcp_keepalive_time",
         "label": "tcp_keepalive_time",
-        "description": "the interval between the last data packet sent (simple ACKs are not considered data) and the first keepalive probe; after the connection is marked to need keepalive, this counter is not used any further",
+        "description": "Kernel parameter: net.ipv4.tcp_keepalive_time, the interval between the last data packet sent (simple ACKs are not considered data) and the first keepalive probe; after the connection is marked to need keepalive, this counter is not used any further.",
         "type": "integer",
         "min": 0,
         "default": 7200,
@@ -876,9 +994,9 @@
       "description": "The role configuration properties of the application",
       "type": "array",
       "properties": [{
-        "key": "node.attr.data",
+        "key": "static.os.node.attr.data",
         "label": "node.attr.data (#2)",
-        "description": "Custom attribute for ES node",
+        "description": "Custom attribute for OpenSearch node, used for hot-warm-cold setup.",
         "type": "string",
         "default": "warm",
         "changeable": true,
@@ -889,9 +1007,9 @@
       "description": "The role configuration properties of the application",
       "type": "array",
       "properties": [{
-        "key": "node.attr.data",
+        "key": "static.os.node.attr.data",
         "label": "node.attr.data (#3)",
-        "description": "Custom attribute for ES node",
+        "description": "Custom attribute for OpenSearch node, used for hot-warm-cold setup.",
         "type": "string",
         "default": "cold",
         "changeable": true,
@@ -902,16 +1020,16 @@
       "description": "The role configuration properties of the application",
       "type": "array",
       "properties": [{
-        "key": "enable_cerebro",
+        "key": "dynamic.other.enable_cerebro",
         "label": "enable_cerebro",
-        "description": "Whether to enable Cerebro.",
+        "description": "Whether start cerebro.service.",
         "type": "boolean",
         "default": true,
         "changeable": true,
         "required": "no"
       }, {
         "key": "proxy.balance.policy",
-        "label": "ES Proxy Balance Policy",
+        "label": "HAProxy balance policy",
         "description": "Define the load balancing algorithm to be used in a backend",
         "type": "string",
         "range": [
@@ -926,8 +1044,8 @@
         "required": "no"
       }, {
         "key": "proxy.connect.timeout",
-        "label": "ES Proxy Connect Timeout",
-        "description": "Sets the timeout for HAProxy to connect ES services, can be ms, s, m, or h, e.g. 50s for 50 seconds",
+        "label": "HAProxy Connect Timeout",
+        "description": "Sets the timeout for HAProxy to connect OpenSearch services, can be ms, s, m, or h, e.g. 50s for 50 seconds",
         "type": "string",
         "pattern": "[1-9]*[0-9]+(ms|s|m|h)?",
         "default": "5s",
@@ -935,8 +1053,8 @@
         "required": "no"
       }, {
         "key": "proxy.timeout",
-        "label": "ES Proxy Timeout",
-        "description": "Sets the timeout for HAProxy to get response from ES services, can be ms, s, m, or h, e.g. 50s for 50 seconds",
+        "label": "HAProxy Proxy Timeout",
+        "description": "Sets the timeout for HAProxy to get response from OpenSearch services, can be ms, s, m, or h, e.g. 50s for 50 seconds",
         "type": "string",
         "pattern": "[1-9]*[0-9]+(ms|s|m|h)?",
         "default": "60s",
@@ -944,7 +1062,7 @@
         "required": "no"
       }, {
         "key": "proxy.max.conn",
-        "label": "ES Proxy Max Connections",
+        "label": "HAProxy Proxy Max Connections",
         "description": "Sets the maximum per-process number of concurrent connections",
         "type": "number",
         "min": 0,
@@ -954,7 +1072,7 @@
         "required": "no"
       }, {
         "key": "nginx_client_max_body_size",
-        "label": "ES Proxy Max Request",
+        "label": "HAProxy Proxy Max Request",
         "description": "Sets the maximum allowed size of the client request body",
         "type": "string",
         "pattern": "[0-9]+[km]?",
@@ -967,7 +1085,7 @@
       "description": "The role configuration properties of the application",
       "type": "array",
       "properties": [{
-        "key": "config.reload.automatic",
+        "key": "static.lst.config.reload.automatic",
         "label": "config.reload.automatic",
         "description": "Periodically check if the configuration has changed and reload the pipeline. This can also be triggered manually through the SIGHUP signal",
         "type": "boolean",
@@ -975,7 +1093,7 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "config.reload.interval",
+        "key": "static.lst.config.reload.interval",
         "label": "config.reload.interval",
         "description": "How often to check if the pipeline configuration has changed (in seconds)",
         "type": "string",
@@ -984,41 +1102,9 @@
         "changeable": true,
         "required": "no"
       }, {
-        "key": "input_conf_content",
-        "label": "input_conf_content",
-        "description": "When you run logstash, you use the -f to specify your config file, and this config is what your config file contained in input section",
-        "type": "string",
-        "default": "http { port => 9700 }",
-        "changeable": true,
-        "required": "no"
-      }, {
-        "key": "filter_conf_content",
-        "label": "filter_conf_content",
-        "description": "When you run logstash, you use the -f to specify your config file, and this config is what your config file contained in filter section",
-        "type": "string",
-        "default": "",
-        "changeable": true,
-        "required": "no"
-      }, {
-        "key": "output_conf_content",
-        "label": "output_conf_content",
-        "description": "When you run logstash, you use the -f to specify your config file, and this config is what your config file contained in output section",
-        "type": "string",
-        "default": "",
-        "changeable": true,
-        "required": "no"
-      }, {
-        "key": "output_es_content",
-        "label": "output_os_content",
-        "description": "When you run logstash, you use the -f to specify your config file, and this config is what your config file contained in output OpenSearch section",
-        "type": "string",
-        "default": "",
-        "changeable": true,
-        "required": "no"
-      }, {
-        "key": "gemfile_append_content",
-        "label": "gemfile_append_content",
-        "description": "This config is used to adding content into Gemfile for logstash",
+        "key": "depend.lst.pipeline",
+        "label": "logstash pipeline",
+        "description": "Logstash pipeline config",
         "type": "string",
         "default": "",
         "changeable": true,
@@ -1031,8 +1117,8 @@
     "type": "array",
     "properties": [{
       "key": "dump.node.ip",
-      "label": "ES Node IP",
-      "description": "The node IP of ES on which to dump JVM heap",
+      "label": "OpenSearch Node IP",
+      "description": "The node IP of OpenSearch on which to dump JVM heap",
       "type": "string",
       "pattern": "^((\\d+\\.){3}\\d+)?$",
       "default": "",
@@ -1048,16 +1134,16 @@
       "required": "no"
     }, {
       "key": "clear.dump.node.ip",
-      "label": "ES Node IP",
-      "description": "The node IP of ES on which to clear dump JVM heap",
+      "label": "OpenSearch Node IP",
+      "description": "The node IP of OpenSearch on which to clear dump JVM heap",
       "type": "string",
       "pattern": "^((\\d+\\.){3}\\d+)?$",
       "default": "",
       "required": "no"
     }, {
       "key": "restart.node.ip",
-      "label": "ES Node IP",
-      "description": "The node IP of ES on which to restart",
+      "label": "OpenSearch Node IP",
+      "description": "The node IP of OpenSearch on which to restart",
       "type": "string",
       "pattern": "^((\\d+\\.){3}\\d+)?$",
       "default": "",

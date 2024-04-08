@@ -1,5 +1,14 @@
 {{- $maxConn := getv "/env/proxy.max.conn" "2000" }}
-flush > /opt/app/conf/haproxy/haproxy.cfg << ES_PROXY_EOF
+sslHttpEnabled={{ getv "/env/static.os.ssl.http.enabled" }}
+hamode=http
+halogop=httplog
+habacklogop=httpclose
+if [ "$sslHttpEnabled" = "true" ]; then
+  hamode=tcp
+  halogop=tcplog
+  habacklogop=tcp-check
+fi
+flush > /opt/app/current/conf/haproxy/haproxy.cfg << ES_PROXY_EOF
 global
   log /dev/log  local0 warning
   stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
@@ -22,7 +31,8 @@ defaults
 
 frontend opensearch
   bind :9200
-  mode http
+  mode $hamode
+  option $halogop
   {{- $bodySize := getv "/env/nginx_client_max_body_size" "20m" }}
   {{- if not (eq $bodySize 0) }}
   use_backend error413 if { req.body_size gt $(echo {{ $bodySize }} | awk 'function pp(p){printf "%u",$0*1024^p} /[0-9]$/{print $0}/k$/{pp(1)}/m$/{pp(2)}/[^0-9km]$/{print 0}') }
@@ -30,16 +40,16 @@ frontend opensearch
   default_backend opensearch
 
 backend opensearch
-  mode http
+  mode $hamode
   option forwardfor
   balance roundrobin
-  option httpclose
+  option $habacklogop
   {{- range getvs "/hosts/es_node*/*/ip" }}
   server {{ . }}:9200 {{ . }}:9200 check
   {{- end }}
 
 backend error413
-  errorfile 503 /opt/app/conf/haproxy/errors/413.http
+  errorfile 503 /opt/app/current/conf/haproxy/errors/413.http
 
 listen statistics
   bind {{ getv "/host/ip" }}:1936

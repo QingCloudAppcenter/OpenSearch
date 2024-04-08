@@ -2,6 +2,6 @@
 - name: set common env
   copy:
     content: |
-      ELK_VERSION={{ opensearch_version }}
+      OPENSEARCH_VERSION={{ opensearch_version }}
 
-    dest: /opt/app/bin/envs/all.env
+    dest: /opt/app/current/bin/envs/all.env

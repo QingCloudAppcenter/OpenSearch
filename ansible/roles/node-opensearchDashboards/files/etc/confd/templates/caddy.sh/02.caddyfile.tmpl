@@ -1,8 +1,8 @@
-flush > /opt/app/conf/caddy/caddyfile << KIBANA_CADDYFILE_EOF
+flush > /opt/app/current/conf/caddy/caddyfile << KIBANA_CADDYFILE_EOF
 :80 {
   root /data
   gzip
-  browse /dashboards/logs
+  browse /opensearch-dashboards/logs
   browse /haproxy/logs
   browse /keepalived/logs
   tls off

@@ -7,16 +7,15 @@
     "scale_horizontal"
   ],
   "upgrade_policy": [
-    "appv-fbmfphpn",
     "appv-qsj7ua3y"
   ],
-  "upgrading_policy": "sequential",
+  "upgrading_policy": "parallel",
   "nodes": [{
     "role": "es_node",
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-5iq3zler"
+      "image": "img-rv3ueujd"
     },
     "instance_class": {{cluster.es_node.instance_class}},
     "count": {{cluster.es_node.count}},
@@ -29,6 +28,9 @@
     },
     "vertical_scaling_policy": "sequential",
     "services": {
+      "init": {
+        "cmd": "appctl init"
+      },
       "start": {
         "cmd": "appctl start"
       },
@@ -39,22 +41,22 @@
         "cmd": "appctl restart"
       },
       "scale_in": {
-        "pre_check": "appctl preScaleIn",
-        "cmd": "appctl scale in",
+        "pre_check": "appctl preScaleInCheck",
+        "cmd": "appctl scaleIn",
         "timeout": 24000
       },
       "scale_out": {
-        "cmd": "appctl scale out",
+        "cmd": "appctl scaleOut",
         "timeout": 43200
       },
       "destroy": {
         "allow_force": false,
-        "post_stop_service": false,
+        "post_stop_service": true,
         "cmd": "appctl destroy"
       },
       "restart_rolling": {
         "type": "custom",
-        "cmd": "appctl restart role",
+        "cmd": "appctl rollingRestart",
         "timeout": 2000,
         "service_params": {
           "node.ip": {{service_params.restart.node.ip}},
@@ -79,49 +81,60 @@
       },
       "upgrade": {
         "cmd": "appctl upgrade",
-        "order": 2,
         "timeout": 43200
       }
     },
     "env": {
-        "opensearch.admin.user": {{env.opensearch.admin.user}},
-        "opensearch.admin.password": {{env.opensearch.admin.password}},
-        "appctl.tcp_keepalive_intvl": {{env.es_node.appctl.tcp_keepalive_intvl}},
-        "appctl.tcp_keepalive_probes": {{env.es_node.appctl.tcp_keepalive_probes}},
-        "appctl.tcp_keepalive_time": {{env.es_node.appctl.tcp_keepalive_time}},
-        "appctl.upgrade.enabled": true,
-        "clean_logs_older_than_n_days": {{env.es_node.clean_logs_older_than_n_days}},
-        "discovery.zen.no_master_block": {{env.es_node.discovery.zen.no_master_block}},
-        "enable_heap_dump": {{env.es_node.enable_heap_dump}},
-        "es_additional_line1": {{env.es_node.es_additional_line1}},
-        "es_additional_line2": {{env.es_node.es_additional_line2}},
-        "es_additional_line3": {{env.es_node.es_additional_line3}},
-        "gateway.recover_after_time": {{env.es_node.gateway.recover_after_time}},
-        "heap_dump_path": {{env.es_node.heap_dump_path}},
-        "http.cors.enabled": {{env.es_node.http.cors.enabled}},
-        "http.cors.allow-origin": {{env.es_node.http.cors.allow-origin}},
-        "prometheus.node.exporter": {{env.es_node.prometheus.node.exporter}},
-        "thread_pool.write.queue_size": {{env.es_node.thread_pool.write.queue_size}},
-        "thread_pool.search.queue_size": {{env.es_node.thread_pool.search.queue_size}},
-        "indices.fielddata.cache.size": {{env.es_node.indices.fielddata.cache.size}},
-        "indices.queries.cache.size": {{env.es_node.indices.queries.cache.size}},
-        "indices.memory.index_buffer_size": {{env.es_node.indices.memory.index_buffer_size}},
-        "indices.requests.cache.size": {{env.es_node.indices.requests.cache.size}},
-        "logger.action.level": {{env.es_node.logger.action.level}},
-        "logger.deprecation.level": {{env.es_node.logger.deprecation.level}},
-        "logger.index_search_slowlog_rolling.level": {{env.es_node.logger.index_search_slowlog_rolling.level}},
-        "logger.index_indexing_slowlog.level": {{env.es_node.logger.index_indexing_slowlog.level}},
-        "path.repo": {{env.es_node.path.repo}},
-        "repositories.url.allowed_urls": {{env.es_node.repositories.url.allowed_urls}},
-        "reindex.remote.whitelist": {{env.es_node.reindex.remote.whitelist}},
-        "remote_ext_dict": {{env.es_node.remote_ext_dict}},
-        "remote_ext_stopwords": {{env.es_node.remote_ext_stopwords}},
-        "rootLogger.level": {{env.es_node.rootLogger.level}},
-        "script.allowed_types": {{env.es_node.script.allowed_types}},
-        "script.allowed_contexts": {{env.es_node.script.allowed_contexts}},
-        "action.destructive_requires_name": {{env.es_node.action.destructive_requires_name}},
-        "indices.fielddata.cache.size": {{env.es_node.indices.fielddata.cache.size}},
-        "node.attr.data": {{env.es_node.node.attr.data}}
+        "static.os.ssl.http.enabled": {{env.global.cert.os.ssl.http.enabled}},
+        "confd.sysctl.tcp_keepalive_intvl": {{env.es_node.confd.sysctl.tcp_keepalive_intvl}},
+        "confd.sysctl.tcp_keepalive_probes": {{env.es_node.confd.sysctl.tcp_keepalive_probes}},
+        "confd.sysctl.tcp_keepalive_time": {{env.es_node.confd.sysctl.tcp_keepalive_time}},
+        "static.log4j.clean_logs_older_than_n_days": {{env.es_node.static.log4j.clean_logs_older_than_n_days}},
+        "dynamic.os.cluster.no_master_block": {{env.es_node.dynamic.os.cluster.no_master_block}},
+        "static.jvm.enable_heap_dump": {{env.es_node.static.jvm.enable_heap_dump}},
+        "static.os.os_additional_line1": {{env.es_node.static.os.os_additional_line1}},
+        "static.os.os_additional_line2": {{env.es_node.static.os.os_additional_line2}},
+        "static.os.os_additional_line3": {{env.es_node.static.os.os_additional_line3}},
+        "keystore.os.key_value1": {{env.es_node.keystore.os.key_value1}},
+        "keystore.os.key_value2": {{env.es_node.keystore.os.key_value2}},
+        "keystore.os.key_value3": {{env.es_node.keystore.os.key_value3}},
+        "keystore.os.key_value4": {{env.es_node.keystore.os.key_value4}},
+        "keystore.os.key_value5": {{env.es_node.keystore.os.key_value5}},
+        "static.os.gateway.recover_after_time": {{env.es_node.static.os.gateway.recover_after_time}},
+        "static.os.gateway.expected_data_nodes": {{env.es_node.static.os.gateway.expected_data_nodes}},
+        "static.os.gateway.recover_after_data_nodes": {{env.es_node.static.os.gateway.recover_after_data_nodes}},
+        "static.os.http.cors.enabled": {{env.es_node.static.os.http.cors.enabled}},
+        "static.os.http.cors.allow-origin": {{env.es_node.static.os.http.cors.allow-origin}},
+        "dynamic.other.enable_exporter": {{env.es_node.prometheus.node.exporter}},
+        "dynamic.other.enable_caddy": {{env.global.dynamic.other.enable_caddy}},
+        "dynamic.os.prometheus.indices": {{env.es_node.dynamic.os.prometheus.indices}},
+        "dynamic.os.prometheus.cluster.settings": {{env.es_node.dynamic.os.prometheus.cluster.settings}},
+        "dynamic.os.prometheus.nodes.filter": {{env.es_node.dynamic.os.prometheus.nodes.filter}},
+        "dynamic.os.cluster.routing.allocation.enable": {{env.es_node.dynamic.os.cluster.routing.allocation.enable}},
+        "static.os.thread_pool.write.queue_size": {{env.es_node.static.os.thread_pool.write.queue_size}},
+        "static.os.thread_pool.search.queue_size": {{env.es_node.static.os.thread_pool.search.queue_size}},
+        "static.os.indices.memory.index_buffer_size": {{env.es_node.static.os.indices.memory.index_buffer_size}},
+        "static.os.indices.fielddata.cache.size": {{env.es_node.static.os.indices.fielddata.cache.size}},
+        "static.os.indices.queries.cache.size": {{env.es_node.static.os.indices.queries.cache.size}},
+        "static.os.indices.requests.cache.size": {{env.es_node.static.os.indices.requests.cache.size}},
+        "static.log4j.rootLogger.level": {{env.es_node.static.log4j.rootLogger.level}},
+        "static.log4j.logger.action.level": {{env.es_node.static.log4j.logger.action.level}},
+        "static.log4j.logger.deprecation.level": {{env.es_node.static.log4j.logger.deprecation.level}},
+        "static.log4j.logger.index_search_slowlog_rolling.level": {{env.es_node.static.log4j.logger.index_search_slowlog_rolling.level}},
+        "static.log4j.logger.index_indexing_slowlog.level": {{env.es_node.static.log4j.logger.index_indexing_slowlog.level}},
+        "static.log4j.logger.task_detailslog_rolling.level": {{env.es_node.static.log4j.logger.task_detailslog_rolling.level}},
+        "static.os.repositories.url.allowed_urls": {{env.es_node.static.os.repositories.url.allowed_urls}},
+        "static.os.reindex.remote.whitelist": {{env.es_node.static.os.reindex.remote.whitelist}},
+        "static.ik.remote_ext_dict": {{env.es_node.static.ik.remote_ext_dict}},
+        "static.ik.remote_ext_stopwords": {{env.es_node.static.ik.remote_ext_stopwords}},
+        "static.os.script.allowed_types": {{env.es_node.static.os.script.allowed_types}},
+        "static.os.script.allowed_contexts": {{env.es_node.static.os.script.allowed_contexts}},
+        "dynamic.os.action.destructive_requires_name": {{env.es_node.dynamic.os.action.destructive_requires_name}},
+        "static.os.node.attr.data": {{env.es_node.static.os.node.attr.data}},
+        "static.os.user_ca_enabled": {{env.global.cert.os.user_ca_enabled}},
+        "cert.os.user_ca": {{env.global.cert.os.user_ca}},
+        "cert.os.user_node_cert": {{env.global.cert.os.user_node_cert}},
+        "cert.os.user_node_key": {{env.global.cert.os.user_node_key}}
     },
     "health_check": {
       "enable": true,
@@ -130,51 +143,66 @@
       "action_timeout_sec": 150,
       "healthy_threshold": 2,
       "unhealthy_threshold": 4,
-      "check_cmd": "appctl check",
+      "check_cmd": "appctl healthCheck",
       "action_cmd": "appctl revive"
     },
     "monitor": {
       "enable": true,
       "cmd": "appctl measure",
       "items": {
-        "os_cluster_status": {
+        "cluster_health_status": {
           "unit": "",
-          "value_type": "str",
-          "statistics_type": "latest",
-          "enums": ["green", "yellow", "red"]
+          "value_type": "int",
+          "statistics_type": "latest"
         },
-        "cluster_jvm_heap_used_in_percent": {
+        "jvm_mem_heap_used_percent": {
           "unit": "%",
           "value_type": "int",
-          "statistics_type": "avg",
-          "scale_factor_when_display": 0.01
+          "statistics_type": "latest"
         },
-        "cluster_jvm_threads_count": {
+        "jvm_threads_count": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "cluster_indices_count": {
+        "indices_indexing_index_ops": {
+          "unit": "",
+          "value_type": "int",
+          "statistics_type": "delta",
+          "scale_factor_when_display": 0.1
+        },
+        "indices_search_query_ops": {
+          "unit": "",
+          "value_type": "int",
+          "statistics_type": "delta",
+          "scale_factor_when_display": 0.1
+        },
+        "indices_count": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "cluster_shards_primaries_count": {
+        "shards_total": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "cluster_shards_replication_count": {
+        "shards_primaries": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "cluster_docs_count": {
+        "indices_docs_count": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "cluster_docs_deleted_count": {
+        "indices_docs_deleted": {
+          "unit": "",
+          "value_type": "int",
+          "statistics_type": "latest"
+        },
+        "nodes_avail_percent": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
@@ -214,65 +242,50 @@
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "active_shards_percent_as_number": {
+        "active_shards_percent": {
           "unit": "%",
           "value_type": "int",
-          "statistics_type": "latest",
-          "scale_factor_when_display": 0.01
+          "statistics_type": "latest"
         },
-        "node_indexing_pr_percent_c_p": {
+        "fs_total_avail_percent": {
+            "unit": "%",
+            "value_type": "int",
+            "statistics_type": "latest"
+        },
+        "os_cpu_load_average_1m": {
             "unit": "",
             "value_type": "int",
             "statistics_type": "latest",
             "scale_factor_when_display": 0.01
         },
-        "node_indexing_pr_percent_all": {
+        "os_cpu_load_average_5m": {
             "unit": "",
             "value_type": "int",
             "statistics_type": "latest",
             "scale_factor_when_display": 0.01
         },
-        "node_indexing_pr_coordinating": {
-            "unit": "MB",
+        "os_cpu_load_average_15m": {
+            "unit": "",
             "value_type": "int",
-            "statistics_type": "latest"
-        },
-        "node_indexing_pr_primary": {
-            "unit": "MB",
-            "value_type": "int",
-            "statistics_type": "latest"
-        },
-        "node_indexing_pr_replica": {
-            "unit": "MB",
-            "value_type": "int",
-            "statistics_type": "latest"
-        },
-        "node_indexing_pr_all": {
-            "unit": "MB",
-            "value_type": "int",
-            "statistics_type": "latest"
-        },
-        "node_indexing_pr_limit": {
-            "unit": "MB",
-            "value_type": "int",
-            "statistics_type": "latest"
+            "statistics_type": "latest",
+            "scale_factor_when_display": 0.01
         }
       },
       "groups": {
-        "cluster_docs_group": ["cluster_docs_count", "cluster_docs_deleted_count"],
-        "cluster_shards_group": ["cluster_shards_primaries_count", "cluster_shards_replication_count", "relocating_shards", "initializing_shards", "unassigned_shards"],
-        "index_pressure_group": ["node_indexing_pr_coordinating", "node_indexing_pr_primary", "node_indexing_pr_replica", "node_indexing_pr_all", "node_indexing_pr_limit"],
-        "index_pressure_percent_group": ["node_indexing_pr_percent_c_p", "node_indexing_pr_percent_all"]
+        "indices_docs_group": ["indices_docs_count", "indices_docs_deleted"],
+        "cluster_shards_group": ["relocating_shards", "initializing_shards", "unassigned_shards"],
+        "node_shards_group": ["shards_total", "shards_primaries"],
+        "os_cpu_load_group": ["os_cpu_load_average_1m", "os_cpu_load_average_5m", "os_cpu_load_average_15m"]
       },
-      "display": ["os_cluster_status", "number_of_nodes", "cluster_indices_count", "cluster_jvm_heap_used_in_percent", "cluster_jvm_threads_count", "cluster_docs_group", "cluster_shards_group", "number_of_pending_tasks", "number_of_in_flight_fetch", "task_max_waiting_in_queue_millis", "active_shards_percent_as_number", "index_pressure_group", "index_pressure_percent_group"],
-      "alarm": ["os_cluster_status", "number_of_nodes", "cluster_jvm_heap_used_in_percent", "cluster_jvm_threads_count", "relocating_shards", "unassigned_shards", "number_of_pending_tasks", "number_of_in_flight_fetch", "task_max_waiting_in_queue_millis", "active_shards_percent_as_number", "node_indexing_pr_percent_all", "node_indexing_pr_percent_c_p"]
+      "display": ["cluster_health_status", "nodes_avail_percent", "number_of_nodes", "jvm_mem_heap_used_percent", "jvm_threads_count", "indices_indexing_index_ops", "indices_search_query_ops", "indices_count", "indices_docs_group", "cluster_shards_group", "node_shards_group", "number_of_pending_tasks", "number_of_in_flight_fetch", "task_max_waiting_in_queue_millis", "active_shards_percent", "fs_total_avail_percent", "os_cpu_load_group"],
+      "alarm": ["cluster_health_status", "nodes_avail_percent", "number_of_nodes", "jvm_mem_heap_used_percent", "jvm_threads_count", "relocating_shards", "unassigned_shards", "number_of_pending_tasks", "number_of_in_flight_fetch", "task_max_waiting_in_queue_millis", "active_shards_percent", "fs_total_avail_percent", "os_cpu_load_average_1m", "os_cpu_load_average_5m", "os_cpu_load_average_15m"]
     }
   }, {
     "role": "es_master_node",
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-5iq3zler"
+      "image": "img-rv3ueujd"
     },
     "instance_class": {{cluster.es_master_node.instance_class}},
     "count": {{cluster.es_master_node.count}},
@@ -284,6 +297,9 @@
     },
     "vertical_scaling_policy": "sequential",
     "services": {
+      "init": {
+        "cmd": "appctl init"
+      },
       "start": {
         "cmd": "appctl start"
       },
@@ -294,21 +310,22 @@
         "cmd": "appctl restart"
       },
       "scale_in": {
-        "cmd": "appctl scale in",
+        "pre_check": "appctl preScaleInCheck",
+        "cmd": "appctl scaleIn",
         "timeout": 24000
       },
       "scale_out": {
-        "cmd": "appctl scale out",
+        "cmd": "appctl scaleOut",
         "timeout": 43200
       },
       "destroy": {
         "allow_force": false,
-        "post_stop_service": false,
+        "post_stop_service": true,
         "cmd": "appctl destroy"
       },
       "restart_rolling": {
         "type": "custom",
-        "cmd": "appctl restart role",
+        "cmd": "appctl rollingRestart",
         "timeout": 2000,
         "service_params": {
           "node.ip": {{service_params.restart.node.ip}},
@@ -333,49 +350,59 @@
       },
       "upgrade": {
         "cmd": "appctl upgrade",
-        "order": 1,
         "timeout": 300
       }
     },
     "env": {
-        "opensearch.admin.user": {{env.opensearch.admin.user}},
-        "opensearch.admin.password": {{env.opensearch.admin.password}},
-        "appctl.tcp_keepalive_intvl": {{env.es_node.appctl.tcp_keepalive_intvl}},
-        "appctl.tcp_keepalive_probes": {{env.es_node.appctl.tcp_keepalive_probes}},
-        "appctl.tcp_keepalive_time": {{env.es_node.appctl.tcp_keepalive_time}},
-        "appctl.upgrade.enabled": true,
-        "clean_logs_older_than_n_days": {{env.es_node.clean_logs_older_than_n_days}},
-        "discovery.zen.no_master_block": {{env.es_node.discovery.zen.no_master_block}},
-        "enable_heap_dump": {{env.es_node.enable_heap_dump}},
-        "es_additional_line1": {{env.es_node.es_additional_line1}},
-        "es_additional_line2": {{env.es_node.es_additional_line2}},
-        "es_additional_line3": {{env.es_node.es_additional_line3}},
-        "gateway.recover_after_time": {{env.es_node.gateway.recover_after_time}},
-        "heap_dump_path": {{env.es_node.heap_dump_path}},
-        "http.cors.enabled": {{env.es_node.http.cors.enabled}},
-        "http.cors.allow-origin": {{env.es_node.http.cors.allow-origin}},
-        "prometheus.node.exporter": {{env.es_node.prometheus.node.exporter}},
-        "thread_pool.write.queue_size": {{env.es_node.thread_pool.write.queue_size}},
-        "thread_pool.search.queue_size": {{env.es_node.thread_pool.search.queue_size}},
-        "indices.fielddata.cache.size": {{env.es_node.indices.fielddata.cache.size}},
-        "indices.queries.cache.size": {{env.es_node.indices.queries.cache.size}},
-        "indices.memory.index_buffer_size": {{env.es_node.indices.memory.index_buffer_size}},
-        "indices.requests.cache.size": {{env.es_node.indices.requests.cache.size}},
-        "logger.action.level": {{env.es_node.logger.action.level}},
-        "logger.deprecation.level": {{env.es_node.logger.deprecation.level}},
-        "logger.index_search_slowlog_rolling.level": {{env.es_node.logger.index_search_slowlog_rolling.level}},
-        "logger.index_indexing_slowlog.level": {{env.es_node.logger.index_indexing_slowlog.level}},
-        "path.repo": {{env.es_node.path.repo}},
-        "repositories.url.allowed_urls": {{env.es_node.repositories.url.allowed_urls}},
-        "reindex.remote.whitelist": {{env.es_node.reindex.remote.whitelist}},
-        "remote_ext_dict": {{env.es_node.remote_ext_dict}},
-        "remote_ext_stopwords": {{env.es_node.remote_ext_stopwords}},
-        "rootLogger.level": {{env.es_node.rootLogger.level}},
-        "script.allowed_types": {{env.es_node.script.allowed_types}},
-        "script.allowed_contexts": {{env.es_node.script.allowed_contexts}},
-        "action.destructive_requires_name": {{env.es_node.action.destructive_requires_name}},
-        "indices.fielddata.cache.size": {{env.es_node.indices.fielddata.cache.size}},
-        "node.attr.data": {{env.es_node.node.attr.data}}
+        "static.os.ssl.http.enabled": {{env.global.cert.os.ssl.http.enabled}},
+        "confd.sysctl.tcp_keepalive_intvl": {{env.es_node.confd.sysctl.tcp_keepalive_intvl}},
+        "confd.sysctl.tcp_keepalive_probes": {{env.es_node.confd.sysctl.tcp_keepalive_probes}},
+        "confd.sysctl.tcp_keepalive_time": {{env.es_node.confd.sysctl.tcp_keepalive_time}},
+        "static.log4j.clean_logs_older_than_n_days": {{env.es_node.static.log4j.clean_logs_older_than_n_days}},
+        "dynamic.os.cluster.no_master_block": {{env.es_node.dynamic.os.cluster.no_master_block}},
+        "static.jvm.enable_heap_dump": {{env.es_node.static.jvm.enable_heap_dump}},
+        "static.os.os_additional_line1": {{env.es_node.static.os.os_additional_line1}},
+        "static.os.os_additional_line2": {{env.es_node.static.os.os_additional_line2}},
+        "static.os.os_additional_line3": {{env.es_node.static.os.os_additional_line3}},
+        "keystore.os.key_value1": {{env.es_node.keystore.os.key_value1}},
+        "keystore.os.key_value2": {{env.es_node.keystore.os.key_value2}},
+        "keystore.os.key_value3": {{env.es_node.keystore.os.key_value3}},
+        "keystore.os.key_value4": {{env.es_node.keystore.os.key_value4}},
+        "keystore.os.key_value5": {{env.es_node.keystore.os.key_value5}},
+        "static.os.gateway.recover_after_time": {{env.es_node.static.os.gateway.recover_after_time}},
+        "static.os.gateway.expected_data_nodes": {{env.es_node.static.os.gateway.expected_data_nodes}},
+        "static.os.gateway.recover_after_data_nodes": {{env.es_node.static.os.gateway.recover_after_data_nodes}},
+        "static.os.http.cors.enabled": {{env.es_node.static.os.http.cors.enabled}},
+        "static.os.http.cors.allow-origin": {{env.es_node.static.os.http.cors.allow-origin}},
+        "dynamic.other.enable_exporter": {{env.es_node.prometheus.node.exporter}},
+        "dynamic.other.enable_caddy": {{env.global.dynamic.other.enable_caddy}},
+        "dynamic.os.prometheus.indices": {{env.es_node.dynamic.os.prometheus.indices}},
+        "dynamic.os.prometheus.cluster.settings": {{env.es_node.dynamic.os.prometheus.cluster.settings}},
+        "dynamic.os.prometheus.nodes.filter": {{env.es_node.dynamic.os.prometheus.nodes.filter}},
+        "dynamic.os.cluster.routing.allocation.enable": {{env.es_node.dynamic.os.cluster.routing.allocation.enable}},
+        "static.os.thread_pool.write.queue_size": {{env.es_node.static.os.thread_pool.write.queue_size}},
+        "static.os.thread_pool.search.queue_size": {{env.es_node.static.os.thread_pool.search.queue_size}},
+        "static.os.indices.memory.index_buffer_size": {{env.es_node.static.os.indices.memory.index_buffer_size}},
+        "static.os.indices.fielddata.cache.size": {{env.es_node.static.os.indices.fielddata.cache.size}},
+        "static.os.indices.queries.cache.size": {{env.es_node.static.os.indices.queries.cache.size}},
+        "static.os.indices.requests.cache.size": {{env.es_node.static.os.indices.requests.cache.size}},
+        "static.log4j.rootLogger.level": {{env.es_node.static.log4j.rootLogger.level}},
+        "static.log4j.logger.action.level": {{env.es_node.static.log4j.logger.action.level}},
+        "static.log4j.logger.deprecation.level": {{env.es_node.static.log4j.logger.deprecation.level}},
+        "static.log4j.logger.index_search_slowlog_rolling.level": {{env.es_node.static.log4j.logger.index_search_slowlog_rolling.level}},
+        "static.log4j.logger.index_indexing_slowlog.level": {{env.es_node.static.log4j.logger.index_indexing_slowlog.level}},
+        "static.log4j.logger.task_detailslog_rolling.level": {{env.es_node.static.log4j.logger.task_detailslog_rolling.level}},
+        "static.os.repositories.url.allowed_urls": {{env.es_node.static.os.repositories.url.allowed_urls}},
+        "static.os.reindex.remote.whitelist": {{env.es_node.static.os.reindex.remote.whitelist}},
+        "static.ik.remote_ext_dict": {{env.es_node.static.ik.remote_ext_dict}},
+        "static.ik.remote_ext_stopwords": {{env.es_node.static.ik.remote_ext_stopwords}},
+        "static.os.script.allowed_types": {{env.es_node.static.os.script.allowed_types}},
+        "static.os.script.allowed_contexts": {{env.es_node.static.os.script.allowed_contexts}},
+        "dynamic.os.action.destructive_requires_name": {{env.es_node.dynamic.os.action.destructive_requires_name}},
+        "static.os.user_ca_enabled": {{env.global.cert.os.user_ca_enabled}},
+        "cert.os.user_ca": {{env.global.cert.os.user_ca}},
+        "cert.os.user_node_cert": {{env.global.cert.os.user_node_cert}},
+        "cert.os.user_node_key": {{env.global.cert.os.user_node_key}}
     },
     "health_check": {
       "enable": true,
@@ -383,7 +410,7 @@
       "timeout_sec": 10,
       "healthy_threshold": 2,
       "unhealthy_threshold": 4,
-      "check_cmd": "appctl check",
+      "check_cmd": "appctl healthCheck",
       "action_cmd": "appctl revive",
       "action_timeout_sec": 150
     },
@@ -391,44 +418,59 @@
       "enable": true,
       "cmd": "appctl measure",
       "items": {
-        "os_cluster_status": {
+        "cluster_health_status": {
           "unit": "",
-          "value_type": "str",
-          "statistics_type": "latest",
-          "enums": ["green", "yellow", "red"]
+          "value_type": "int",
+          "statistics_type": "latest"
         },
-        "cluster_jvm_heap_used_in_percent": {
+        "jvm_mem_heap_used_percent": {
           "unit": "%",
           "value_type": "int",
-          "statistics_type": "avg",
-          "scale_factor_when_display": 0.01
+          "statistics_type": "latest"
         },
-        "cluster_jvm_threads_count": {
+        "jvm_threads_count": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "cluster_indices_count": {
+        "indices_indexing_index_ops": {
+          "unit": "",
+          "value_type": "int",
+          "statistics_type": "delta",
+          "scale_factor_when_display": 0.1
+        },
+        "indices_search_query_ops": {
+          "unit": "",
+          "value_type": "int",
+          "statistics_type": "delta",
+          "scale_factor_when_display": 0.1
+        },
+        "indices_count": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "cluster_shards_primaries_count": {
+        "shards_total": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "cluster_shards_replication_count": {
+        "shards_primaries": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "cluster_docs_count": {
+        "indices_docs_count": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "cluster_docs_deleted_count": {
+        "indices_docs_deleted": {
+          "unit": "",
+          "value_type": "int",
+          "statistics_type": "latest"
+        },
+        "nodes_avail_percent": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
@@ -468,65 +510,50 @@
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "active_shards_percent_as_number": {
+        "active_shards_percent": {
           "unit": "%",
           "value_type": "int",
-          "statistics_type": "latest",
-          "scale_factor_when_display": 0.01
+          "statistics_type": "latest"
         },
-        "node_indexing_pr_percent_c_p": {
+        "fs_total_avail_percent": {
+            "unit": "%",
+            "value_type": "int",
+            "statistics_type": "latest"
+        },
+        "os_cpu_load_average_1m": {
             "unit": "",
             "value_type": "int",
             "statistics_type": "latest",
             "scale_factor_when_display": 0.01
         },
-        "node_indexing_pr_percent_all": {
+        "os_cpu_load_average_5m": {
             "unit": "",
             "value_type": "int",
             "statistics_type": "latest",
             "scale_factor_when_display": 0.01
         },
-        "node_indexing_pr_coordinating": {
-            "unit": "MB",
+        "os_cpu_load_average_15m": {
+            "unit": "",
             "value_type": "int",
-            "statistics_type": "latest"
-        },
-        "node_indexing_pr_primary": {
-            "unit": "MB",
-            "value_type": "int",
-            "statistics_type": "latest"
-        },
-        "node_indexing_pr_replica": {
-            "unit": "MB",
-            "value_type": "int",
-            "statistics_type": "latest"
-        },
-        "node_indexing_pr_all": {
-            "unit": "MB",
-            "value_type": "int",
-            "statistics_type": "latest"
-        },
-        "node_indexing_pr_limit": {
-            "unit": "MB",
-            "value_type": "int",
-            "statistics_type": "latest"
+            "statistics_type": "latest",
+            "scale_factor_when_display": 0.01
         }
       },
       "groups": {
-        "cluster_docs_group": ["cluster_docs_count", "cluster_docs_deleted_count"],
-        "cluster_shards_group": ["cluster_shards_primaries_count", "cluster_shards_replication_count", "relocating_shards", "initializing_shards", "unassigned_shards"],
-        "index_pressure_group": ["node_indexing_pr_coordinating", "node_indexing_pr_primary", "node_indexing_pr_replica", "node_indexing_pr_all", "node_indexing_pr_limit"],
-        "index_pressure_percent_group": ["node_indexing_pr_percent_c_p", "node_indexing_pr_percent_all"]
+        "indices_docs_group": ["indices_docs_count", "indices_docs_deleted"],
+        "cluster_shards_group": ["relocating_shards", "initializing_shards", "unassigned_shards"],
+        "node_shards_group": ["shards_total", "shards_primaries"],
+        "os_cpu_load_group": ["os_cpu_load_average_1m", "os_cpu_load_average_5m", "os_cpu_load_average_15m"]
       },
-      "display": ["os_cluster_status", "number_of_nodes", "cluster_indices_count", "cluster_jvm_heap_used_in_percent", "cluster_jvm_threads_count", "cluster_docs_group", "cluster_shards_group", "number_of_pending_tasks", "number_of_in_flight_fetch", "task_max_waiting_in_queue_millis", "active_shards_percent_as_number", "index_pressure_group", "index_pressure_percent_group"],
-      "alarm": ["os_cluster_status", "number_of_nodes", "cluster_jvm_heap_used_in_percent", "cluster_jvm_threads_count", "relocating_shards", "unassigned_shards", "number_of_pending_tasks", "number_of_in_flight_fetch", "task_max_waiting_in_queue_millis", "active_shards_percent_as_number", "node_indexing_pr_percent_all", "node_indexing_pr_percent_c_p"]
+      "display": ["cluster_health_status", "nodes_avail_percent", "number_of_nodes", "jvm_mem_heap_used_percent", "jvm_threads_count", "indices_indexing_index_ops", "indices_search_query_ops", "indices_count", "indices_docs_group", "cluster_shards_group", "node_shards_group", "number_of_pending_tasks", "number_of_in_flight_fetch", "task_max_waiting_in_queue_millis", "active_shards_percent", "fs_total_avail_percent", "os_cpu_load_group"],
+      "alarm": ["cluster_health_status", "nodes_avail_percent", "number_of_nodes", "jvm_mem_heap_used_percent", "jvm_threads_count", "relocating_shards", "unassigned_shards", "number_of_pending_tasks", "number_of_in_flight_fetch", "task_max_waiting_in_queue_millis", "active_shards_percent", "fs_total_avail_percent", "os_cpu_load_average_1m", "os_cpu_load_average_5m", "os_cpu_load_average_15m"]
     }
   }, {
     "role": "es_node_2",
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-5iq3zler"
+      "image": "img-rv3ueujd"
     },
     "instance_class": {{cluster.es_node_2.instance_class}},
     "count": {{cluster.es_node_2.count}},
@@ -539,6 +566,9 @@
     },
     "vertical_scaling_policy": "sequential",
     "services": {
+      "init": {
+        "cmd": "appctl init"
+      },
       "start": {
         "cmd": "appctl start"
       },
@@ -549,22 +579,22 @@
         "cmd": "appctl restart"
       },
       "scale_in": {
-        "pre_check": "appctl preScaleIn",
-        "cmd": "appctl scale in",
+        "pre_check": "appctl preScaleInCheck",
+        "cmd": "appctl scaleIn",
         "timeout": 24000
       },
       "scale_out": {
-        "cmd": "appctl scale out",
+        "cmd": "appctl scaleOut",
         "timeout": 43200
       },
       "destroy": {
         "allow_force": false,
-        "post_stop_service": false,
+        "post_stop_service": true,
         "cmd": "appctl destroy"
       },
       "restart_rolling": {
         "type": "custom",
-        "cmd": "appctl restart role",
+        "cmd": "appctl rollingRestart",
         "timeout": 2000,
         "service_params": {
           "node.ip": {{service_params.restart.node.ip}},
@@ -589,49 +619,60 @@
       },
       "upgrade": {
         "cmd": "appctl upgrade",
-        "order": 3,
         "timeout": 43200
       }
     },
     "env": {
-        "opensearch.admin.user": {{env.opensearch.admin.user}},
-        "opensearch.admin.password": {{env.opensearch.admin.password}},
-        "appctl.tcp_keepalive_intvl": {{env.es_node.appctl.tcp_keepalive_intvl}},
-        "appctl.tcp_keepalive_probes": {{env.es_node.appctl.tcp_keepalive_probes}},
-        "appctl.tcp_keepalive_time": {{env.es_node.appctl.tcp_keepalive_time}},
-        "appctl.upgrade.enabled": true,
-        "clean_logs_older_than_n_days": {{env.es_node.clean_logs_older_than_n_days}},
-        "discovery.zen.no_master_block": {{env.es_node.discovery.zen.no_master_block}},
-        "enable_heap_dump": {{env.es_node.enable_heap_dump}},
-        "es_additional_line1": {{env.es_node.es_additional_line1}},
-        "es_additional_line2": {{env.es_node.es_additional_line2}},
-        "es_additional_line3": {{env.es_node.es_additional_line3}},
-        "gateway.recover_after_time": {{env.es_node.gateway.recover_after_time}},
-        "heap_dump_path": {{env.es_node.heap_dump_path}},
-        "http.cors.enabled": {{env.es_node.http.cors.enabled}},
-        "http.cors.allow-origin": {{env.es_node.http.cors.allow-origin}},
-        "prometheus.node.exporter": {{env.es_node.prometheus.node.exporter}},
-        "thread_pool.write.queue_size": {{env.es_node.thread_pool.write.queue_size}},
-        "thread_pool.search.queue_size": {{env.es_node.thread_pool.search.queue_size}},
-        "indices.fielddata.cache.size": {{env.es_node.indices.fielddata.cache.size}},
-        "indices.queries.cache.size": {{env.es_node.indices.queries.cache.size}},
-        "indices.memory.index_buffer_size": {{env.es_node.indices.memory.index_buffer_size}},
-        "indices.requests.cache.size": {{env.es_node.indices.requests.cache.size}},
-        "logger.action.level": {{env.es_node.logger.action.level}},
-        "logger.deprecation.level": {{env.es_node.logger.deprecation.level}},
-        "logger.index_search_slowlog_rolling.level": {{env.es_node.logger.index_search_slowlog_rolling.level}},
-        "logger.index_indexing_slowlog.level": {{env.es_node.logger.index_indexing_slowlog.level}},
-        "path.repo": {{env.es_node.path.repo}},
-        "repositories.url.allowed_urls": {{env.es_node.repositories.url.allowed_urls}},
-        "reindex.remote.whitelist": {{env.es_node.reindex.remote.whitelist}},
-        "remote_ext_dict": {{env.es_node.remote_ext_dict}},
-        "remote_ext_stopwords": {{env.es_node.remote_ext_stopwords}},
-        "rootLogger.level": {{env.es_node.rootLogger.level}},
-        "script.allowed_types": {{env.es_node.script.allowed_types}},
-        "script.allowed_contexts": {{env.es_node.script.allowed_contexts}},
-        "action.destructive_requires_name": {{env.es_node.action.destructive_requires_name}},
-        "indices.fielddata.cache.size": {{env.es_node.indices.fielddata.cache.size}},
-        "node.attr.data": {{env.es_node_2.node.attr.data}}
+        "static.os.ssl.http.enabled": {{env.global.cert.os.ssl.http.enabled}},
+        "confd.sysctl.tcp_keepalive_intvl": {{env.es_node.confd.sysctl.tcp_keepalive_intvl}},
+        "confd.sysctl.tcp_keepalive_probes": {{env.es_node.confd.sysctl.tcp_keepalive_probes}},
+        "confd.sysctl.tcp_keepalive_time": {{env.es_node.confd.sysctl.tcp_keepalive_time}},
+        "static.log4j.clean_logs_older_than_n_days": {{env.es_node.static.log4j.clean_logs_older_than_n_days}},
+        "dynamic.os.cluster.no_master_block": {{env.es_node.dynamic.os.cluster.no_master_block}},
+        "static.jvm.enable_heap_dump": {{env.es_node.static.jvm.enable_heap_dump}},
+        "static.os.os_additional_line1": {{env.es_node.static.os.os_additional_line1}},
+        "static.os.os_additional_line2": {{env.es_node.static.os.os_additional_line2}},
+        "static.os.os_additional_line3": {{env.es_node.static.os.os_additional_line3}},
+        "keystore.os.key_value1": {{env.es_node.keystore.os.key_value1}},
+        "keystore.os.key_value2": {{env.es_node.keystore.os.key_value2}},
+        "keystore.os.key_value3": {{env.es_node.keystore.os.key_value3}},
+        "keystore.os.key_value4": {{env.es_node.keystore.os.key_value4}},
+        "keystore.os.key_value5": {{env.es_node.keystore.os.key_value5}},
+        "static.os.gateway.recover_after_time": {{env.es_node.static.os.gateway.recover_after_time}},
+        "static.os.gateway.expected_data_nodes": {{env.es_node.static.os.gateway.expected_data_nodes}},
+        "static.os.gateway.recover_after_data_nodes": {{env.es_node.static.os.gateway.recover_after_data_nodes}},
+        "static.os.http.cors.enabled": {{env.es_node.static.os.http.cors.enabled}},
+        "static.os.http.cors.allow-origin": {{env.es_node.static.os.http.cors.allow-origin}},
+        "dynamic.other.enable_exporter": {{env.es_node.prometheus.node.exporter}},
+        "dynamic.other.enable_caddy": {{env.global.dynamic.other.enable_caddy}},
+        "dynamic.os.prometheus.indices": {{env.es_node.dynamic.os.prometheus.indices}},
+        "dynamic.os.prometheus.cluster.settings": {{env.es_node.dynamic.os.prometheus.cluster.settings}},
+        "dynamic.os.prometheus.nodes.filter": {{env.es_node.dynamic.os.prometheus.nodes.filter}},
+        "dynamic.os.cluster.routing.allocation.enable": {{env.es_node.dynamic.os.cluster.routing.allocation.enable}},
+        "static.os.thread_pool.write.queue_size": {{env.es_node.static.os.thread_pool.write.queue_size}},
+        "static.os.thread_pool.search.queue_size": {{env.es_node.static.os.thread_pool.search.queue_size}},
+        "static.os.indices.memory.index_buffer_size": {{env.es_node.static.os.indices.memory.index_buffer_size}},
+        "static.os.indices.fielddata.cache.size": {{env.es_node.static.os.indices.fielddata.cache.size}},
+        "static.os.indices.queries.cache.size": {{env.es_node.static.os.indices.queries.cache.size}},
+        "static.os.indices.requests.cache.size": {{env.es_node.static.os.indices.requests.cache.size}},
+        "static.log4j.rootLogger.level": {{env.es_node.static.log4j.rootLogger.level}},
+        "static.log4j.logger.action.level": {{env.es_node.static.log4j.logger.action.level}},
+        "static.log4j.logger.deprecation.level": {{env.es_node.static.log4j.logger.deprecation.level}},
+        "static.log4j.logger.index_search_slowlog_rolling.level": {{env.es_node.static.log4j.logger.index_search_slowlog_rolling.level}},
+        "static.log4j.logger.index_indexing_slowlog.level": {{env.es_node.static.log4j.logger.index_indexing_slowlog.level}},
+        "static.log4j.logger.task_detailslog_rolling.level": {{env.es_node.static.log4j.logger.task_detailslog_rolling.level}},
+        "static.os.repositories.url.allowed_urls": {{env.es_node.static.os.repositories.url.allowed_urls}},
+        "static.os.reindex.remote.whitelist": {{env.es_node.static.os.reindex.remote.whitelist}},
+        "static.ik.remote_ext_dict": {{env.es_node.static.ik.remote_ext_dict}},
+        "static.ik.remote_ext_stopwords": {{env.es_node.static.ik.remote_ext_stopwords}},
+        "static.os.script.allowed_types": {{env.es_node.static.os.script.allowed_types}},
+        "static.os.script.allowed_contexts": {{env.es_node.static.os.script.allowed_contexts}},
+        "dynamic.os.action.destructive_requires_name": {{env.es_node.dynamic.os.action.destructive_requires_name}},
+        "static.os.node.attr.data": {{env.es_node_2.static.os.node.attr.data}},
+        "static.os.user_ca_enabled": {{env.global.cert.os.user_ca_enabled}},
+        "cert.os.user_ca": {{env.global.cert.os.user_ca}},
+        "cert.os.user_node_cert": {{env.global.cert.os.user_node_cert}},
+        "cert.os.user_node_key": {{env.global.cert.os.user_node_key}}
     },
     "health_check": {
       "enable": true,
@@ -640,51 +681,66 @@
       "action_timeout_sec": 150,
       "healthy_threshold": 2,
       "unhealthy_threshold": 4,
-      "check_cmd": "appctl check",
+      "check_cmd": "appctl healthCheck",
       "action_cmd": "appctl revive"
     },
     "monitor": {
       "enable": true,
       "cmd": "appctl measure",
       "items": {
-        "os_cluster_status": {
+        "cluster_health_status": {
           "unit": "",
-          "value_type": "str",
-          "statistics_type": "latest",
-          "enums": ["green", "yellow", "red"]
+          "value_type": "int",
+          "statistics_type": "latest"
         },
-        "cluster_jvm_heap_used_in_percent": {
+        "jvm_mem_heap_used_percent": {
           "unit": "%",
           "value_type": "int",
-          "statistics_type": "avg",
-          "scale_factor_when_display": 0.01
+          "statistics_type": "latest"
         },
-        "cluster_jvm_threads_count": {
+        "jvm_threads_count": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "cluster_indices_count": {
+        "indices_indexing_index_ops": {
+          "unit": "",
+          "value_type": "int",
+          "statistics_type": "delta",
+          "scale_factor_when_display": 0.1
+        },
+        "indices_search_query_ops": {
+          "unit": "",
+          "value_type": "int",
+          "statistics_type": "delta",
+          "scale_factor_when_display": 0.1
+        },
+        "indices_count": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "cluster_shards_primaries_count": {
+        "shards_total": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "cluster_shards_replication_count": {
+        "shards_primaries": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "cluster_docs_count": {
+        "indices_docs_count": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "cluster_docs_deleted_count": {
+        "indices_docs_deleted": {
+          "unit": "",
+          "value_type": "int",
+          "statistics_type": "latest"
+        },
+        "nodes_avail_percent": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
@@ -724,65 +780,50 @@
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "active_shards_percent_as_number": {
+        "active_shards_percent": {
           "unit": "%",
           "value_type": "int",
-          "statistics_type": "latest",
-          "scale_factor_when_display": 0.01
+          "statistics_type": "latest"
         },
-        "node_indexing_pr_percent_c_p": {
+        "fs_total_avail_percent": {
+            "unit": "%",
+            "value_type": "int",
+            "statistics_type": "latest"
+        },
+        "os_cpu_load_average_1m": {
             "unit": "",
             "value_type": "int",
             "statistics_type": "latest",
             "scale_factor_when_display": 0.01
         },
-        "node_indexing_pr_percent_all": {
+        "os_cpu_load_average_5m": {
             "unit": "",
             "value_type": "int",
             "statistics_type": "latest",
             "scale_factor_when_display": 0.01
         },
-        "node_indexing_pr_coordinating": {
-            "unit": "MB",
+        "os_cpu_load_average_15m": {
+            "unit": "",
             "value_type": "int",
-            "statistics_type": "latest"
-        },
-        "node_indexing_pr_primary": {
-            "unit": "MB",
-            "value_type": "int",
-            "statistics_type": "latest"
-        },
-        "node_indexing_pr_replica": {
-            "unit": "MB",
-            "value_type": "int",
-            "statistics_type": "latest"
-        },
-        "node_indexing_pr_all": {
-            "unit": "MB",
-            "value_type": "int",
-            "statistics_type": "latest"
-        },
-        "node_indexing_pr_limit": {
-            "unit": "MB",
-            "value_type": "int",
-            "statistics_type": "latest"
+            "statistics_type": "latest",
+            "scale_factor_when_display": 0.01
         }
       },
       "groups": {
-        "cluster_docs_group": ["cluster_docs_count", "cluster_docs_deleted_count"],
-        "cluster_shards_group": ["cluster_shards_primaries_count", "cluster_shards_replication_count", "relocating_shards", "initializing_shards", "unassigned_shards"],
-        "index_pressure_group": ["node_indexing_pr_coordinating", "node_indexing_pr_primary", "node_indexing_pr_replica", "node_indexing_pr_all", "node_indexing_pr_limit"],
-        "index_pressure_percent_group": ["node_indexing_pr_percent_c_p", "node_indexing_pr_percent_all"]
+        "indices_docs_group": ["indices_docs_count", "indices_docs_deleted"],
+        "cluster_shards_group": ["relocating_shards", "initializing_shards", "unassigned_shards"],
+        "node_shards_group": ["shards_total", "shards_primaries"],
+        "os_cpu_load_group": ["os_cpu_load_average_1m", "os_cpu_load_average_5m", "os_cpu_load_average_15m"]
       },
-      "display": ["os_cluster_status", "number_of_nodes", "cluster_indices_count", "cluster_jvm_heap_used_in_percent", "cluster_jvm_threads_count", "cluster_docs_group", "cluster_shards_group", "number_of_pending_tasks", "number_of_in_flight_fetch", "task_max_waiting_in_queue_millis", "active_shards_percent_as_number", "index_pressure_group", "index_pressure_percent_group"],
-      "alarm": ["os_cluster_status", "number_of_nodes", "cluster_jvm_heap_used_in_percent", "cluster_jvm_threads_count", "relocating_shards", "unassigned_shards", "number_of_pending_tasks", "number_of_in_flight_fetch", "task_max_waiting_in_queue_millis", "active_shards_percent_as_number", "node_indexing_pr_percent_all", "node_indexing_pr_percent_c_p"]
+      "display": ["cluster_health_status", "nodes_avail_percent", "number_of_nodes", "jvm_mem_heap_used_percent", "jvm_threads_count", "indices_indexing_index_ops", "indices_search_query_ops", "indices_count", "indices_docs_group", "cluster_shards_group", "node_shards_group", "number_of_pending_tasks", "number_of_in_flight_fetch", "task_max_waiting_in_queue_millis", "active_shards_percent", "fs_total_avail_percent", "os_cpu_load_group"],
+      "alarm": ["cluster_health_status", "nodes_avail_percent", "number_of_nodes", "jvm_mem_heap_used_percent", "jvm_threads_count", "relocating_shards", "unassigned_shards", "number_of_pending_tasks", "number_of_in_flight_fetch", "task_max_waiting_in_queue_millis", "active_shards_percent", "fs_total_avail_percent", "os_cpu_load_average_1m", "os_cpu_load_average_5m", "os_cpu_load_average_15m"]
     }
   }, {
     "role": "es_node_3",
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-5iq3zler"
+      "image": "img-rv3ueujd"
     },
     "instance_class": {{cluster.es_node_3.instance_class}},
     "count": {{cluster.es_node_3.count}},
@@ -795,6 +836,9 @@
     },
     "vertical_scaling_policy": "sequential",
     "services": {
+      "init": {
+        "cmd": "appctl init"
+      },
       "start": {
         "cmd": "appctl start"
       },
@@ -805,22 +849,22 @@
         "cmd": "appctl restart"
       },
       "scale_in": {
-        "pre_check": "appctl preScaleIn",
-        "cmd": "appctl scale in",
+        "pre_check": "appctl preScaleInCheck",
+        "cmd": "appctl scaleIn",
         "timeout": 24000
       },
       "scale_out": {
-        "cmd": "appctl scale out",
+        "cmd": "appctl scaleOut",
         "timeout": 43200
       },
       "destroy": {
         "allow_force": false,
-        "post_stop_service": false,
+        "post_stop_service": true,
         "cmd": "appctl destroy"
       },
       "restart_rolling": {
         "type": "custom",
-        "cmd": "appctl restart role",
+        "cmd": "appctl rollingRestart",
         "timeout": 2000,
         "service_params": {
           "node.ip": {{service_params.restart.node.ip}},
@@ -845,49 +889,60 @@
       },
       "upgrade": {
         "cmd": "appctl upgrade",
-        "order": 4,
         "timeout": 43200
       }
     },
     "env": {
-        "opensearch.admin.user": {{env.opensearch.admin.user}},
-        "opensearch.admin.password": {{env.opensearch.admin.password}},
-        "appctl.tcp_keepalive_intvl": {{env.es_node.appctl.tcp_keepalive_intvl}},
-        "appctl.tcp_keepalive_probes": {{env.es_node.appctl.tcp_keepalive_probes}},
-        "appctl.tcp_keepalive_time": {{env.es_node.appctl.tcp_keepalive_time}},
-        "appctl.upgrade.enabled": true,
-        "clean_logs_older_than_n_days": {{env.es_node.clean_logs_older_than_n_days}},
-        "discovery.zen.no_master_block": {{env.es_node.discovery.zen.no_master_block}},
-        "enable_heap_dump": {{env.es_node.enable_heap_dump}},
-        "es_additional_line1": {{env.es_node.es_additional_line1}},
-        "es_additional_line2": {{env.es_node.es_additional_line2}},
-        "es_additional_line3": {{env.es_node.es_additional_line3}},
-        "gateway.recover_after_time": {{env.es_node.gateway.recover_after_time}},
-        "heap_dump_path": {{env.es_node.heap_dump_path}},
-        "http.cors.enabled": {{env.es_node.http.cors.enabled}},
-        "http.cors.allow-origin": {{env.es_node.http.cors.allow-origin}},
-        "prometheus.node.exporter": {{env.es_node.prometheus.node.exporter}},
-        "thread_pool.write.queue_size": {{env.es_node.thread_pool.write.queue_size}},
-        "thread_pool.search.queue_size": {{env.es_node.thread_pool.search.queue_size}},
-        "indices.fielddata.cache.size": {{env.es_node.indices.fielddata.cache.size}},
-        "indices.queries.cache.size": {{env.es_node.indices.queries.cache.size}},
-        "indices.memory.index_buffer_size": {{env.es_node.indices.memory.index_buffer_size}},
-        "indices.requests.cache.size": {{env.es_node.indices.requests.cache.size}},
-        "logger.action.level": {{env.es_node.logger.action.level}},
-        "logger.deprecation.level": {{env.es_node.logger.deprecation.level}},
-        "logger.index_search_slowlog_rolling.level": {{env.es_node.logger.index_search_slowlog_rolling.level}},
-        "logger.index_indexing_slowlog.level": {{env.es_node.logger.index_indexing_slowlog.level}},
-        "path.repo": {{env.es_node.path.repo}},
-        "repositories.url.allowed_urls": {{env.es_node.repositories.url.allowed_urls}},
-        "reindex.remote.whitelist": {{env.es_node.reindex.remote.whitelist}},
-        "remote_ext_dict": {{env.es_node.remote_ext_dict}},
-        "remote_ext_stopwords": {{env.es_node.remote_ext_stopwords}},
-        "rootLogger.level": {{env.es_node.rootLogger.level}},
-        "script.allowed_types": {{env.es_node.script.allowed_types}},
-        "script.allowed_contexts": {{env.es_node.script.allowed_contexts}},
-        "action.destructive_requires_name": {{env.es_node.action.destructive_requires_name}},
-        "indices.fielddata.cache.size": {{env.es_node.indices.fielddata.cache.size}},
-        "node.attr.data": {{env.es_node_3.node.attr.data}}
+        "static.os.ssl.http.enabled": {{env.global.cert.os.ssl.http.enabled}},
+        "confd.sysctl.tcp_keepalive_intvl": {{env.es_node.confd.sysctl.tcp_keepalive_intvl}},
+        "confd.sysctl.tcp_keepalive_probes": {{env.es_node.confd.sysctl.tcp_keepalive_probes}},
+        "confd.sysctl.tcp_keepalive_time": {{env.es_node.confd.sysctl.tcp_keepalive_time}},
+        "static.log4j.clean_logs_older_than_n_days": {{env.es_node.static.log4j.clean_logs_older_than_n_days}},
+        "dynamic.os.cluster.no_master_block": {{env.es_node.dynamic.os.cluster.no_master_block}},
+        "static.jvm.enable_heap_dump": {{env.es_node.static.jvm.enable_heap_dump}},
+        "static.os.os_additional_line1": {{env.es_node.static.os.os_additional_line1}},
+        "static.os.os_additional_line2": {{env.es_node.static.os.os_additional_line2}},
+        "static.os.os_additional_line3": {{env.es_node.static.os.os_additional_line3}},
+        "keystore.os.key_value1": {{env.es_node.keystore.os.key_value1}},
+        "keystore.os.key_value2": {{env.es_node.keystore.os.key_value2}},
+        "keystore.os.key_value3": {{env.es_node.keystore.os.key_value3}},
+        "keystore.os.key_value4": {{env.es_node.keystore.os.key_value4}},
+        "keystore.os.key_value5": {{env.es_node.keystore.os.key_value5}},
+        "static.os.gateway.recover_after_time": {{env.es_node.static.os.gateway.recover_after_time}},
+        "static.os.gateway.expected_data_nodes": {{env.es_node.static.os.gateway.expected_data_nodes}},
+        "static.os.gateway.recover_after_data_nodes": {{env.es_node.static.os.gateway.recover_after_data_nodes}},
+        "static.os.http.cors.enabled": {{env.es_node.static.os.http.cors.enabled}},
+        "static.os.http.cors.allow-origin": {{env.es_node.static.os.http.cors.allow-origin}},
+        "dynamic.other.enable_exporter": {{env.es_node.prometheus.node.exporter}},
+        "dynamic.other.enable_caddy": {{env.global.dynamic.other.enable_caddy}},
+        "dynamic.os.prometheus.indices": {{env.es_node.dynamic.os.prometheus.indices}},
+        "dynamic.os.prometheus.cluster.settings": {{env.es_node.dynamic.os.prometheus.cluster.settings}},
+        "dynamic.os.prometheus.nodes.filter": {{env.es_node.dynamic.os.prometheus.nodes.filter}},
+        "dynamic.os.cluster.routing.allocation.enable": {{env.es_node.dynamic.os.cluster.routing.allocation.enable}},
+        "static.os.thread_pool.write.queue_size": {{env.es_node.static.os.thread_pool.write.queue_size}},
+        "static.os.thread_pool.search.queue_size": {{env.es_node.static.os.thread_pool.search.queue_size}},
+        "static.os.indices.memory.index_buffer_size": {{env.es_node.static.os.indices.memory.index_buffer_size}},
+        "static.os.indices.fielddata.cache.size": {{env.es_node.static.os.indices.fielddata.cache.size}},
+        "static.os.indices.queries.cache.size": {{env.es_node.static.os.indices.queries.cache.size}},
+        "static.os.indices.requests.cache.size": {{env.es_node.static.os.indices.requests.cache.size}},
+        "static.log4j.rootLogger.level": {{env.es_node.static.log4j.rootLogger.level}},
+        "static.log4j.logger.action.level": {{env.es_node.static.log4j.logger.action.level}},
+        "static.log4j.logger.deprecation.level": {{env.es_node.static.log4j.logger.deprecation.level}},
+        "static.log4j.logger.index_search_slowlog_rolling.level": {{env.es_node.static.log4j.logger.index_search_slowlog_rolling.level}},
+        "static.log4j.logger.index_indexing_slowlog.level": {{env.es_node.static.log4j.logger.index_indexing_slowlog.level}},
+        "static.log4j.logger.task_detailslog_rolling.level": {{env.es_node.static.log4j.logger.task_detailslog_rolling.level}},
+        "static.os.repositories.url.allowed_urls": {{env.es_node.static.os.repositories.url.allowed_urls}},
+        "static.os.reindex.remote.whitelist": {{env.es_node.static.os.reindex.remote.whitelist}},
+        "static.ik.remote_ext_dict": {{env.es_node.static.ik.remote_ext_dict}},
+        "static.ik.remote_ext_stopwords": {{env.es_node.static.ik.remote_ext_stopwords}},
+        "static.os.script.allowed_types": {{env.es_node.static.os.script.allowed_types}},
+        "static.os.script.allowed_contexts": {{env.es_node.static.os.script.allowed_contexts}},
+        "dynamic.os.action.destructive_requires_name": {{env.es_node.dynamic.os.action.destructive_requires_name}},
+        "static.os.node.attr.data": {{env.es_node_3.static.os.node.attr.data}},
+        "static.os.user_ca_enabled": {{env.global.cert.os.user_ca_enabled}},
+        "cert.os.user_ca": {{env.global.cert.os.user_ca}},
+        "cert.os.user_node_cert": {{env.global.cert.os.user_node_cert}},
+        "cert.os.user_node_key": {{env.global.cert.os.user_node_key}}
     },
     "health_check": {
       "enable": true,
@@ -896,51 +951,66 @@
       "action_timeout_sec": 150,
       "healthy_threshold": 2,
       "unhealthy_threshold": 4,
-      "check_cmd": "appctl check",
+      "check_cmd": "appctl healthCheck",
       "action_cmd": "appctl revive"
     },
     "monitor": {
       "enable": true,
       "cmd": "appctl measure",
       "items": {
-        "os_cluster_status": {
+        "cluster_health_status": {
           "unit": "",
-          "value_type": "str",
-          "statistics_type": "latest",
-          "enums": ["green", "yellow", "red"]
+          "value_type": "int",
+          "statistics_type": "latest"
         },
-        "cluster_jvm_heap_used_in_percent": {
+        "jvm_mem_heap_used_percent": {
           "unit": "%",
           "value_type": "int",
-          "statistics_type": "avg",
-          "scale_factor_when_display": 0.01
+          "statistics_type": "latest"
         },
-        "cluster_jvm_threads_count": {
+        "jvm_threads_count": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "cluster_indices_count": {
+        "indices_indexing_index_ops": {
+          "unit": "",
+          "value_type": "int",
+          "statistics_type": "delta",
+          "scale_factor_when_display": 0.1
+        },
+        "indices_search_query_ops": {
+          "unit": "",
+          "value_type": "int",
+          "statistics_type": "delta",
+          "scale_factor_when_display": 0.1
+        },
+        "indices_count": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "cluster_shards_primaries_count": {
+        "shards_total": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "cluster_shards_replication_count": {
+        "shards_primaries": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "cluster_docs_count": {
+        "indices_docs_count": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "cluster_docs_deleted_count": {
+        "indices_docs_deleted": {
+          "unit": "",
+          "value_type": "int",
+          "statistics_type": "latest"
+        },
+        "nodes_avail_percent": {
           "unit": "",
           "value_type": "int",
           "statistics_type": "latest"
@@ -980,65 +1050,50 @@
           "value_type": "int",
           "statistics_type": "latest"
         },
-        "active_shards_percent_as_number": {
+        "active_shards_percent": {
           "unit": "%",
           "value_type": "int",
-          "statistics_type": "latest",
-          "scale_factor_when_display": 0.01
+          "statistics_type": "latest"
         },
-        "node_indexing_pr_percent_c_p": {
+        "fs_total_avail_percent": {
+            "unit": "%",
+            "value_type": "int",
+            "statistics_type": "latest"
+        },
+        "os_cpu_load_average_1m": {
             "unit": "",
             "value_type": "int",
             "statistics_type": "latest",
             "scale_factor_when_display": 0.01
         },
-        "node_indexing_pr_percent_all": {
+        "os_cpu_load_average_5m": {
             "unit": "",
             "value_type": "int",
             "statistics_type": "latest",
             "scale_factor_when_display": 0.01
         },
-        "node_indexing_pr_coordinating": {
-            "unit": "MB",
+        "os_cpu_load_average_15m": {
+            "unit": "",
             "value_type": "int",
-            "statistics_type": "latest"
-        },
-        "node_indexing_pr_primary": {
-            "unit": "MB",
-            "value_type": "int",
-            "statistics_type": "latest"
-        },
-        "node_indexing_pr_replica": {
-            "unit": "MB",
-            "value_type": "int",
-            "statistics_type": "latest"
-        },
-        "node_indexing_pr_all": {
-            "unit": "MB",
-            "value_type": "int",
-            "statistics_type": "latest"
-        },
-        "node_indexing_pr_limit": {
-            "unit": "MB",
-            "value_type": "int",
-            "statistics_type": "latest"
+            "statistics_type": "latest",
+            "scale_factor_when_display": 0.01
         }
       },
       "groups": {
-        "cluster_docs_group": ["cluster_docs_count", "cluster_docs_deleted_count"],
-        "cluster_shards_group": ["cluster_shards_primaries_count", "cluster_shards_replication_count", "relocating_shards", "initializing_shards", "unassigned_shards"],
-        "index_pressure_group": ["node_indexing_pr_coordinating", "node_indexing_pr_primary", "node_indexing_pr_replica", "node_indexing_pr_all", "node_indexing_pr_limit"],
-        "index_pressure_percent_group": ["node_indexing_pr_percent_c_p", "node_indexing_pr_percent_all"]
+        "indices_docs_group": ["indices_docs_count", "indices_docs_deleted"],
+        "cluster_shards_group": ["relocating_shards", "initializing_shards", "unassigned_shards"],
+        "node_shards_group": ["shards_total", "shards_primaries"],
+        "os_cpu_load_group": ["os_cpu_load_average_1m", "os_cpu_load_average_5m", "os_cpu_load_average_15m"]
       },
-      "display": ["os_cluster_status", "number_of_nodes", "cluster_indices_count", "cluster_jvm_heap_used_in_percent", "cluster_jvm_threads_count", "cluster_docs_group", "cluster_shards_group", "number_of_pending_tasks", "number_of_in_flight_fetch", "task_max_waiting_in_queue_millis", "active_shards_percent_as_number", "index_pressure_group", "index_pressure_percent_group"],
-      "alarm": ["os_cluster_status", "number_of_nodes", "cluster_jvm_heap_used_in_percent", "cluster_jvm_threads_count", "relocating_shards", "unassigned_shards", "number_of_pending_tasks", "number_of_in_flight_fetch", "task_max_waiting_in_queue_millis", "active_shards_percent_as_number", "node_indexing_pr_percent_all", "node_indexing_pr_percent_c_p"]
+      "display": ["cluster_health_status", "nodes_avail_percent", "number_of_nodes", "jvm_mem_heap_used_percent", "jvm_threads_count", "indices_indexing_index_ops", "indices_search_query_ops", "indices_count", "indices_docs_group", "cluster_shards_group", "node_shards_group", "number_of_pending_tasks", "number_of_in_flight_fetch", "task_max_waiting_in_queue_millis", "active_shards_percent", "fs_total_avail_percent", "os_cpu_load_group"],
+      "alarm": ["cluster_health_status", "nodes_avail_percent", "number_of_nodes", "jvm_mem_heap_used_percent", "jvm_threads_count", "relocating_shards", "unassigned_shards", "number_of_pending_tasks", "number_of_in_flight_fetch", "task_max_waiting_in_queue_millis", "active_shards_percent", "fs_total_avail_percent", "os_cpu_load_average_1m", "os_cpu_load_average_5m", "os_cpu_load_average_15m"]
     }
   }, {
     "role": "lst_node",
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-f57961wg"
+      "image": "img-xderecf1"
     },
     "instance_class": {{cluster.lst_node.instance_class}},
     "count": {{cluster.lst_node.count}},
@@ -1065,15 +1120,13 @@
       }
     },
     "env": {
-        "opensearch.admin.user": {{env.opensearch.admin.user}},
-        "opensearch.admin.password": {{env.opensearch.admin.password}},
-        "config.reload.automatic": {{env.lst_node.config.reload.automatic}},
-        "config.reload.interval": {{env.lst_node.config.reload.interval}},
-        "input_conf_content": {{env.lst_node.input_conf_content}},
-        "filter_conf_content": {{env.lst_node.filter_conf_content}},
-        "output_conf_content": {{env.lst_node.output_conf_content}},
-        "output_es_content": {{env.lst_node.output_es_content}},
-        "gemfile_append_content": {{env.lst_node.gemfile_append_content}}
+        "static.lst.config.reload.automatic": {{env.lst_node.static.lst.config.reload.automatic}},
+        "static.lst.config.reload.interval": {{env.lst_node.static.lst.config.reload.interval}},
+        "dynamic.other.enable_caddy": {{env.global.dynamic.other.enable_caddy}},
+        "depend.os.ssl.http.enabled": {{env.global.cert.os.ssl.http.enabled}},
+        "depend.lst.pipeline": {{env.lst_node.depend.lst.pipeline}},
+        "depend.os.user_ca_enabled": {{env.global.cert.os.user_ca_enabled}},
+        "cert.os.user_ca": {{env.global.cert.os.user_ca}}
     },
     "health_check": {
       "enable": true,
@@ -1081,7 +1134,7 @@
       "timeout_sec": 10,
       "healthy_threshold": 2,
       "unhealthy_threshold": 5,
-      "check_cmd": "appctl check",
+      "check_cmd": "appctl healthCheck",
       "action_cmd": "appctl revive"
     }
   }, {
@@ -1089,7 +1142,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-k792vkml"
+      "image": "img-trz0wdm8"
     },
     "instance_class": {{cluster.kbn_node.instance_class}},
     "count": {{cluster.kbn_node.count}},
@@ -1112,14 +1165,16 @@
       }
     },
     "env": {
-        "enable_cerebro": {{env.kbn_node.enable_cerebro}},
-        "opensearch.admin.user": {{env.opensearch.admin.user}},
-        "opensearch.admin.password": {{env.opensearch.admin.password}},
         "proxy.balance.policy": {{env.kbn_node.proxy.balance.policy}},
         "proxy.connect.timeout": {{env.kbn_node.proxy.connect.timeout}},
         "proxy.timeout": {{env.kbn_node.proxy.timeout}},
         "proxy.max.conn": {{env.kbn_node.proxy.max.conn}},
-        "nginx_client_max_body_size": {{env.kbn_node.nginx_client_max_body_size}}
+        "nginx_client_max_body_size": {{env.kbn_node.nginx_client_max_body_size}},
+        "static.os.ssl.http.enabled": {{env.global.cert.os.ssl.http.enabled}},
+        "dynamic.other.enable_caddy": {{env.global.dynamic.other.enable_caddy}},
+        "dynamic.other.enable_cerebro": {{env.kbn_node.dynamic.other.enable_cerebro}},
+        "cert.os.user_ca_enabled": {{env.global.cert.os.user_ca_enabled}},
+        "cert.os.user_ca": {{env.global.cert.os.user_ca}}
     },
     "health_check": {
       "enable": true,
@@ -1128,10 +1183,18 @@
       "action_timeout_sec": 150,
       "healthy_threshold": 2,
       "unhealthy_threshold": 3,
-      "check_cmd": "appctl check",
+      "check_cmd": "appctl healthCheck",
       "action_cmd": "appctl revive"
     }
   }],
+  "display_tabs": {
+    "logstash demo": {
+      "cmd": "appctl showTabForDemoPipelineConfig",
+      "roles_to_execute_on": ["lst_node"],
+      "description": "Demo config for logstash pipeline.",
+      "timeout": 10
+    }
+  },
   "endpoints": {
     "reserved_ips": {
       "esvip": {

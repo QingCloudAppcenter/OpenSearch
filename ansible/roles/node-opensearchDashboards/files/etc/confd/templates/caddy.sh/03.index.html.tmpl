@@ -1,4 +1,4 @@
-flush > /opt/app/conf/caddy/index.html << LS_HTML_EOF
+flush > /data/index.html << LS_HTML_EOF
 <!DOCTYPE html>
 <html>
   <head>
@@ -75,7 +75,7 @@ flush > /opt/app/conf/caddy/index.html << LS_HTML_EOF
         {{- range $kibanaNodes }}
         {{- if eq . (getv "/host/ip") }}
         <li><span>⊟</span>{{ . }}</li>
-        <li><span class="sub-1">⊞</span><a href="./dashboards/logs/">dashboards</a></li>
+        <li><span class="sub-1">⊞</span><a href="./opensearch-dashboards/logs/">opensearch-dashboards</a></li>
         <li><span class="sub-1">⊞</span><a href="./haproxy/logs/">haproxy</a></li>
         <li><span class="sub-1">⊞</span><a href="./keepalived/logs/">keepalived</a></li>
         {{- else }}

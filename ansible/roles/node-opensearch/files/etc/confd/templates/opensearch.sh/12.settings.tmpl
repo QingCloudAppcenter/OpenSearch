@@ -1,0 +1,22 @@
+mkdir -p /data/appctl/data
+
+flush > /data/appctl/data/settings.static.new <<SETTINGS_STATIC_NEW
+{{- range $key := ls "/env" | filter "^static.*" }}
+{{ $key }}={{ getv (printf "/env/%s" $key)}}
+{{- end }}
+SETTINGS_STATIC_NEW
+
+flush > /data/appctl/data/settings.dynamic.new <<SETTINGS_DYNAMIC_NEW
+{{- range $key := ls "/env" | filter "^dynamic.*" }}
+{{ $key }}={{ getv (printf "/env/%s" $key)}}
+{{- end }}
+SETTINGS_DYNAMIC_NEW
+
+flush > /data/appctl/data/settings.keystore.new <<SETTINGS_KEYSTORE_NEW
+{{- range $key := ls "/env" | filter "^keystore.*" }}
+{{- $rawValue := getv (printf "/env/%s" $key) }}
+{{- $rawValue := replace $rawValue "`" "\\`" -1 }}
+{{- $realValue := replace $rawValue "$" "\\$" -1 }}
+{{ $key }}/{{ $realValue }}
+{{- end }}
+SETTINGS_KEYSTORE_NEW
