@@ -446,7 +446,7 @@ refreshIKAnalyzerCfgXml() {
     local ikRemoteExtStopwords=$(getItemFromConf "$settings" "static.ik.remote_ext_stopwords")
 
     local localDictStr
-    if [ "$ikLocalDict" = "true" ]; then
+    if [ ! "$ikLocalDict" = "false" ]; then
         localDictStr="custom/jieba.dic;extra_main.dic"
     fi
     local remoteDictStr
@@ -454,7 +454,7 @@ refreshIKAnalyzerCfgXml() {
         remoteDictStr="<entry key=\"remote_ext_dict\">$ikRemoteExtDict</entry>"
     fi
     local localStopStr
-    if [ "$ikLocalStopwords" = "true" ]; then
+    if [ ! "$ikLocalStopwords" = "false" ]; then
         localStopStr="extra_stopword.dic"
     fi
     local remoteStopStr
