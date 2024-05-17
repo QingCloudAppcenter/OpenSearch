@@ -7,10 +7,14 @@
     res=$(/opt/opensearch/current/bin/opensearch-plugin list | grep "$realname" | wc -l)
     if [ "$res" -eq 1 ]; then exit 0; fi
     if [ "$realname" = "opensearch-analisys-ik" ]; then
-      realname="$extra_url1"
+      realname=""
+      # realname="$extra_url1"
     elif [ "$realname" = "prometheus-exporter" ]; then
-      realname="$extra_url2"
+      realname=""
+      # realname="$extra_url2"
     fi
-    OPENSEARCH_HOME=/opt/opensearch/current OPENSEARCH_JAVA_HOME=/opt/opensearch/current/jdk OPENSEARCH_PATH_CONF=/opt/app/current/conf/opensearch /opt/opensearch/current/bin/opensearch-plugin install -v --batch "$realname"
+    if [ -n "$realname" ]; then
+      OPENSEARCH_HOME=/opt/opensearch/current OPENSEARCH_JAVA_HOME=/opt/opensearch/current/jdk OPENSEARCH_PATH_CONF=/opt/app/current/conf/opensearch /opt/opensearch/current/bin/opensearch-plugin install -v --batch "$realname"
+    fi
   register: installed
   ignore_errors: True
