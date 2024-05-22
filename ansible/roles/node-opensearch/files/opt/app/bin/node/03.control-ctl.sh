@@ -35,6 +35,12 @@ isFirstMaster() {
     test "${tmplist[0]}" = "$MY_IP"
 }
 
+isLastMaster() {
+    test ! "$IS_MASTER" = "false"
+    local tmplist=($STABLE_MASTER_NODES)
+    test "${tmplist[@]: -1}" = "$MY_IP"
+}
+
 init() {
     if ! isClusterInitialized; then
         log "prepare keystore"
@@ -141,11 +147,11 @@ hasUnusualIndices() {
         log "has closed indices"
         return
     fi
-    local nodocscnt=$(echo "$info" | awk '/^open/{if($2==0) print "got it!";exit}' | wc -l)
-    if [ "$nodocscnt" -gt 0 ]; then
-        log "has indices with 0 docs"
-        return
-    fi
+    # local nodocscnt=$(echo "$info" | awk '/^open/{if($2==0) {print "got it!";exit}}' | wc -l)
+    # if [ "$nodocscnt" -gt 0 ]; then
+    #     log "has indices with 0 docs"
+    #     return
+    # fi
     return 1
 }
 

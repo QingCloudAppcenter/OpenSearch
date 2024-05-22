@@ -4,62 +4,25 @@ OPENSEARCH_CONF_SYS_CERTS_PATH=/opt/app/current/conf/opensearch/certs/qc
 CADDY_OLD_FILE=/data/opensearch/index.html
 
 modifySecurityFile() {
-    local syshash=$(calcSecretHash $SYS_USER_PWD)
-    local osdhash=$(calcSecretHash $OSD_USER_PWD)
-    local lsthash=$(calcSecretHash $LST_USER_PWD)
-    local cfg=$(cat<<INTERNAL_USER
-# managed by appctl, do not modify
-$SYS_USER:
-  hash: "$syshash"
-  reserved: true
-  hidden: true
-  backend_roles:
-  - "admin"
-  description: "internal user: $SYS_USER"
-
-logstash:
-  hash: "$lsthash"
-  reserved: false
-  backend_roles:
-  - "logstash"
-  description: "Demo logstash user, using external role mapping"
-
-kibanaserver:
-  hash: "$osdhash"
-  reserved: true
-  description: "Demo OpenSearch Dashboards user"
-INTERNAL_USER
-)
-
-    echo "$cfg" >> $OPENSEARCH_SEC_BACKUP_PATH/internal_users.yml
+    fn=$OPENSEARCH_SEC_BACKUP_PATH/internal_users.yml
+    adminLine=$(awk '/admin/{print NR; exit}' $fn)
+    reservedLine=$(awk -v n=$adminLine 'NR>n && /reserved/{print NR; exit}' $fn)
+    sed -i "${reservedLine}s/.*/  reserved: false/" $fn
 }
 
 upgrade() {
-    log "remove $CADDY_OLD_FILE"
-    rm -f $CADDY_OLD_FILE
+    log "sync static settings"
+    syncStaticSettings
+    if ! isLastMaster; then
+        log "not the last master, skipping"
+        return 0
+    fi
+    log "repair amdin auth"
+    repairAdminAuth
+}
 
-    log "sync all settings"
-    syncAllSettings
-
-    log "prepare config files"
-    refreshAllCerts
-    refreshOpenSearchConf
-    refreshJvmOptions
-    refreshLog4j2Properties
-    refreshIKAnalyzerCfgXml
-
-    log "appctl init"
-    _init
-
-    log "modify folder permission"
-    chown -R opensearch:svc /data/opensearch/{data,logs}
-    
-    log "start opensearch.service"
-    systemctl start opensearch
-
-    if ! isFirstMaster; then return 0; fi
-
-    log "prepare upgrade folder"
+repairAdminAuth() {
+    log "prepare backup folder"
     mkdir -p $OPENSEARCH_SEC_BACKUP_PATH
 
     log "backup security settings"
@@ -78,7 +41,4 @@ upgrade() {
         log "write back new password failed!"
         return $EC_SEC_WRITEBACK_FAILED
     fi
-
-    log "apply all dynamic settings"
-    applyAllDynamicSettings
 }
