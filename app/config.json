@@ -618,7 +618,7 @@
         "type": "string",
         "default": "all",
         "range": ["all", "primaries", "new_primaries", "none"],
-        "required": "no"
+        "required": "yes"
       }, {
         "key": "static.os.thread_pool.write.queue_size",
         "label": "thread_pool.write.queue_size",
