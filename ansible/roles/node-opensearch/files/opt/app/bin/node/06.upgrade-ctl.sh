@@ -5,7 +5,7 @@ CADDY_OLD_FILE=/data/opensearch/index.html
 
 modifySecurityFile() {
     fn=$OPENSEARCH_SEC_BACKUP_PATH/internal_users.yml
-    adminLine=$(awk '/admin/{print NR; exit}' $fn)
+    adminLine=$(awk '/^admin/{print NR; exit}' $fn)
     reservedLine=$(awk -v n=$adminLine 'NR>n && /reserved/{print NR; exit}' $fn)
     sed -i "${reservedLine}s/.*/  reserved: false/" $fn
 }

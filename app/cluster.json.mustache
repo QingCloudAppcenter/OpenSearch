@@ -15,7 +15,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-f1x1wx9q"
+      "image": "img-v1fxrr8n"
     },
     "instance_class": {{cluster.es_node.instance_class}},
     "count": {{cluster.es_node.count}},
@@ -289,7 +289,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-f1x1wx9q"
+      "image": "img-v1fxrr8n"
     },
     "instance_class": {{cluster.es_master_node.instance_class}},
     "count": {{cluster.es_master_node.count}},
@@ -356,7 +356,7 @@
         "cmd": "appctl upgrade",
         "order": 4,
         "post_start_service": true,
-        "timeout": 300
+        "timeout": 43200
       }
     },
     "env": {
@@ -561,7 +561,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-f1x1wx9q"
+      "image": "img-v1fxrr8n"
     },
     "instance_class": {{cluster.es_node_2.instance_class}},
     "count": {{cluster.es_node_2.count}},
@@ -835,7 +835,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-f1x1wx9q"
+      "image": "img-v1fxrr8n"
     },
     "instance_class": {{cluster.es_node_3.instance_class}},
     "count": {{cluster.es_node_3.count}},
@@ -1177,7 +1177,7 @@
       "upgrade": {
         "cmd": "appctl upgrade",
         "order": 5,
-        "timeout": 60
+        "timeout": 43200
       }
     },
     "env": {

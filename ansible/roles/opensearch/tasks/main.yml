@@ -157,6 +157,6 @@
 - name: fix internal_users.yml
   shell: |
     fn="/opt/app/current/conf/opensearch/opensearch-security/internal_users.yml"
-    adminLine=$(awk '/admin/{print NR; exit}' $fn)
+    adminLine=$(awk '/^admin/{print NR; exit}' $fn)
     reservedLine=$(awk -v n=$adminLine 'NR>n && /reserved/{print NR; exit}' $fn)
     sed -i "${reservedLine}s/.*/  reserved: false/" $fn
