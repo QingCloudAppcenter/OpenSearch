@@ -1,12 +1,7 @@
-CADDY_OLD_FILE=/data/opensearch/index.html
-
 upgrade() {
     log "backup old logstash.conf"
     cp $PIPELINE_CONFIG_PATH $PIPELINE_CONFIG_PATH.old
     chown ubuntu:svc $PIPELINE_CONFIG_PATH.old
-
-    log "remove $CADDY_OLD_FILE"
-    rm -f $CADDY_OLD_FILE
 
     log "sync all settings"
     syncAllSettings
