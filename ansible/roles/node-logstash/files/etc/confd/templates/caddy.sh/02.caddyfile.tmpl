@@ -19,6 +19,12 @@ flush > /opt/app/current/conf/caddy/caddyfile << LS_CADDYFILE_EOF
   root * /data/logstash
   file_server browse
 
+  @log {
+    path *.log
+  }
+
+  header @log Content-Type text/plain;charset=utf-8
+
   handle /logs/*,/dump/* {
     header Content-Type text/plain;charset=utf-8
   }
