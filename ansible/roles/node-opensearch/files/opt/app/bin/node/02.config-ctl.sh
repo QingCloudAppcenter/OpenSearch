@@ -238,6 +238,8 @@ $jvmDumpConf
 # for performance analyzer and other plugins
 -Djava.security.policy=${conffolder}/app.policy
 --add-opens=jdk.attach/sun.tools.attach=ALL-UNNAMED
+# s3 repo settings
+-Dopensearch.allow_insecure_settings=true
 JVM_CONF
     )
     echo "$cfg" > ${JVM_OPTIONS_PATH}
