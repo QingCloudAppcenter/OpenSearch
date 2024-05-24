@@ -282,6 +282,17 @@ INTERNAL_USER
     sed -i "$line i \ \ hash: \"$osdhash\"" $SECURITY_CONF_PATH/internal_users.yml
 }
 
+setAdminPass() {
+    local settings=$(cat $STATIC_SETTINGS_PATH)
+    local admin_pwd=$(getItemFromConf "$settings" "static.os.admin_pass")
+    local adminhash=$(calcSecretHash $admin_pwd)
+
+    fn=$SECURITY_CONF_PATH/internal_users.yml
+    adminLine=$(awk '/^admin/{print NR; exit}' $fn)
+    hashLine=$(awk -v n=$adminLine 'NR>n && /hash/{print NR; exit}' $fn)
+    sed -i "$hashLine c \ \ hash: \"$adminhash\"" $fn
+}
+
 restoreInternalUsers() {
     sed -i '/# managed by appctl, do not modify/,$d' ${SECURITY_CONF_PATH}/internal_users.yml
 

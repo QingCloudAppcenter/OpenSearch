@@ -63,6 +63,9 @@ init() {
     log "inject internal users"
     injectInternalUsers
 
+    log "set admin pass"
+    setAdminPass
+
     if isFirstMaster; then
         log "inject cluster init config in opensearch.yml"
         injectClusterInitConf

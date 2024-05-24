@@ -582,6 +582,15 @@
       "description": "The role configuration properties of the application",
       "type": "array",
       "properties": [{
+        "key": "static.os.admin_pass",
+        "label": "admin_pass",
+        "description": "The admin password, can be changed in Dashboards console. Must contain a combination of uppercase and lowercase letters and numbers, special characters can be used (including @#%&*()_+-=), and the length is between 8-32. Default value is ChangeMe123.",
+        "type": "password",
+        "pattern": "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z@#\\%\\&\\*\\(\\)\\_\\+\\-\\=]{8,32}$",
+        "default": "ChangeMe123",
+        "required": "yes",
+        "changeable": false
+      }, {
         "key": "prometheus.node.exporter",
         "label": "enable.node.exporter",
         "description": "Prometheus exporter for hardware and OS metrics exposed by *NIX kernels with pluggable metric collectors.",
@@ -618,7 +627,7 @@
         "type": "string",
         "default": "all",
         "range": ["all", "primaries", "new_primaries", "none"],
-        "required": "yes"
+        "required": "no"
       }, {
         "key": "static.os.thread_pool.write.queue_size",
         "label": "thread_pool.write.queue_size",

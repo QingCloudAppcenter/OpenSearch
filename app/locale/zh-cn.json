@@ -46,6 +46,8 @@
   "Custom certificate for opensearch nodes": "OpenSearch 节点上使用的自定义节点证书.",
   "Custom node certificate key": "自定义节点证书密钥",
   "Custom certificate key for opensearch nodes": "OpenSearch 节点上使用的自定义节点证书密钥.",
+  "admin_pass": "admin 用户密码",
+  "The admin password, can be changed in Dashboards console. Must contain a combination of uppercase and lowercase letters and numbers, special characters can be used (including @#%&*()_+-=), and the length is between 8-32. Default value is ChangeMe123.": "admin 用户密码, 可在 Dashboards 控制台修改. 必须包含大小写字母和数字的组合, 可使用特殊字符(包括 @#%&*()_+-=), 长度在 8-32 之间. 默认值为 ChangeMe123, ",
   "enable.node.exporter": "是否启动 node_exporter.service",
   "Prometheus exporter for hardware and OS metrics exposed by *NIX kernels with pluggable metric collectors.": "Prometheus 导出器用于由 *NIX 内核公开的硬件和操作系统指标，带有可插入的指标收集器",
   "Settings for opensearch-exporter-plugin. Whether to export detailed index level metrics or not.": "opensearch-exporter-plugin 配置参数. 是否导出索引级别的指标, 默认值: false.",

@@ -15,7 +15,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-7z3owo6s"
+      "image": "img-vgv8njwt"
     },
     "instance_class": {{cluster.es_node.instance_class}},
     "count": {{cluster.es_node.count}},
@@ -88,6 +88,7 @@
     },
     "env": {
         "static.os.ssl.http.enabled": {{env.global.cert.os.ssl.http.enabled}},
+        "static.os.admin_pass": {{env.es_node.static.os.admin_pass}},
         "confd.sysctl.tcp_keepalive_intvl": {{env.es_node.confd.sysctl.tcp_keepalive_intvl}},
         "confd.sysctl.tcp_keepalive_probes": {{env.es_node.confd.sysctl.tcp_keepalive_probes}},
         "confd.sysctl.tcp_keepalive_time": {{env.es_node.confd.sysctl.tcp_keepalive_time}},
@@ -289,7 +290,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-7z3owo6s"
+      "image": "img-vgv8njwt"
     },
     "instance_class": {{cluster.es_master_node.instance_class}},
     "count": {{cluster.es_master_node.count}},
@@ -361,6 +362,7 @@
     },
     "env": {
         "static.os.ssl.http.enabled": {{env.global.cert.os.ssl.http.enabled}},
+        "static.os.admin_pass": {{env.es_node.static.os.admin_pass}},
         "confd.sysctl.tcp_keepalive_intvl": {{env.es_node.confd.sysctl.tcp_keepalive_intvl}},
         "confd.sysctl.tcp_keepalive_probes": {{env.es_node.confd.sysctl.tcp_keepalive_probes}},
         "confd.sysctl.tcp_keepalive_time": {{env.es_node.confd.sysctl.tcp_keepalive_time}},
@@ -561,7 +563,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-7z3owo6s"
+      "image": "img-vgv8njwt"
     },
     "instance_class": {{cluster.es_node_2.instance_class}},
     "count": {{cluster.es_node_2.count}},
@@ -634,6 +636,7 @@
     },
     "env": {
         "static.os.ssl.http.enabled": {{env.global.cert.os.ssl.http.enabled}},
+        "static.os.admin_pass": {{env.es_node.static.os.admin_pass}},
         "confd.sysctl.tcp_keepalive_intvl": {{env.es_node.confd.sysctl.tcp_keepalive_intvl}},
         "confd.sysctl.tcp_keepalive_probes": {{env.es_node.confd.sysctl.tcp_keepalive_probes}},
         "confd.sysctl.tcp_keepalive_time": {{env.es_node.confd.sysctl.tcp_keepalive_time}},
@@ -835,7 +838,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-7z3owo6s"
+      "image": "img-vgv8njwt"
     },
     "instance_class": {{cluster.es_node_3.instance_class}},
     "count": {{cluster.es_node_3.count}},
@@ -908,6 +911,7 @@
     },
     "env": {
         "static.os.ssl.http.enabled": {{env.global.cert.os.ssl.http.enabled}},
+        "static.os.admin_pass": {{env.es_node.static.os.admin_pass}},
         "confd.sysctl.tcp_keepalive_intvl": {{env.es_node.confd.sysctl.tcp_keepalive_intvl}},
         "confd.sysctl.tcp_keepalive_probes": {{env.es_node.confd.sysctl.tcp_keepalive_probes}},
         "confd.sysctl.tcp_keepalive_time": {{env.es_node.confd.sysctl.tcp_keepalive_time}},
