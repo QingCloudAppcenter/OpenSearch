@@ -7,15 +7,15 @@
     "scale_horizontal"
   ],
   "upgrade_policy": [
-    "appv-qsj7ua3y"
+    "appv-h2vqsxoq"
   ],
-  "upgrading_policy": "parallel",
+  "upgrading_policy": "sequential",
   "nodes": [{
     "role": "es_node",
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-rv3ueujd"
+      "image": "img-gxekl1cn"
     },
     "instance_class": {{cluster.es_node.instance_class}},
     "count": {{cluster.es_node.count}},
@@ -81,11 +81,14 @@
       },
       "upgrade": {
         "cmd": "appctl upgrade",
+        "order": 1,
+        "post_start_service": true,
         "timeout": 43200
       }
     },
     "env": {
         "static.os.ssl.http.enabled": {{env.global.cert.os.ssl.http.enabled}},
+        "static.os.admin_pass": {{env.es_node.static.os.admin_pass}},
         "confd.sysctl.tcp_keepalive_intvl": {{env.es_node.confd.sysctl.tcp_keepalive_intvl}},
         "confd.sysctl.tcp_keepalive_probes": {{env.es_node.confd.sysctl.tcp_keepalive_probes}},
         "confd.sysctl.tcp_keepalive_time": {{env.es_node.confd.sysctl.tcp_keepalive_time}},
@@ -125,6 +128,8 @@
         "static.log4j.logger.task_detailslog_rolling.level": {{env.es_node.static.log4j.logger.task_detailslog_rolling.level}},
         "static.os.repositories.url.allowed_urls": {{env.es_node.static.os.repositories.url.allowed_urls}},
         "static.os.reindex.remote.whitelist": {{env.es_node.static.os.reindex.remote.whitelist}},
+        "static.ik.local_ext_dict": {{env.es_node.static.ik.local_ext_dict}},
+        "static.ik.local_ext_stopwords": {{env.es_node.static.ik.local_ext_stopwords}},
         "static.ik.remote_ext_dict": {{env.es_node.static.ik.remote_ext_dict}},
         "static.ik.remote_ext_stopwords": {{env.es_node.static.ik.remote_ext_stopwords}},
         "static.os.script.allowed_types": {{env.es_node.static.os.script.allowed_types}},
@@ -285,7 +290,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-rv3ueujd"
+      "image": "img-gxekl1cn"
     },
     "instance_class": {{cluster.es_master_node.instance_class}},
     "count": {{cluster.es_master_node.count}},
@@ -350,11 +355,14 @@
       },
       "upgrade": {
         "cmd": "appctl upgrade",
-        "timeout": 300
+        "order": 4,
+        "post_start_service": true,
+        "timeout": 43200
       }
     },
     "env": {
         "static.os.ssl.http.enabled": {{env.global.cert.os.ssl.http.enabled}},
+        "static.os.admin_pass": {{env.es_node.static.os.admin_pass}},
         "confd.sysctl.tcp_keepalive_intvl": {{env.es_node.confd.sysctl.tcp_keepalive_intvl}},
         "confd.sysctl.tcp_keepalive_probes": {{env.es_node.confd.sysctl.tcp_keepalive_probes}},
         "confd.sysctl.tcp_keepalive_time": {{env.es_node.confd.sysctl.tcp_keepalive_time}},
@@ -394,6 +402,8 @@
         "static.log4j.logger.task_detailslog_rolling.level": {{env.es_node.static.log4j.logger.task_detailslog_rolling.level}},
         "static.os.repositories.url.allowed_urls": {{env.es_node.static.os.repositories.url.allowed_urls}},
         "static.os.reindex.remote.whitelist": {{env.es_node.static.os.reindex.remote.whitelist}},
+        "static.ik.local_ext_dict": {{env.es_node.static.ik.local_ext_dict}},
+        "static.ik.local_ext_stopwords": {{env.es_node.static.ik.local_ext_stopwords}},
         "static.ik.remote_ext_dict": {{env.es_node.static.ik.remote_ext_dict}},
         "static.ik.remote_ext_stopwords": {{env.es_node.static.ik.remote_ext_stopwords}},
         "static.os.script.allowed_types": {{env.es_node.static.os.script.allowed_types}},
@@ -553,7 +563,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-rv3ueujd"
+      "image": "img-gxekl1cn"
     },
     "instance_class": {{cluster.es_node_2.instance_class}},
     "count": {{cluster.es_node_2.count}},
@@ -619,11 +629,14 @@
       },
       "upgrade": {
         "cmd": "appctl upgrade",
+        "order": 2,
+        "post_start_service": true,
         "timeout": 43200
       }
     },
     "env": {
         "static.os.ssl.http.enabled": {{env.global.cert.os.ssl.http.enabled}},
+        "static.os.admin_pass": {{env.es_node.static.os.admin_pass}},
         "confd.sysctl.tcp_keepalive_intvl": {{env.es_node.confd.sysctl.tcp_keepalive_intvl}},
         "confd.sysctl.tcp_keepalive_probes": {{env.es_node.confd.sysctl.tcp_keepalive_probes}},
         "confd.sysctl.tcp_keepalive_time": {{env.es_node.confd.sysctl.tcp_keepalive_time}},
@@ -663,6 +676,8 @@
         "static.log4j.logger.task_detailslog_rolling.level": {{env.es_node.static.log4j.logger.task_detailslog_rolling.level}},
         "static.os.repositories.url.allowed_urls": {{env.es_node.static.os.repositories.url.allowed_urls}},
         "static.os.reindex.remote.whitelist": {{env.es_node.static.os.reindex.remote.whitelist}},
+        "static.ik.local_ext_dict": {{env.es_node.static.ik.local_ext_dict}},
+        "static.ik.local_ext_stopwords": {{env.es_node.static.ik.local_ext_stopwords}},
         "static.ik.remote_ext_dict": {{env.es_node.static.ik.remote_ext_dict}},
         "static.ik.remote_ext_stopwords": {{env.es_node.static.ik.remote_ext_stopwords}},
         "static.os.script.allowed_types": {{env.es_node.static.os.script.allowed_types}},
@@ -823,7 +838,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-rv3ueujd"
+      "image": "img-gxekl1cn"
     },
     "instance_class": {{cluster.es_node_3.instance_class}},
     "count": {{cluster.es_node_3.count}},
@@ -889,11 +904,14 @@
       },
       "upgrade": {
         "cmd": "appctl upgrade",
+        "order": 3,
+        "post_start_service": true,
         "timeout": 43200
       }
     },
     "env": {
         "static.os.ssl.http.enabled": {{env.global.cert.os.ssl.http.enabled}},
+        "static.os.admin_pass": {{env.es_node.static.os.admin_pass}},
         "confd.sysctl.tcp_keepalive_intvl": {{env.es_node.confd.sysctl.tcp_keepalive_intvl}},
         "confd.sysctl.tcp_keepalive_probes": {{env.es_node.confd.sysctl.tcp_keepalive_probes}},
         "confd.sysctl.tcp_keepalive_time": {{env.es_node.confd.sysctl.tcp_keepalive_time}},
@@ -933,6 +951,8 @@
         "static.log4j.logger.task_detailslog_rolling.level": {{env.es_node.static.log4j.logger.task_detailslog_rolling.level}},
         "static.os.repositories.url.allowed_urls": {{env.es_node.static.os.repositories.url.allowed_urls}},
         "static.os.reindex.remote.whitelist": {{env.es_node.static.os.reindex.remote.whitelist}},
+        "static.ik.local_ext_dict": {{env.es_node.static.ik.local_ext_dict}},
+        "static.ik.local_ext_stopwords": {{env.es_node.static.ik.local_ext_stopwords}},
         "static.ik.remote_ext_dict": {{env.es_node.static.ik.remote_ext_dict}},
         "static.ik.remote_ext_stopwords": {{env.es_node.static.ik.remote_ext_stopwords}},
         "static.os.script.allowed_types": {{env.es_node.static.os.script.allowed_types}},
@@ -1093,7 +1113,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-xderecf1"
+      "image": "img-1hm1bowz"
     },
     "instance_class": {{cluster.lst_node.instance_class}},
     "count": {{cluster.lst_node.count}},
@@ -1142,7 +1162,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-trz0wdm8"
+      "image": "img-jedakjv5"
     },
     "instance_class": {{cluster.kbn_node.instance_class}},
     "count": {{cluster.kbn_node.count}},
@@ -1161,7 +1181,7 @@
       "upgrade": {
         "cmd": "appctl upgrade",
         "order": 5,
-        "timeout": 60
+        "timeout": 43200
       }
     },
     "env": {

@@ -49,10 +49,10 @@
       name: "{{ svc_name }}"
     when: "'opensearchDashboards' in group_names"
     loop:
-    # - opensearchDashboards
-    # - nodejs-1.0.0
-    # - haproxy-1.0.8
-    # - keepalived-1.0.6
+    - opensearchDashboards
+    - haproxy-1.0.8
+    - keepalived-1.0.6
+    - cerebro
     - node-opensearchDashboards
     loop_control:
       loop_var: svc_name

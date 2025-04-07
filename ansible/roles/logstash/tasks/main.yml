@@ -78,3 +78,27 @@
 #   copy:
 #     dest: /etc/profile.d/logstash-path.sh
 #     content: 'PATH=$PATH:{{ ls_home }}/bin'
+
+- name: install caddy-2.7.6
+  copy:
+    src: tmp/caddy/2.7.6
+    dest: /opt/caddy
+    owner: root
+    group: svc
+    mode: preserve
+
+- name: link to caddy-2.7.6
+  file:
+    src: 2.7.6
+    dest: /opt/caddy/current
+    owner: root
+    group: svc
+    state: link
+
+- name: update caddy.service
+  copy:
+    src: opt/app/conf/systemd/
+    dest: /opt/app/current/conf/systemd
+    owner: root
+    group: svc
+    mode: preserve

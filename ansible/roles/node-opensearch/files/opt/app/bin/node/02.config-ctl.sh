@@ -28,9 +28,9 @@ getItemFromConf() {
 refreshOpenSearchConf() {
     local rolestr=""
     if [ "$IS_MASTER" = "true" ]; then
-        rolestr="cluster_manager"
+        rolestr="cluster_manager, remote_cluster_client"
     else
-        rolestr="data, ingest"
+        rolestr="data, ingest, remote_cluster_client"
     fi
     local masterlist=$(echo $STABLE_MASTER_NODES_HOSTS $JOINING_MASTER_NODES_HOSTS)
 
@@ -238,6 +238,8 @@ $jvmDumpConf
 # for performance analyzer and other plugins
 -Djava.security.policy=${conffolder}/app.policy
 --add-opens=jdk.attach/sun.tools.attach=ALL-UNNAMED
+# s3 repo settings
+-Dopensearch.allow_insecure_settings=true
 JVM_CONF
     )
     echo "$cfg" > ${JVM_OPTIONS_PATH}
@@ -278,6 +280,17 @@ INTERNAL_USER
     line=$((line+1))
     sed -i "$line s/.*/#&/" $SECURITY_CONF_PATH/internal_users.yml
     sed -i "$line i \ \ hash: \"$osdhash\"" $SECURITY_CONF_PATH/internal_users.yml
+}
+
+setAdminPass() {
+    local settings=$(cat $STATIC_SETTINGS_PATH)
+    local admin_pwd=$(getItemFromConf "$settings" "static.os.admin_pass")
+    local adminhash=$(calcSecretHash $admin_pwd)
+
+    fn=$SECURITY_CONF_PATH/internal_users.yml
+    adminLine=$(awk '/^admin/{print NR; exit}' $fn)
+    hashLine=$(awk -v n=$adminLine 'NR>n && /hash/{print NR; exit}' $fn)
+    sed -i "$hashLine c \ \ hash: \"$adminhash\"" $fn
 }
 
 restoreInternalUsers() {
@@ -440,25 +453,36 @@ LOG4J
 
 refreshIKAnalyzerCfgXml() {
     local settings=$(cat $STATIC_SETTINGS_PATH)
+    local ikLocalDict=$(getItemFromConf "$settings" "static.ik.local_ext_dict")
+    local ikLocalStopwords=$(getItemFromConf "$settings" "static.ik.local_ext_stopwords")
     local ikRemoteExtDict=$(getItemFromConf "$settings" "static.ik.remote_ext_dict")
     local ikRemoteExtStopwords=$(getItemFromConf "$settings" "static.ik.remote_ext_stopwords")
-    local dictStr
-    if [ -n "$ikRemoteExtDict" ]; then
-        dictStr="<entry key=\"remote_ext_dict\">$ikRemoteExtDict</entry>"
+
+    local localDictStr
+    if [ ! "$ikLocalDict" = "false" ]; then
+        localDictStr="custom/jieba.dic;extra_main.dic"
     fi
-    local stopStr
+    local remoteDictStr
+    if [ -n "$ikRemoteExtDict" ]; then
+        remoteDictStr="<entry key=\"remote_ext_dict\">$ikRemoteExtDict</entry>"
+    fi
+    local localStopStr
+    if [ ! "$ikLocalStopwords" = "false" ]; then
+        localStopStr="extra_stopword.dic"
+    fi
+    local remoteStopStr
     if [ -n "$ikRemoteExtStopwords" ]; then
-        stopStr="<entry key=\"remote_ext_stopwords\">$ikRemoteExtStopwords</entry>"
+        remoteStopStr="<entry key=\"remote_ext_stopwords\">$ikRemoteExtStopwords</entry>"
     fi
 
     local cfg=$(cat <<IKA_CONF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-    <entry key="ext_dict">custom/jieba.dic;extra_main.dic</entry>
-    <entry key="ext_stopwords">extra_stopword.dic</entry>
-    $dictStr
-    $stopStr
+    <entry key="ext_dict">$localDictStr</entry>
+    <entry key="ext_stopwords">$localStopStr</entry>
+    $remoteDictStr
+    $remoteStopStr
 </properties>
 IKA_CONF
     )

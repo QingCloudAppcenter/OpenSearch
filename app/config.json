@@ -582,6 +582,15 @@
       "description": "The role configuration properties of the application",
       "type": "array",
       "properties": [{
+        "key": "static.os.admin_pass",
+        "label": "admin_pass",
+        "description": "The admin password, can be changed in Dashboards console. Must contain a combination of uppercase and lowercase letters and numbers, special characters can be used (including @#%&*()_+-=), and the length is between 8-32. Default value is ChangeMe123.",
+        "type": "password",
+        "pattern": "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z@#\\%\\&\\*\\(\\)\\_\\+\\-\\=]{8,32}$",
+        "default": "ChangeMe123",
+        "required": "yes",
+        "changeable": false
+      }, {
         "key": "prometheus.node.exporter",
         "label": "enable.node.exporter",
         "description": "Prometheus exporter for hardware and OS metrics exposed by *NIX kernels with pluggable metric collectors.",
@@ -764,6 +773,22 @@
         "type": "string",
         "pattern": "^$|^([a-z0-9-.*]+:[0-9*]+(, *)?)+$",
         "default": "",
+        "changeable": true,
+        "required": "no"
+      }, {
+        "key": "static.ik.local_ext_dict",
+        "label": "local_ext_dict",
+        "description": "Settings for opensearch-analysis-ik plugin. Enable local dictionary or not.",
+        "type": "boolean",
+        "default": true,
+        "changeable": true,
+        "required": "no"
+      }, {
+        "key": "static.ik.local_ext_stopwords",
+        "label": "local_ext_stopwords",
+        "description": "Settings for opensearch-analysis-ik plugin. Enable local stopwords dictionary or not.",
+        "type": "boolean",
+        "default": true,
         "changeable": true,
         "required": "no"
       }, {

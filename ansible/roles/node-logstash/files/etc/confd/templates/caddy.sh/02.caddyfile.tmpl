@@ -1,22 +1,33 @@
 flush > /opt/app/current/conf/caddy/caddyfile << LS_CADDYFILE_EOF
 :80 {
-  root /data/opensearch
-  gzip
-  browse /dicts
-  browse /logs
-  tls off
+  encode gzip
+  root * /data/opensearch
+  file_server browse
 
-  upload / {
-    yes_without_tls
-    to /data/opensearch/dicts
+  handle /dicts/* {
+    header Content-Type text/plain;charset=utf-8
+  }
+
+  handle_path /logstash/* {
+    rewrite * /{path}
+    reverse_proxy localhost:81
   }
 }
 
-:80/logstash {
-  root /data/logstash
-  gzip
-  browse /logs
-  browse /dump
-  tls off
+:81 {
+  encode gzip
+  root * /data/logstash
+  file_server browse
+
+  @log {
+    path *.log
+  }
+
+  header @log Content-Type text/plain;charset=utf-8
+
+  handle /logs/*,/dump/* {
+    header Content-Type text/plain;charset=utf-8
+  }
 }
+
 LS_CADDYFILE_EOF
