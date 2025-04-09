@@ -1,3 +1,2 @@
-ansible/hosts
-ansible/files/tmp
+*/file/tmp
 ansible/roles/*/files/tmp
