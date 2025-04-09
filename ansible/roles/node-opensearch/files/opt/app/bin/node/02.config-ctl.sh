@@ -357,7 +357,6 @@ appender.rolling_old.strategy.fileIndex = nomax
 appender.rolling_old.strategy.action.type = Delete
 appender.rolling_old.strategy.action.basepath = \${sys:opensearch.logs.base_path}
 appender.rolling_old.strategy.action.condition.type = IfAny
-appender.rolling_old.strategy.action.condition.glob = \${sys:opensearch.logs.cluster_name}-*
 appender.rolling_old.strategy.action.condition.nested_condition.type = IfAccumulatedFileSize
 appender.rolling_old.strategy.action.condition.nested_condition.exceeds = 200MB
 appender.rolling_old.strategy.action.condition.nested_condition.lastMod.type = IfLastModified
@@ -368,6 +367,8 @@ rootLogger.level = $rootLoggerLevel
 rootLogger.appenderRef.console.ref = console
 rootLogger.appenderRef.rolling_old.ref = rolling_old
 
+appender.header_warning.type = HeaderWarningAppender
+appender.header_warning.name = header_warning
 #################################################
 ######## Deprecation -  old style pattern #######
 appender.deprecation_rolling_old.type = RollingFile
