@@ -11,22 +11,32 @@ flush > /opt/app/current/conf/caddy/caddyfile << CADDYFILE_EOF
 
 :80 {
         vars {
-                rootDir "/data"
+                rootDir "/data/opensearch"
         }
 
         root {vars.rootDir}
 
-        handle /data/analysis* {
+        handle /analysis* {
                 file_server browse
         }
 
-        handle /data/dump* {
+        handle /dump* {
                 file_server browse
         }
 
-        handle /data/logs* {
+        handle /logs* {
                 file_server browse
         }
+
+        file_server
+}
+
+:81 {
+        vars {
+                rootDir "/data/opensearch"
+        }
+
+        root {vars.rootDir}
 
         file_server
 
@@ -34,7 +44,7 @@ flush > /opt/app/current/conf/caddy/caddyfile << CADDYFILE_EOF
 
         @mypost method POST
         upload @mypost {
-                dest_dir /data/analysis
+                dest_dir analysis
                 max_form_buffer 1G
                 max_filesize 500MB
                 response_template templates/upload-resp-template.txt

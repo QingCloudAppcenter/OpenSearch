@@ -43,6 +43,8 @@ isLastMaster() {
 
 init() {
     if ! isClusterInitialized; then
+        log "prepare upload templates"
+        ln -s /opt/app/current/conf/caddy/templates/ /data/opensearch/templates
         log "prepare keystore"
         applyAllKeystoreSettings
         log "prepare config files"
