@@ -1,44 +1,82 @@
 ---
-- name: install cerebro
-  include_role:
-    name: utils
-    tasks_from: install-pkg
+- name: set vars
+  set_fact:
+    cerebro_version: "{{ cerebro_version | d('0.9.4') }}"
+    installPath: "/opt/cerebro"
+
+- name: group svc
+  group:
+    name: svc
+    state: present
+
+- name: prepare service user
+  user:
+    name: cerebro
+    groups: svc
+    shell: /sbin/nologin
+    create_home: no
+    append: yes
+    comment: "Service User"
+    state: present
+
+# will set var downloaded
+- include_role:
+    name: downloader
   vars:
-    version: 0.9.4
-    parentRole: cerebro
-  loop:
-  - pkgUrl: "https://github.com/lmenezes/cerebro/releases/download/v{{ version }}/cerebro-{{ version }}.tgz"
-  loop_control:
-    loop_var: opts
+    opts:
+      pkg_name: cerebro
+      pkg_version: "{{ cerebro_version }}"
+      pkg_feature: "noarch"
+      pkg_fileType: ".tgz"
+      pkg_url: "https://github.com/lmenezes/cerebro/releases/download/v{{ cerebro_version }}/cerebro-{{ cerebro_version }}.tgz"
+
+- name: prepare dir
+  file:
+    path: "{{ installPath }}/{{ cerebro_version }}"
+    state: directory
+
+- name: link for current
+  file:
+    src: "{{ installPath }}/{{ cerebro_version }}"
+    dest: "{{ installPath }}/current"
+    state: link
+
+- name: decompress file
+  unarchive:
+    src: "{{ downloaded }}"
+    dest: "{{ installPath }}/current"
+    creates: "{{ installPath }}/current/bin/cerebro"
+    extra_opts:
+    - --strip-components=1
 
 - name: install service
   copy:
-    src: "{{ role_path }}/files/{{ file_path }}"
-    dest: /{{ file_path }}
+    src: "files/lib/systemd/system/cerebro.service"
+    dest: /opt/app/current/conf/systemd
     owner: root
     group: root
     mode: preserve
-  loop:
-  - lib/systemd/system/
-  loop_control:
-    loop_var: file_path
 
-- name: copy bin files
+- name: copy cerebro default configuration files
   copy:
-  copy:
-    src: "{{ role_path }}/files/{{ file_path }}"
-    dest: /{{ file_path }}
+    src: /opt/cerebro/current/conf/
+    dest: /opt/app/current/conf/cerebro
     owner: root
-    group: cerebro
-  loop:
-  - opt/app/conf/
-  - opt/cerebro/current/conf/
-  loop_control:
-    loop_var: file_path
+    group: svc
+    mode: preserve
+    remote_src: yes
 
-- name: mask service
-  systemd:
-    name: cerebro
-    enabled: no
-    masked: yes
-    state: stopped
+- name: copy cerebro configuration files
+  copy:
+    src: opt/app/current/conf/cerebro/
+    dest: /opt/app/current/conf/cerebro
+    owner: root
+    group: svc
+    mode: preserve
+
+- name: link cerebro log config file
+  file:
+    src: /opt/app/current/conf/cerebro/logback.xml
+    dest: /opt/cerebro/current/conf/logback.xml
+    state: link
+    force: true

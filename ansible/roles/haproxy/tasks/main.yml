@@ -1,0 +1,63 @@
+---
+- name: set vars
+  set_fact:
+    haproxy_version: "{{ haproxy_version | d('3.0.9') }}"
+    os: "{{ os | d(default_os) }}"
+    arch: "{{ arch | d(default_arch) }}"
+    osv: "{{ osv | d(default_osv) }}"
+    installPath: "/opt/haproxy"
+
+- name: group svc
+  group:
+    name: svc
+    state: present
+
+- name: prepare service user
+  user:
+    name: haproxy
+    groups: svc
+    shell: /sbin/nologin
+    create_home: no
+    append: yes
+    comment: "Service User"
+    state: present
+
+# will set var downloaded
+- include_role:
+    name: downloader
+  vars:
+    opts:
+      pkg_name: haproxy
+      pkg_version: "{{ haproxy_version }}"
+      pkg_feature: "{{ os }}-{{ osv }}-{{ arch }}"
+      pkg_fileType: ".tgz"
+      pkg_url: "https://github.com/djangoyi-yunify/haproxy-compiler/releases/download/haproxy-{{ haproxy_version }}_{{ os }}-{{ osv }}/haproxy-{{ haproxy_version }}-{{ arch }}.tgz"
+
+- name: prepare dir
+  file:
+    path: "{{ installPath }}/{{ haproxy_version }}"
+    state: directory
+
+- name: link for current
+  file:
+    src: "{{ installPath }}/{{ haproxy_version }}"
+    dest: "{{ installPath }}/current"
+    state: link
+
+- name: decompress file
+  unarchive:
+    src: "{{ downloaded }}"
+    dest: "{{ installPath }}/current"
+    creates: "{{ installPath }}/current/bin/haproxy"
+    extra_opts:
+    - --strip-components=4
+    - --wildcards
+    - output/usr/local/sbin/haproxy
+
+- name: copy conf files
+  copy:
+    src: files/opt/app/
+    dest: /opt/app/
+    owner: root
+    group: svc
+    mode: preserve

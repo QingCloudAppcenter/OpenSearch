@@ -1,0 +1,14 @@
+---
+- name: set up variables
+  set_fact:
+    os: "{{ os | d(default_os) }}"
+    osv: "{{ osv | d(default_osv) }}"
+
+- name: install
+  apt:
+    name: "liblua5.4-0"
+    update_cache: no
+    state: present
+  when:
+    - os == 'ubuntu'
+    - osv == '22.04'

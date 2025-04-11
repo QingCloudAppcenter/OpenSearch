@@ -1,0 +1,49 @@
+---
+- name: set vars
+  set_fact:
+    keepalived_version: "{{ keepalived_version | d('2.3.3') }}"
+    os: "{{ os | d(default_os) }}"
+    arch: "{{ arch | d(default_arch) }}"
+    osv: "{{ osv | d(default_osv) }}"
+
+- name: group svc
+  group:
+    name: svc
+    state: present
+
+- name: prepare service user
+  user:
+    name: keepalived
+    groups: svc
+    shell: /sbin/nologin
+    create_home: no
+    append: yes
+    comment: "Service User"
+    state: present
+
+# will set var downloaded
+- include_role:
+    name: downloader
+  vars:
+    opts:
+      pkg_name: keepalived
+      pkg_version: "{{ keepalived_version }}"
+      pkg_feature: "{{ os }}-{{ osv }}-{{ arch }}"
+      pkg_fileType: ".tgz"
+      pkg_url: "https://github.com/djangoyi-yunify/keepalived-compiler/releases/download/keepalived-{{ keepalived_version }}_{{ os }}-{{ osv }}/keepalived-{{ keepalived_version }}-{{ arch }}.tgz"
+
+- name: decompress file
+  unarchive:
+    src: "{{ downloaded }}"
+    dest: "/"
+    creates: "/usr/local/sbin/keepalived"
+    extra_opts:
+    - --strip-components=1
+
+- name: copy conf files
+  copy:
+    src: files/opt/app/
+    dest: /opt/app/
+    owner: root
+    group: svc
+    mode: preserve

@@ -4,8 +4,10 @@ arping_version: "20211215-1"
 opensearch_version: 2.19.1
 caddy_version: v2.9.1
 jq_version: "1.7.1"
-opensearch_dashboards_version: 2.13.0
-opensearch_dashboards_package_version: 2.13.0
+openjdk_version: "21.0.2"
+opensearch_dashboards_version: 2.19.1
+haproxy_version: 3.0.9
+keepalived_version: 2.3.3
 logstash_version: 8.9.0
 node_exporter_version: 1.9.1
 cerebro_version: 0.9.4

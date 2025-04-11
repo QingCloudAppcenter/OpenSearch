@@ -29,12 +29,6 @@
       loop_var: svc_name
 
   # - include_role:
-  #     name: java-1.0.1
-  #   vars:
-  #     java_version: 8
-  #   when: ('opensearchDashboards' in group_names) or ('' in group_names)
-
-  # - include_role:
   #     name: "{{ svc_name }}"
   #   when: "'logstash' in group_names"
   #   loop:
@@ -44,14 +38,16 @@
   #   loop_control:
   #     loop_var: svc_name
 
-  # - include_role:
-  #     name: "{{ svc_name }}"
-  #   when: "'opensearchDashboards' in group_names"
-  #   loop:
-  #   - opensearchDashboards
-  #   - haproxy-1.0.8
-  #   - keepalived-1.0.6
-  #   - cerebro
-  #   - node-opensearchDashboards
-  #   loop_control:
-  #     loop_var: svc_name
+  - include_role:
+      name: "{{ svc_name }}"
+    when: "'opensearchDashboards' in group_names"
+    loop:
+    - lualib
+    - openjdk
+    - cerebro
+    - opensearchDashboards
+    - haproxy
+    - keepalived
+    - node-opensearchDashboards
+    loop_control:
+      loop_var: svc_name

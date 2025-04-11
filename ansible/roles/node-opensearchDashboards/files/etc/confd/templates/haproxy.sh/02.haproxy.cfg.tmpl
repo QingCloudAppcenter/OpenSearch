@@ -3,10 +3,12 @@ sslHttpEnabled={{ getv "/env/static.os.ssl.http.enabled" }}
 hamode=http
 halogop=httplog
 habacklogop=httpclose
+forwardforop="option forwardfor"
 if [ "$sslHttpEnabled" = "true" ]; then
   hamode=tcp
   halogop=tcplog
   habacklogop=tcp-check
+  forwardforop=""
 fi
 flush > /opt/app/current/conf/haproxy/haproxy.cfg << ES_PROXY_EOF
 global
@@ -15,7 +17,7 @@ global
   stats timeout 30s
   maxconn {{ $maxConn }}
   {{- $cores := getv "/host/cpu" }}
-  nbproc {{ $cores }}
+  nbthread {{ $cores }}
 $(for i in {1..{{ $cores }}}; do echo "  cpu-map $i $((i - 1))"; done)
   daemon
 
@@ -41,7 +43,7 @@ frontend opensearch
 
 backend opensearch
   mode $hamode
-  option forwardfor
+  $forwardforop
   balance roundrobin
   option $habacklogop
   {{- range getvs "/hosts/es_node*/*/ip" }}
