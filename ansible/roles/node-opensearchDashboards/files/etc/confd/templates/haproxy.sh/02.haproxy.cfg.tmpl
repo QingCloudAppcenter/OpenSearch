@@ -18,8 +18,7 @@ global
   maxconn {{ $maxConn }}
   {{- $cores := getv "/host/cpu" }}
   nbthread {{ $cores }}
-$(for i in {1..{{ $cores }}}; do echo "  cpu-map $i $((i - 1))"; done)
-  daemon
+  cpu-map auto:1/1-{{ $cores }} 0-{{ sub $cores 1 }}
 
 defaults
   log  global
