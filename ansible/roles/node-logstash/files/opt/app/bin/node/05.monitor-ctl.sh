@@ -112,5 +112,8 @@ revive() {
         systemctl restart $item || :
     done
 
+    log "refresh all dynamic services"
+    refreshAllDynamicServiceStatus
+
     rm -f $REVIVE_LOCK_PATH
 }
