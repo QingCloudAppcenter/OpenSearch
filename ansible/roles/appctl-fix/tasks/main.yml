@@ -1,0 +1,20 @@
+---
+- name: set vars
+  set_fact:
+    os: "{{ os | d(default_os) }}"
+
+- name: copy rsyslog config files
+  copy:
+    src: opt/app/current/conf/rsyslog
+    dest: /opt/app/current/conf
+    owner: root
+    group: svc
+    mode: u=rw,go=r
+
+- name: copy logrotate config files
+  copy:
+    src: "opt/app/current/conf/logrotate/appctl-{{ os }}"
+    dest: /opt/app/current/conf/logrotate/appctl
+    owner: root
+    group: svc
+    mode: u=rw,go=r

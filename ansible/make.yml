@@ -9,6 +9,7 @@
   roles:
   - app-agent
   - appctl-1.3.0
+  - appctl-fix
   - arping
   - common
   - caddy
