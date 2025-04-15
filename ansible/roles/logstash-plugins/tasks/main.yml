@@ -1,0 +1,20 @@
+---
+- name: set variables
+  set_fact:
+    installPath: "/opt/logstash"
+
+- name: set variables
+  set_fact:
+    plugin_cmd: "{{ installPath }}/current/bin/logstash-plugin"
+
+- name: install plugin
+  command: "{{ plugin_cmd }} install {{ item }}"
+  loop:
+  - logstash-input-irc
+  - logstash-input-log4j
+  - logstash-input-xmpp
+  - logstash-input-opensearch
+  - logstash-output-irc
+  - logstash-output-statsd
+  - logstash-output-xmpp
+  - logstash-output-opensearch

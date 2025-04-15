@@ -28,15 +28,16 @@
     loop_control:
       loop_var: svc_name
 
-  # - include_role:
-  #     name: "{{ svc_name }}"
-  #   when: "'logstash' in group_names"
-  #   loop:
-  #   - jq-1.0.9
-  #   - logstash
-  #   - node-logstash
-  #   loop_control:
-  #     loop_var: svc_name
+  - include_role:
+      name: "{{ svc_name }}"
+    when: "'logstash' in group_names"
+    loop:
+    - jq
+    - logstash
+    - logstash-plugins
+    - node-logstash
+    loop_control:
+      loop_var: svc_name
 
   - include_role:
       name: "{{ svc_name }}"
