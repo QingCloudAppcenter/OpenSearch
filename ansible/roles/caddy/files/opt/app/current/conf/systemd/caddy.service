@@ -7,8 +7,8 @@ Requires=network-online.target
 [Service]
 Restart=on-failure
 Type=notify
-User=root
-Group=root
+User=caddy
+Group=svc
 ExecStart=/opt/caddy/current/caddy run --config=/opt/app/current/conf/caddy/caddyfile
 ExecReload=/opt/caddy/current/caddy reload --config /opt/app/current/conf/caddy/caddyfile --force
 TimeoutStopSec=5s

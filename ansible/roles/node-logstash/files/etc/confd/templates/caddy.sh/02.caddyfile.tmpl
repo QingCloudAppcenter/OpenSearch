@@ -1,33 +1,47 @@
 flush > /opt/app/current/conf/caddy/caddyfile << LS_CADDYFILE_EOF
+{
+        admin off
+        auto_https off
+        persist_config off
+        order upload before file_server
+        log {
+                output file /data/caddy/caddy.log
+        }
+}
+
 :80 {
-  encode gzip
-  root * /data/opensearch
-  file_server browse
+        vars {
+                rootDir "/data"
+        }
 
-  handle /dicts/* {
-    header Content-Type text/plain;charset=utf-8
-  }
+        root {vars.rootDir}
 
-  handle_path /logstash/* {
-    rewrite * /{path}
-    reverse_proxy localhost:81
-  }
+        redir / /opensearch
+        redir /opensearch/logstash/dump/ /logstash/dump/
+        redir /opensearch/logstash/logs/ /logstash/logs/
+        redir /logstash/ /opensearch/
+
+        file_server browse
 }
 
 :81 {
-  encode gzip
-  root * /data/logstash
-  file_server browse
+        vars {
+                rootDir "/data/opensearch"
+        }
 
-  @log {
-    path *.log
-  }
+        root {vars.rootDir}
 
-  header @log Content-Type text/plain;charset=utf-8
+        file_server
 
-  handle /logs/*,/dump/* {
-    header Content-Type text/plain;charset=utf-8
-  }
+        templates
+
+        @mypost method POST
+        upload @mypost {
+                dest_dir dicts
+                max_form_buffer 1G
+                max_filesize 500MB
+                response_template templates/upload-resp-template.txt
+        }
 }
 
 LS_CADDYFILE_EOF
