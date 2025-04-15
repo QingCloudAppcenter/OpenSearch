@@ -1,0 +1,4 @@
+[opensearch]
+#ubuntu-amd64 ansible_host=172.22.2.68
+#kylin-arm64 ansible_host=yourhost ansible_port=30122
+#kylin-amd64 ansible_host=yourhost ansible_port=30024
