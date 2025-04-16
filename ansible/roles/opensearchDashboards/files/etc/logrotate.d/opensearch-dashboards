@@ -6,6 +6,5 @@
   notifempty
   postrotate
     /bin/kill -HUP $(cat /data/opensearch-dashboards/data/opensearchDashboards.pid 2>/dev/null) 2>/dev/null
-    invoke-rc.d rsyslog rotate >/dev/null 2>&1 || true
   endscript
 }
