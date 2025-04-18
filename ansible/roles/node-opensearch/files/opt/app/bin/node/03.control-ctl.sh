@@ -47,6 +47,9 @@ init() {
         ln -s /opt/app/current/conf/caddy/templates/ /data/opensearch/templates
         log "prepare keystore"
         applyAllKeystoreSettings
+        log "prepare caddy folder"
+        mkdir -p /data/caddy
+        chown caddy:svc /data/caddy
         log "prepare config files"
         refreshAllCerts
         refreshOpenSearchConf

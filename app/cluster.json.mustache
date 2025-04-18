@@ -7,7 +7,7 @@
     "scale_horizontal"
   ],
   "upgrade_policy": [
-    "appv-h2vqsxoq"
+    "appv-gugdyi1k"
   ],
   "upgrading_policy": "sequential",
   "nodes": [{
@@ -15,7 +15,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-iuzwy580"
+      "image": "img-3wvw7hbj"
     },
     "instance_class": {{cluster.es_node.instance_class}},
     "count": {{cluster.es_node.count}},
@@ -144,7 +144,7 @@
     "health_check": {
       "enable": true,
       "interval_sec": 60,
-      "timeout_sec": 10,
+      "timeout_sec": 20,
       "action_timeout_sec": 150,
       "healthy_threshold": 2,
       "unhealthy_threshold": 4,
@@ -290,7 +290,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-iuzwy580"
+      "image": "img-3wvw7hbj"
     },
     "instance_class": {{cluster.es_master_node.instance_class}},
     "count": {{cluster.es_master_node.count}},
@@ -417,7 +417,7 @@
     "health_check": {
       "enable": true,
       "interval_sec": 60,
-      "timeout_sec": 10,
+      "timeout_sec": 20,
       "healthy_threshold": 2,
       "unhealthy_threshold": 4,
       "check_cmd": "appctl healthCheck",
@@ -563,7 +563,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-iuzwy580"
+      "image": "img-3wvw7hbj"
     },
     "instance_class": {{cluster.es_node_2.instance_class}},
     "count": {{cluster.es_node_2.count}},
@@ -692,7 +692,7 @@
     "health_check": {
       "enable": true,
       "interval_sec": 60,
-      "timeout_sec": 10,
+      "timeout_sec": 20,
       "action_timeout_sec": 150,
       "healthy_threshold": 2,
       "unhealthy_threshold": 4,
@@ -838,7 +838,7 @@
     "container": {
       "type": "kvm",
       "zone": "pek3",
-      "image": "img-iuzwy580"
+      "image": "img-3wvw7hbj"
     },
     "instance_class": {{cluster.es_node_3.instance_class}},
     "count": {{cluster.es_node_3.count}},
@@ -967,7 +967,7 @@
     "health_check": {
       "enable": true,
       "interval_sec": 60,
-      "timeout_sec": 10,
+      "timeout_sec": 20,
       "action_timeout_sec": 150,
       "healthy_threshold": 2,
       "unhealthy_threshold": 4,
