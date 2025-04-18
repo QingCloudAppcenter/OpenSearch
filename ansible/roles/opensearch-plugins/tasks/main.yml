@@ -22,21 +22,16 @@
     - ingest-attachment
   ignore_errors: True
 
-# download analysis-ik
-- include_role:
-    name: downloader
-  vars:
-    opts:
-      pkg_name: opensearch-plugins
-      pkg_version: "{{ opensearch_version }}"
-      pkg_feature: "analysis-ik"
-      pkg_fileType: ".zip"
-      pkg_url: "https://github.com/aparo/opensearch-analysis-ik/releases/download/{{ opensearch_version }}/opensearch-analysis-ik.zip"
+- name: set up variables
+  set_fact:
+    infinilabs_url: "https://release.infinilabs.com"
 
-- name: copy file
-  copy:
-    src: "{{ downloaded }}"
-    dest: "/tmp/opensearch-analysis-ik.zip"
+- name: install plugins from infinilabs
+  include_tasks: "{{  role_path | dirname  }}/utils/tasks/infinilabs-plugin.yml"
+  loop:
+  - analysis-ik
+  - analysis-pinyin
+  - analysis-stconvert
 
 # downloaded prometheus-exporter
 - name: setup variables for prometheus-exporter
@@ -63,6 +58,8 @@
     OPENSEARCH_HOME=/opt/opensearch/current OPENSEARCH_JAVA_HOME=/opt/opensearch/current/jdk OPENSEARCH_PATH_CONF=/opt/app/current/conf/opensearch /opt/opensearch/current/bin/opensearch-plugin install -v --batch "file://{{ item }}"
   loop:
     - /tmp/opensearch-analysis-ik.zip
+    - /tmp/opensearch-analysis-pinyin.zip
+    - /tmp/opensearch-analysis-stconvert.zip
     - /tmp/prometheus-exporter.zip
   ignore_errors: True
 

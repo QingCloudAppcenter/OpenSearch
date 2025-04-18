@@ -1,10 +1,12 @@
-- name: fix analysis-ik config path
-  file:
-    src: /opt/app/current/conf/opensearch/opensearch-analysis-ik
-    dest: /opt/app/current/conf/opensearch/analysis-ik
-    owner: root
-    group: svc
-    state: link
+# use this when install ik from https://github.com/aparo
+# but now, we will install ik from https://release.infinilabs.com/analysis-ik
+# - name: fix analysis-ik config path
+#   file:
+#     src: /opt/app/current/conf/opensearch/opensearch-analysis-ik
+#     dest: /opt/app/current/conf/opensearch/analysis-ik
+#     owner: root
+#     group: svc
+#     state: link
 
 - name: prepare dict directory
   file:
