@@ -28,6 +28,6 @@
 - name: copy jieba dict
   copy:
     src: "{{ downloaded }}"
-    dest: "/opt/app/current/conf/opensearch/analysis-ik/custom"
+    dest: "/opt/app/current/conf/opensearch/analysis-ik/custom/jieba.dic"
     owner: root
     group: svc
