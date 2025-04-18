@@ -21,6 +21,12 @@ start() {
         log "refresh jvm.options when vertical scaling"
         refreshJvmOptions
     fi
+    if [ $UPGRADING_FLAG = "true" ]; then
+        log "detect upgrading! fix some folder issues"
+        mkdir -p /data/caddy
+        chown caddy:svc /data/caddy
+        chown -R opensearch:svc /data/opensearch
+    fi
     log "start opensearch.service"
     systemctl start opensearch
     log "enable health check"
