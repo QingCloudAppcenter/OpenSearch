@@ -5,35 +5,21 @@
     arch: "{{ arch | d(default_arch) }}"
     installPath: "/opt/prometheus/node_exporter"
 
-- name: Copy files
-  copy:
-    src: "{{ role_path }}/files/opt/app/current/conf/systemd/node_exporter.service"
-    dest: /lib/systemd/system/
-    directory_mode: yes
-
-- name: Add the prometheus Service Group
+- name: group svc
   group:
-    name: "prometheus"
+    name: svc
     state: present
 
 - name: Add the prometheus Service User
   user:
     name: "prometheus"
-    groups: "prometheus"
+    groups: "svc"
     shell: /sbin/nologin
     create_home: no
     home: /var/lib/prometheus
     append: yes
     comment: "prometheus Service User"
     state: present
-
-- name: Create node_exporter folder
-  file:
-    path: "{{ installPath }}/{{ node_exporter_version }}"
-    state: directory
-    owner: prometheus
-    group: prometheus
-    mode: 0755
 
 # will set var downloaded
 - include_role:
@@ -46,6 +32,17 @@
       pkg_fileType: ".tgz"
       pkg_url: "https://github.com/prometheus/node_exporter/releases/download/v{{ node_exporter_version }}/node_exporter-{{ node_exporter_version }}.linux-{{ arch }}.tar.gz"
 
+- name: Create node_exporter folder
+  file:
+    path: "{{ installPath }}/{{ node_exporter_version }}"
+    state: directory
+
+- name: link for current
+  file:
+    src: "{{ installPath }}/{{ node_exporter_version }}"
+    dest: "{{ installPath }}/current"
+    state: link
+
 - name: decompress file
   unarchive:
     src: "{{ downloaded }}"
@@ -54,20 +51,10 @@
     extra_opts:
     - --strip-components=1
 
-- name: link for current
-  file:
-    src: "{{ installPath }}/{{ node_exporter_version }}"
-    dest: "{{ installPath }}/current"
-    state: link
-
-- name: disable systemd deamon
-  systemd:
-    daemon_reload: yes
-    name: node_exporter
-    enabled: no
-    masked: yes
-    state: stopped
-
-- name: compile and install confd files
-  include_role:
-    name: confd-files-1.1.0
+- name: Copy files
+  copy:
+    src: "opt/app/current/conf/systemd/node_exporter.service"
+    dest: /opt/app/current/conf/systemd
+    owner: root
+    group: root
+    mode: preserve
