@@ -43,7 +43,7 @@ frontend opensearch
 backend opensearch
   mode $hamode
   $forwardforop
-  balance roundrobin
+  balance {{ getv "/env/proxy.balance.policy" }}
   option $habacklogop
   {{- range getvs "/hosts/es_node*/*/ip" }}
   server {{ . }}:9200 {{ . }}:9200 check
