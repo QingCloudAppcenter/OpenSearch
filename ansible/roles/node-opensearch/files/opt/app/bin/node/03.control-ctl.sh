@@ -22,7 +22,10 @@ start() {
         refreshJvmOptions
     fi
     if [ $UPGRADING_FLAG = "true" ]; then
-        log "detect upgrading! fix some folder issues"
+        log "detect upgrading!"
+        log "prepare upload templates"
+        ln -s /opt/app/current/conf/caddy/templates/ /data/opensearch/templates
+        log "fix some folder issues"
         mkdir -p /data/caddy
         chown caddy:svc /data/caddy
         chown -R opensearch:svc /data/opensearch
@@ -33,6 +36,8 @@ start() {
     enableHealthCheck
     log "refresh all dynamic service status"
     refreshAllDynamicServiceStatus
+    log "modify folder analysis permission"
+    chmod 775 /data/opensearch/analysis
 }
 
 isFirstMaster() {
