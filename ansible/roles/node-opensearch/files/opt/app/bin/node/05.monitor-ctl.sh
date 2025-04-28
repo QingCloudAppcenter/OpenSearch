@@ -50,7 +50,7 @@ checkEndpoints() {
 checkClusterHealth() {
     local info=$(getClusterHealthInfo $MY_IP)
     local status=$(echo "$info" | jq -r '.status')
-    if [ ! "$status" = "green" ]; then
+    if [ "$status" = "red" ]; then
         log "cluster health: $status"
         return $EC_CHECK_CLUSTER_HEALTH;
     fi
