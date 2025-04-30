@@ -340,7 +340,7 @@ dump() {
 clearDump() {
   local ip=$(echo "$1" | jq -r '."node.ip"')
 
-  if [ ! "$ip" = "$MY_IP" ]; then return 0; fi
+  if [ -n "$ip" ] && [ ! "$ip" = "$MY_IP" ]; then return 0; fi
 
   find $JVM_DUMP_PATH -name '*.hprof' -delete || return 0
 }
