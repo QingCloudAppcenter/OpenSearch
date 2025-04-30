@@ -1,10 +1,33 @@
 flush > /opt/app/current/conf/caddy/caddyfile << KIBANA_CADDYFILE_EOF
+{
+        admin off
+        auto_https off
+        persist_config off
+        order upload before file_server
+        log {
+                output file /data/caddy/caddy.log
+        }
+}
+
 :80 {
-  root /data
-  gzip
-  browse /opensearch-dashboards/logs
-  browse /haproxy/logs
-  browse /keepalived/logs
-  tls off
+        vars {
+                rootDir "/data"
+        }
+
+        root {vars.rootDir}
+
+        handle /opensearch-dashboards/logs* {
+                file_server browse
+        }
+
+        handle /haproxy/logs* {
+                file_server browse
+        }
+
+        handle /keepalived/logs* {
+                file_server browse
+        }
+
+        file_server
 }
 KIBANA_CADDYFILE_EOF

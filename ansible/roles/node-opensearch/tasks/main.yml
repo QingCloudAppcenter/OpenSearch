@@ -1,7 +1,11 @@
 ---
+- name: set up variables
+  set_fact:
+    local_cache_path: "{{ local_cache_path | d('file/tmp') }}"
+
 - name: compile and install confd files
   include_role:
-    name: confd-files-1.0.1
+    name: confd-files-1.1.0
 
 - name: copy script files
   copy:
@@ -11,6 +15,13 @@
     group: svc
     mode: preserve
     directory_mode: u=rwx,g=rx,o=
+
+- name: fix directory permission for app conf
+  file:
+    path: /opt/app/current/conf
+    group: svc
+    mode: g+rx
+    state: directory
 
 # - name: fix caddy service permission issue
 #   copy:

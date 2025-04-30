@@ -1,0 +1,16 @@
+# only for outer calling with loop
+- name: Download plugin {{ item }}
+  include_role:
+    name: downloader
+  vars:
+    opts:
+      pkg_name: opensearch-plugins
+      pkg_version: "{{ opensearch_version }}"
+      pkg_feature: "{{ item }}"
+      pkg_fileType: ".zip"
+      pkg_url: "{{ infinilabs_url }}/{{ item }}/stable/opensearch-{{ item }}-{{ opensearch_version }}.zip"
+
+- name: Copy {{ item }} plugin to /tmp
+  copy:
+    src: "{{ downloaded }}"
+    dest: "/tmp/opensearch-{{ item }}.zip"

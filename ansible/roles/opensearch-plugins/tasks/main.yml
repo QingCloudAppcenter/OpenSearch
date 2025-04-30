@@ -1,0 +1,68 @@
+---
+- name: set up variables
+  set_fact:
+    opensearch_version: "{{ opensearch_version | d('2.19.1') }}"
+
+- name: install opensearch provided plugins
+  shell: |
+    OPENSEARCH_HOME=/opt/opensearch/current OPENSEARCH_JAVA_HOME=/opt/opensearch/current/jdk OPENSEARCH_PATH_CONF=/opt/app/current/conf/opensearch /opt/opensearch/current/bin/opensearch-plugin install -v --batch "{{ item }}"
+    sleep 5s
+  loop:
+    - analysis-icu
+    - analysis-kuromoji
+    - analysis-nori
+    - analysis-phonetic
+    - analysis-smartcn
+    - analysis-stempel
+    - analysis-ukrainian
+    - mapper-annotated-text
+    - mapper-murmur3
+    - mapper-size
+    - repository-hdfs
+    - repository-s3
+    - ingest-attachment
+  ignore_errors: True
+
+- name: set up variables
+  set_fact:
+    infinilabs_url: "https://release.infinilabs.com"
+
+- name: install plugins from infinilabs
+  include_tasks: "{{  role_path | dirname  }}/utils/tasks/infinilabs-plugin.yml"
+  loop:
+  - analysis-ik
+  - analysis-pinyin
+  - analysis-stconvert
+
+# downloaded prometheus-exporter
+- name: setup variables for prometheus-exporter
+  set_fact:
+    vpart1: "v{{ opensearch_version }}"
+    vpart2: "{{ opensearch_version }}.0"
+- include_role:
+    name: downloader
+  vars:
+    opts:
+      pkg_name: opensearch-plugins
+      pkg_version: "{{ opensearch_version }}"
+      pkg_feature: "prometheus-exporter"
+      pkg_fileType: ".zip"
+      pkg_url: "https://github.com/Virtimo/prometheus-exporter-plugin-for-opensearch/releases/download/{{ vpart1 }}/prometheus-exporter-{{ vpart2 }}.zip"
+
+- name: copy file
+  copy:
+    src: "{{ downloaded }}"
+    dest: "/tmp/prometheus-exporter.zip"
+
+- name: install third-party plugins
+  shell: |
+    OPENSEARCH_HOME=/opt/opensearch/current OPENSEARCH_JAVA_HOME=/opt/opensearch/current/jdk OPENSEARCH_PATH_CONF=/opt/app/current/conf/opensearch /opt/opensearch/current/bin/opensearch-plugin install -v --batch "file://{{ item }}"
+  loop:
+    - /tmp/opensearch-analysis-ik.zip
+    - /tmp/opensearch-analysis-pinyin.zip
+    - /tmp/opensearch-analysis-stconvert.zip
+    - /tmp/prometheus-exporter.zip
+  ignore_errors: True
+
+- include_role:
+    name: analysis-ik-config

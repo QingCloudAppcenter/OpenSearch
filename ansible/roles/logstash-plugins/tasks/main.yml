@@ -1,0 +1,40 @@
+---
+- name: set variables
+  set_fact:
+    installPath: "/opt/logstash"
+    gemSource: "https://mirrors.aliyun.com/rubygems/"
+
+- name: calc jvm memory
+  set_fact:
+    jvm_memory: "{{ (ansible_memtotal_mb // 2) | int }}"
+
+- name: set variables
+  set_fact:
+    plugin_cmd: "LS_JAVA_OPTS=\"-Xms{{ jvm_memory }}m -Xmx{{ jvm_memory }}m\" {{ installPath }}/current/bin/logstash-plugin"
+
+- name: change Gemfile's gem source to alibaba
+  replace:
+    path: "{{ installPath }}/current/Gemfile"
+    regexp: '^source .*$'
+    replace: 'source "{{ gemSource }}"'
+
+- name: change Gemfile.lock's gem remote to alibaba
+  ansible.builtin.replace:
+    path: "{{ installPath }}/current/Gemfile.lock"
+    regexp: '^GEM$\n  remote: .*'
+    replace: |-
+      GEM
+        remote: {{ gemSource }}
+
+- name: install plugin
+  shell:
+    cmd: "{{ plugin_cmd }} install {{ item }}"
+  loop:
+  - logstash-input-irc
+  - logstash-input-log4j
+  - logstash-input-xmpp
+  - logstash-input-opensearch
+  - logstash-output-irc
+  - logstash-output-statsd
+  - logstash-output-xmpp
+  - logstash-output-opensearch

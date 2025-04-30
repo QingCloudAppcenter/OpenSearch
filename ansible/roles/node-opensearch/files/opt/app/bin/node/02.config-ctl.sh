@@ -198,12 +198,12 @@ JVM_DUMP
 8-10:-XX:+UseCMSInitiatingOccupancyOnly
 
 ## G1GC Configuration
-# NOTE: G1 GC is only supported on JDK version 10 or later
-# to use G1GC, uncomment the next two lines and update the version on the
-# following three lines to your version of the JDK
-# 10:-XX:-UseConcMarkSweepGC
-# 10:-XX:-UseCMSInitiatingOccupancyOnly
+# NOTE: G1GC is the default GC for all JDKs 11 and newer
 11-:-XX:+UseG1GC
+# See https://github.com/elastic/elasticsearch/pull/46169 for the history
+# behind these settings, but the tl;dr is that default values can lead
+# to situations where heap usage grows enough to trigger a circuit breaker
+# before GC kicks in.
 11-:-XX:G1ReservePercent=25
 11-:-XX:InitiatingHeapOccupancyPercent=30
 
@@ -232,9 +232,16 @@ $jvmDumpConf
 # Explicitly allow security manager (https://bugs.openjdk.java.net/browse/JDK-8270380)
 18-:-Djava.security.manager=allow
 
+# JDK 20+ Incubating Vector Module for SIMD optimizations;
+# disabling may reduce performance on vector optimized lucene
+20-:--add-modules=jdk.incubator.vector
+
+# HDFS ForkJoinPool.common() support by SecurityManager
+-Djava.util.concurrent.ForkJoinPool.common.threadFactory=org.opensearch.secure_sm.SecuredForkJoinWorkerThreadFactory
+
 ## OpenSearch Performance Analyzer
--Dclk.tck=100
--Djdk.attach.allowAttachSelf=true
+# -Dclk.tck=100
+# -Djdk.attach.allowAttachSelf=true
 # for performance analyzer and other plugins
 -Djava.security.policy=${conffolder}/app.policy
 --add-opens=jdk.attach/sun.tools.attach=ALL-UNNAMED
@@ -350,7 +357,6 @@ appender.rolling_old.strategy.fileIndex = nomax
 appender.rolling_old.strategy.action.type = Delete
 appender.rolling_old.strategy.action.basepath = \${sys:opensearch.logs.base_path}
 appender.rolling_old.strategy.action.condition.type = IfAny
-appender.rolling_old.strategy.action.condition.glob = \${sys:opensearch.logs.cluster_name}-*
 appender.rolling_old.strategy.action.condition.nested_condition.type = IfAccumulatedFileSize
 appender.rolling_old.strategy.action.condition.nested_condition.exceeds = 200MB
 appender.rolling_old.strategy.action.condition.nested_condition.lastMod.type = IfLastModified
@@ -361,6 +367,8 @@ rootLogger.level = $rootLoggerLevel
 rootLogger.appenderRef.console.ref = console
 rootLogger.appenderRef.rolling_old.ref = rolling_old
 
+appender.header_warning.type = HeaderWarningAppender
+appender.header_warning.name = header_warning
 #################################################
 ######## Deprecation -  old style pattern #######
 appender.deprecation_rolling_old.type = RollingFile
@@ -382,6 +390,27 @@ logger.deprecation.level = $loggerDeprecationLevel
 logger.deprecation.appenderRef.deprecation_rolling_old.ref = deprecation_rolling_old
 logger.deprecation.appenderRef.header_warning.ref = header_warning
 logger.deprecation.additivity = false
+
+#################################################
+######## Search Request Slowlog Log File -  old style pattern ####
+appender.search_request_slowlog_log_appender.type = RollingFile
+appender.search_request_slowlog_log_appender.name = search_request_slowlog_log_appender
+appender.search_request_slowlog_log_appender.fileName = \${sys:opensearch.logs.base_path}\${sys:file.separator}\${sys:opensearch.logs.cluster_name}_index_search_slowlog.log
+appender.search_request_slowlog_log_appender.filePermissions = rw-r-----
+appender.search_request_slowlog_log_appender.layout.type = PatternLayout
+appender.search_request_slowlog_log_appender.layout.pattern = [%d{ISO8601}][%-5p][%c{1.}] [%node_name]%marker %m%n
+
+appender.search_request_slowlog_log_appender.filePattern = \${sys:opensearch.logs.base_path}\${sys:file.separator}\${sys:opensearch.logs.cluster_name}_index_search_slowlog-%i.log.gz
+appender.search_request_slowlog_log_appender.policies.type = Policies
+appender.search_request_slowlog_log_appender.policies.size.type = SizeBasedTriggeringPolicy
+appender.search_request_slowlog_log_appender.policies.size.size = 200MB
+appender.search_request_slowlog_log_appender.strategy.type = DefaultRolloverStrategy
+appender.search_request_slowlog_log_appender.strategy.max = 4
+#################################################
+logger.search_request_slowlog_logger.name = cluster.search.request.slowlog
+logger.search_request_slowlog_logger.level = $loggerIndexSearchSlowlogRollingLevel
+logger.search_request_slowlog_logger.appenderRef.search_request_slowlog_log_appender.ref = search_request_slowlog_log_appender
+logger.search_request_slowlog_logger.additivity = false
 
 #################################################
 ######## Search slowlog -  old style pattern ####

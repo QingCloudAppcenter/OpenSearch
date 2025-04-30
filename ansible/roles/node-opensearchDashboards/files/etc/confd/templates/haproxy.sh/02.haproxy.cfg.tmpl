@@ -1,12 +1,15 @@
 {{- $maxConn := getv "/env/proxy.max.conn" "2000" }}
+{{- $osTypes := getv "/env/proxy.backend.select" }}
 sslHttpEnabled={{ getv "/env/static.os.ssl.http.enabled" }}
 hamode=http
 halogop=httplog
 habacklogop=httpclose
+forwardforop="option forwardfor"
 if [ "$sslHttpEnabled" = "true" ]; then
   hamode=tcp
   halogop=tcplog
   habacklogop=tcp-check
+  forwardforop=""
 fi
 flush > /opt/app/current/conf/haproxy/haproxy.cfg << ES_PROXY_EOF
 global
@@ -15,9 +18,8 @@ global
   stats timeout 30s
   maxconn {{ $maxConn }}
   {{- $cores := getv "/host/cpu" }}
-  nbproc {{ $cores }}
-$(for i in {1..{{ $cores }}}; do echo "  cpu-map $i $((i - 1))"; done)
-  daemon
+  nbthread {{ $cores }}
+  cpu-map auto:1/1-{{ $cores }} 0-{{ sub $cores 1 }}
 
 defaults
   log  global
@@ -41,11 +43,23 @@ frontend opensearch
 
 backend opensearch
   mode $hamode
-  option forwardfor
-  balance roundrobin
+  $forwardforop
+  balance {{ getv "/env/proxy.balance.policy" }}
   option $habacklogop
-  {{- range getvs "/hosts/es_node*/*/ip" }}
+  {{- if contains $osTypes "hot" }}
+  {{- range getvs "/hosts/es_node/*/ip" }}
   server {{ . }}:9200 {{ . }}:9200 check
+  {{- end }}
+  {{- end }}
+  {{- if contains $osTypes "warm" }}
+  {{- range getvs "/hosts/es_node_2/*/ip" }}
+  server {{ . }}:9200 {{ . }}:9200 check
+  {{- end }}
+  {{- end }}
+  {{- if contains $osTypes "cold" }}
+  {{- range getvs "/hosts/es_node_3/*/ip" }}
+  server {{ . }}:9200 {{ . }}:9200 check
+  {{- end }}
   {{- end }}
 
 backend error413

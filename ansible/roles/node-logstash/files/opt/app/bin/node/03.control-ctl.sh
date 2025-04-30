@@ -1,7 +1,10 @@
 start() {
     if ! isNodeInitialized; then
+        log "prepare folders"
+        mkdir -p /data/caddy
+        chown caddy:svc /data/caddy
+        ln -s /opt/app/current/conf/caddy/templates/ /data/opensearch/templates -f
         log "prepare config files"
-        refreshJvmOptions
         refreshLogstashYml
         refreshDemoPipeline
         refreshPipeline
@@ -9,6 +12,8 @@ start() {
         log "appctl node init"
         _initNode
     fi
+    log "always refresh jvm options"
+    refreshJvmOptions
     log "start logstash.service"
     systemctl start logstash
     log "enable health check"

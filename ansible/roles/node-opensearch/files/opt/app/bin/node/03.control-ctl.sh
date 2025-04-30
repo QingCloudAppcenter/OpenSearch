@@ -21,12 +21,23 @@ start() {
         log "refresh jvm.options when vertical scaling"
         refreshJvmOptions
     fi
+    if [ $UPGRADING_FLAG = "true" ]; then
+        log "detect upgrading!"
+        log "prepare upload templates"
+        ln -s /opt/app/current/conf/caddy/templates/ /data/opensearch/templates
+        log "fix some folder issues"
+        mkdir -p /data/caddy
+        chown caddy:svc /data/caddy
+        chown -R opensearch:svc /data/opensearch
+    fi
     log "start opensearch.service"
     systemctl start opensearch
     log "enable health check"
     enableHealthCheck
     log "refresh all dynamic service status"
     refreshAllDynamicServiceStatus
+    log "modify folder analysis permission"
+    chmod 775 /data/opensearch/analysis
 }
 
 isFirstMaster() {
@@ -43,8 +54,13 @@ isLastMaster() {
 
 init() {
     if ! isClusterInitialized; then
+        log "prepare upload templates"
+        ln -s /opt/app/current/conf/caddy/templates/ /data/opensearch/templates
         log "prepare keystore"
         applyAllKeystoreSettings
+        log "prepare caddy folder"
+        mkdir -p /data/caddy
+        chown caddy:svc /data/caddy
         log "prepare config files"
         refreshAllCerts
         refreshOpenSearchConf
@@ -324,7 +340,7 @@ dump() {
 clearDump() {
   local ip=$(echo "$1" | jq -r '."node.ip"')
 
-  if [ ! "$ip" = "$MY_IP" ]; then return 0; fi
+  if [ -n "$ip" ] && [ ! "$ip" = "$MY_IP" ]; then return 0; fi
 
   find $JVM_DUMP_PATH -name '*.hprof' -delete || return 0
 }

@@ -1,0 +1,35 @@
+# use this when install ik from https://github.com/aparo
+# but now, we will install ik from https://release.infinilabs.com/analysis-ik
+# - name: fix analysis-ik config path
+#   file:
+#     src: /opt/app/current/conf/opensearch/opensearch-analysis-ik
+#     dest: /opt/app/current/conf/opensearch/analysis-ik
+#     owner: root
+#     group: svc
+#     state: link
+
+- name: prepare dict directory
+  file:
+    path: /opt/app/current/conf/opensearch/analysis-ik/custom
+    owner: opensearch
+    owner: root
+    group: svc
+    state: directory
+
+# will set var downloaded
+- include_role:
+    name: downloader
+  vars:
+    opts:
+      pkg_name: jieba
+      pkg_version: "common"
+      pkg_feature: "noarch"
+      pkg_fileType: ".dic"
+      pkg_url: "https://github.com/QingCloudAppcenter/elk-archived/raw/master/docker-image/standard/elasticsearch/dicts/jieba.dic"
+
+- name: copy jieba dict
+  copy:
+    src: "{{ downloaded }}"
+    dest: "/opt/app/current/conf/opensearch/analysis-ik/custom/jieba.dic"
+    owner: root
+    group: svc

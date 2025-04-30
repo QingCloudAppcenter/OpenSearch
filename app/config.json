@@ -1068,6 +1068,21 @@
         "changeable": true,
         "required": "no"
       }, {
+        "key": "proxy.backend.select",
+        "label": "HAProxy backend selection",
+        "description": "Select types of opensearch nodes for haproxy backend.",
+        "type": "string",
+        "range": [
+          "hot",
+          "warm",
+          "cold"
+        ],
+        "changeable": true,
+        "multichoice": true,
+        "separator": ",",
+        "default": "hot,warm,cold",
+        "required": "true"
+      }, {
         "key": "proxy.connect.timeout",
         "label": "HAProxy Connect Timeout",
         "description": "Sets the timeout for HAProxy to connect OpenSearch services, can be ms, s, m, or h, e.g. 50s for 50 seconds",

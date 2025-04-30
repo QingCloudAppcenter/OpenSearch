@@ -10,6 +10,8 @@ RuntimeDirectory=opensearch
 PrivateTmp=true
 Environment=OPENSEARCH_HOME=/opt/opensearch/current
 Environment=OPENSEARCH_PATH_CONF=/opt/app/current/conf/opensearch
+Environment=KNN_LIB_DIR=/opt/opensearch/current/plugins/opensearch-knn/lib
+Environment=LD_LIBRARY_PATH=/usr/java/packages/lib:/usr/lib64:/lib64:/lib:/usr/lib:/opt/opensearch/current/plugins/opensearch-knn/lib
 Environment=PID_DIR=/var/run/opensearch
 Environment=OPENSEARCH_SD_NOTIFY=true
 EnvironmentFile=-/opt/app/current/conf/opensearch/opensearch.env

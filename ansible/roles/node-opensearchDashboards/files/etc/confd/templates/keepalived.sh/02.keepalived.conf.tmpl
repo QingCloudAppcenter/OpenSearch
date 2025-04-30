@@ -4,7 +4,7 @@ if [ "$firstKibanaSid" = "{{ getv "/host/sid" }}" ]; then
   keepalivedPriority=100
 else
   keepalivedRole=BACKUP
-  keepalivedPriority=1
+  keepalivedPriority=100
 fi
 
 {{- $esVip := getv "/cluster/endpoints/reserved_ips/esvip/value" }}

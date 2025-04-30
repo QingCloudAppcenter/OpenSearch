@@ -36,7 +36,7 @@ refreshLogstashYml() {
 config.reload.automatic: $configReloadAutomatic
 config.reload.interval: $configReloadInterval
 
-http.host: "$MY_IP"
+api.http.host: "$MY_IP"
 
 node.name: $MY_NODE_NAME
 
@@ -46,6 +46,7 @@ path.logs: /data/logstash/logs
 path.plugins: [ /data/logstash/plugins ]
 
 pipeline.ecs_compatibility: disabled
+pipeline.buffer.type: direct
 LOGSTASH_YML
     )
     echo "$cfg" > $LOGSTASH_YML_PATH
@@ -93,6 +94,10 @@ refreshJvmOptions() {
 -Djava.security.egd=file:/dev/urandom
 
 -Dlog4j2.isThreadContextMapInheritable=true
+
+-Dlogstash.jackson.stream-read-constraints.max-string-length=200000000
+-Dlogstash.jackson.stream-read-constraints.max-number-length=10000
+#-Dlogstash.jackson.stream-read-constraints.max-nesting-depth=1000
 JVM_CONF
     )
     echo "$cfg" > $JVM_OPTIONS_PATH
@@ -128,7 +133,7 @@ refreshDemoPipeline() {
 
     local cfg=$(cat<<DEMO_PIPELIEN_YML
 input {
-    http { port => 9700 }
+    http { port => 9090 }
 }
 filter {
 

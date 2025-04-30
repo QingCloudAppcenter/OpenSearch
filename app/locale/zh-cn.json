@@ -94,6 +94,8 @@
 
   "Whether start cerebro.service.": "是否启动 cerebro.service",
   "HAProxy balance policy": "HAProxy 后端负载均衡策略",
+  "HAProxy backend selection": "HAProxy 后端使用的 OpenSearch 节点类型",
+  "Select types of opensearch nodes for haproxy backend.": "选择指定类型的 OpenSearch 节点作为 HAProxy 后端",
   "Define the load balancing algorithm to be used in a backend": "HAProxy 后端负载均衡策略, 选项详细说明请查阅官方文档: https://cbonte.github.io/haproxy-dconv/1.8/configuration.html#4-balance",
   "Sets the timeout for HAProxy to connect OpenSearch services, can be ms, s, m, or h, e.g. 50s for 50 seconds": "HAProxy 连接(connect) OpenSearch 服务的超时时间, 单位 ms, s, m, h, 例如: 50s 指 50秒",
   "Sets the timeout for HAProxy to get response from OpenSearch services, can be ms, s, m, or h, e.g. 50s for 50 seconds": "HAProxy 等待 OpenSearch 服务返回响应的超时时间，单位 ms, s, m, h, 例如 50s 表示 50 秒",

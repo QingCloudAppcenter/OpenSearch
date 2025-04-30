@@ -1,15 +1,53 @@
 flush > /opt/app/current/conf/caddy/caddyfile << CADDYFILE_EOF
-:80 {
-  root /data/opensearch
-  gzip
-  browse /analysis
-  browse /dump
-  browse /logs
-  tls off
+{
+        admin off
+        auto_https off
+        persist_config off
+        order upload before file_server
+        log {
+                output file /data/caddy/caddy.log
+        }
+}
 
-  upload /analysis {
-    yes_without_tls
-    to "/data/opensearch/analysis"
-  }
+:80 {
+        vars {
+                rootDir "/data/opensearch"
+        }
+
+        root {vars.rootDir}
+
+        handle /analysis* {
+                file_server browse
+        }
+
+        handle /dump* {
+                file_server browse
+        }
+
+        handle /logs* {
+                file_server browse
+        }
+
+        file_server
+}
+
+:81 {
+        vars {
+                rootDir "/data/opensearch"
+        }
+
+        root {vars.rootDir}
+
+        file_server
+
+        templates
+
+        @mypost method POST
+        upload @mypost {
+                dest_dir analysis
+                max_form_buffer 1G
+                max_filesize 500MB
+                response_template templates/upload-resp-template.txt
+        }
 }
 CADDYFILE_EOF

@@ -1,7 +1,0 @@
----
-- name: setting facts - LS plugins
-  set_fact:
-    plugin_cmd: "{{ ls_home }}/bin/logstash-plugin"
-
-- name: install plugin
-  command: "{{ plugin_cmd }} install {{ opts.name }}"
