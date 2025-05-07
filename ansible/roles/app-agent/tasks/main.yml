@@ -45,3 +45,16 @@
     path: /etc/logrotate.d/app-agent
     regexp: '^(\s+size).*'
     replace: '\1 2M'
+
+- name: add postrotate
+  blockinfile:
+    path: /etc/logrotate.d/app-agent
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - logrotate postrotate"
+    block: |
+      {% filter indent(width=4, first=true) %}
+      postrotate
+          kill -HUP $(cat /opt/qingcloud/app-agent/run/confd.pid)
+      endscript
+      {% endfilter %}
+    insertbefore: '^}'
+    validate: 'logrotate -d %s'
