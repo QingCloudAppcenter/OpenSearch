@@ -12,3 +12,4 @@ logstash_version: 8.17.4
 node_exporter_version: 1.9.1
 cerebro_version: 0.9.4
 ubuntu_22_amd64_kernel: 5.15.0-136-generic
+tar_version: "1.32-4"
