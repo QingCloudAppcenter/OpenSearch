@@ -53,7 +53,7 @@
     block: |
       {% filter indent(width=4, first=true) %}
       postrotate
-          kill -HUP $(cat /opt/qingcloud/app-agent/run/confd.pid)
+          /usr/bin/pkill -HUP confd
       endscript
       {% endfilter %}
     insertbefore: '^}'
