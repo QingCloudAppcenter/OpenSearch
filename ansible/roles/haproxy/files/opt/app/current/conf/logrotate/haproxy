@@ -5,6 +5,6 @@
   missingok
   notifempty
   postrotate
-    /usr/lib/rsyslog/rsyslog-rotate
+    /usr/bin/systemctl kill -s HUP rsyslog.service >/dev/null 2>&1 || true
   endscript
 }
