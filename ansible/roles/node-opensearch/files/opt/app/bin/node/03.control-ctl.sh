@@ -332,7 +332,7 @@ dump() {
     
     if [ ! "$ip" = "$MY_IP" ]; then return 0; fi
 
-    local path=$JVM_DUMP_PATH/dump.$(date '+%F_%k%M').hprof
+    local path=$JVM_DUMP_PATH/dump.$(date '+%F_%H%M').hprof
 
     timeout ${timeout:-1800}s $JAVA_HOME/bin/jhsdb jmap --pid $(cat /var/run/opensearch/opensearch.pid) --binaryheap --dumpfile $path || return 0
 }
