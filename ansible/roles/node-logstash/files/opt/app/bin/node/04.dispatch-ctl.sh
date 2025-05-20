@@ -3,7 +3,22 @@ preparePathOnPersistentDisk() {
     chown -R logstash.svc /data/logstash
     chown -R caddy.svc /data/opensearch
     touch $PIPELINE_CONFIG_PATH
-    chown ubuntu:svc $PIPELINE_CONFIG_PATH
+    local dist=$(getOsDistName)
+    if [ "$dist" = "ubuntu" ]; then
+        log "setup pipeline config for $dist"
+        chown ubuntu:svc $PIPELINE_CONFIG_PATH
+    elif [ "$dist" = "kylin" ]; then
+        log "setup pipeline config for $dist"
+        chown root:svc $PIPELINE_CONFIG_PATH
+    else
+        log "unknown os, do nothing"
+    fi
+}
+
+getOsDistName() {
+    local res
+    res=$(grep '^ID=' /etc/os-release | cut -d= -f2- | tr -d '"')
+    echo "$res"
 }
 
 fakeInitCluster() {
@@ -150,7 +165,7 @@ dispatch() {
         fi
         log "fake init cluster"
         fakeInitCluster
-        retrun
+        return
     fi
 
     if ! isSettingsChanged; then

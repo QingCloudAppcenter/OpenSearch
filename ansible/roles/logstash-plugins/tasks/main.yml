@@ -6,7 +6,7 @@
 
 - name: calc jvm memory
   set_fact:
-    jvm_memory: "{{ (ansible_memtotal_mb // 2) | int }}"
+    jvm_memory: "{{ (ansible_memtotal_mb * 0.75) | int }}"
 
 - name: set variables
   set_fact:
@@ -38,3 +38,4 @@
   - logstash-output-statsd
   - logstash-output-xmpp
   - logstash-output-opensearch
+  ignore_errors: True

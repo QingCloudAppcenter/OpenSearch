@@ -16,7 +16,7 @@ global_defs {
 }
 
 vrrp_script check_haproxy {
-  script "/usr/bin/killall -0 haproxy"
+  script "/usr/bin/pkill -0 haproxy"
   interval 2
   weight 2
 }

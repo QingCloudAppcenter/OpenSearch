@@ -13,7 +13,7 @@
 
 - name: copy logrotate config files
   copy:
-    src: "opt/app/current/conf/logrotate/appctl-{{ os }}"
+    src: "opt/app/current/conf/logrotate/appctl"
     dest: /opt/app/current/conf/logrotate/appctl
     owner: root
     group: svc
